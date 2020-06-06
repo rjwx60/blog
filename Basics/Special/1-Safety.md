@@ -228,6 +228,10 @@ typora-root-url: ../../Source
 
   - 比如：`<meta http-equiv="Content-Security-Policy" content="form-action 'self';">`
 
+  - 详看：
+
+  - <img src="/Image/Basics/Special/Security/csp-1.png" style="zoom:50%;" align="left"/>
+
 - 方式2：输入内容限制
 
 - - 作用：对于部分输入，可限定不能包含特殊字符或者仅能输入数字、或限定一合理长度，增加 XSS 攻击难度；
@@ -294,7 +298,7 @@ typora-root-url: ../../Source
 
 ### 二、CSRF
 
-1-1、定义
+2-1、定义
 
 ​	跨站点请求伪造 - Cross-Site Request Forgeries (或 One-click attack、Session riding)；攻击者诱导受害者进入第三方网，在第三方网站中，向被攻击网站发送跨站请求，利用受害者在被攻击网站已获取的注册凭证绕过后台用户验证，以达到冒充用户，对被攻击网站执行某项操作的目的；(即黑客引诱用户打开黑客的网站，利用用户的登陆状态发起跨站请求);
 
@@ -305,13 +309,13 @@ typora-root-url: ../../Source
 
 
 
-1-2、本质
+2-2、本质
 
 ​	HTTP问题；
 
 
 
-1-3、案例
+2-3、案例
 
 - 示例：转账操作：A -> Bank 转账、发起银行请求并得到 Bank 网派发的 cookie、A 访问 C 伪造的网站、C 利用 A 本地 cookie 并加以利用；
 - 示例：邮件窃取：A登录邮箱网 -> 打开奇怪邮件中的链接，跳转到空白页面，然后 C 利用 A cookie 进行 A 邮箱的过滤器器配置，使得可将所有邮件发往 C；
@@ -321,7 +325,7 @@ typora-root-url: ../../Source
 
 
 
-1-4、区别
+2-4、区别
 
 - XSS 需要注入恶意代码以实施攻击；
 - CSRF 无需将恶意代码注入用户页面，仅利用服务器漏洞和用户登录状态来实施攻击；
@@ -353,7 +357,7 @@ typora-root-url: ../../Source
 
 
 
-1-6、攻击方式
+2-6、攻击方式
 
 - 通过在黑客网站中，构造隐藏表单来自动发起 Post 请求；
 - 通过引诱链接诱惑用户点击触发请求，利用 a 标签的 href；
@@ -362,7 +366,7 @@ typora-root-url: ../../Source
 
 
 
-1-7、防御方式
+2-7、防御方式
 
 基本：服务端防止被攻击是不可能的，但可提升防护能力：
 
@@ -385,7 +389,7 @@ typora-root-url: ../../Source
 - 避免打开可疑链接，非要打开时，先清空本地记录和 cookie 信息或使用不常用的浏览器，比如IE；
 - 使用网页版浏览邮件或新闻也会带来额外风险，因查看邮件或者新闻消息有可能导致恶意代码攻击；
 
-1-7-1、防御方式-阻止不明外域的访问：利用CSRF通常发生在第三方域名；
+2-7-1、防御方式-阻止不明外域的访问：利用CSRF通常发生在第三方域名；
 
 - 方式1：同源检测:
 
@@ -477,7 +481,7 @@ typora-root-url: ../../Source
 
   - 总结：可替代同源验证的方案，但目前尚未成熟，其应用场景有待观望；
 
-1-7-2、防御方式：提交时要求附加本域才能获取的信息：利用CSRF攻击者只是使用而不能获取到Cookie等信息；
+2-7-2、防御方式：提交时要求附加本域才能获取的信息：利用CSRF攻击者只是使用而不能获取到Cookie等信息；
 
 - 方式1：CSRF Token(主流) + 验证码
 
@@ -557,7 +561,7 @@ typora-root-url: ../../Source
 
 - 方式4：短信验证、双重验证；
 
-1-7-2、防御方式：其他防御方式
+2-7-3、防御方式：其他防御方式
 
 - 方式1：CSRF 测试：
   - <img src="/Image/Basics/Special/Security/csrf-1.png" style="zoom:50%;" align="left"/>
@@ -570,7 +574,7 @@ typora-root-url: ../../Source
 
 
 
-1-8、检查漏洞
+2-8、检查漏洞
 
 - 目标表单是否带有 Token 验证
 - 是否有验证码
@@ -578,13 +582,13 @@ typora-root-url: ../../Source
 - Allow-access 相关参数设置是否有漏洞
 - 目标 jsonp 数据是否可以自定义 callback
 
-1-9、总结
+2-9、总结
 
 - CSRF自动防御策略：同源检测 (Origin 和 Referer 验证)；
 - CSRF主动防御措施：Token验证 或者 双重Cookie验证 以及配合Samesite Cookie；
 - 保证页面的幂等性，后端接口不要在GET页面中做用户操作；
 
-1-10、题目
+2-10、题目
 
 
 
@@ -598,44 +602,551 @@ typora-root-url: ../../Source
 
 ​		3-1-3、案例
 
+- 比如A：
+
+- - 攻击者精心伪造诱导点击内容、将此 iframe 置于目标网站上方、设置透明度、点击触发执行某些行为；
+  - 比如：Flash 点击劫持、图片覆盖攻击、拖拽劫持、触屏劫持；
+
+- 比如B：
+
+- - 攻击者构建了一个非常有吸引力的网页；
+  - 将被攻击的页面放置在当前页面的 iframe 中；
+  - 使用样式将 iframe 叠加到非常有吸引力内容的上方；
+  - 将iframe设置为100%透明；
+  - 你被诱导点击了网页内容，你以为你点击的是***，而实际上，你成功被攻击了；
+
 ​		3-1-4、分类
 
 - 类别A：Clickjacking
-  - 
+  - 透明 iframe：覆盖网页之上，诱使用户操作；
+  - 注意：属于网络劫持的一种，使用 https 或非对称加密可有效防范数据被中间代理层的劫持者所截获；
+  - <img src="/Image/Basics/Special/Security/iframe-1.png" style="zoom:50%;" align="left"/>
+
 - 类别B：DragDrop Jacking
   - 利用页面拖拽功能， 将被攻击页面作为拖拽对象 (IE9以下， ff低版本浏览器)
-- Tapjacking
+- 类别C：Tapjacking
   - 待整理‘；
-- 图片覆盖攻击
+- 类别D：图片覆盖攻击
   - 遮挡网页原有位置含义；
 
 ​		3-1-5、防御
 
+- - 方法1：设置 X-Frame-Options：
+
+  - - 基本：微软提出的 http 头部字段，专用于防御 iframe Clickjacking；
+
+    - 作用：设置值，指示浏览器是否允许 `<frame>、<iframe>、<object>` 等标签展示；
+
+      - DENY：          告知浏览器，不允许将响应内容在 frame 中展示，即便域名相同的页面中嵌套也不允许；
+      - SAMEORIGIN：    告知浏览器，允许将响应内容在，同域页面的 frame 中展示； 
+      - ALLOW-FROM url：告知浏览器，允许将响应内容在，指定来源的 frame 中展示；
+
+    - 使用：
+
+    - - IIS：         配置 Web.config 文件：
+      - Apache：配置 `’site'： Header always append X-Frame-Options SAMEORIGIN`
+      - nginx：    配置 `'http', 'server'` 或者 `'location’：add_header X-Frame-Options SAMEORIGIN;`
+      - <img src="/Image/Basics/Special/Security/iframe-2.png" style="zoom:50%;" align="left"/>
+
+  - 方法2：frame 属性设置  (csp、referrerpolicy、sandbox)
+
+  - - 基本：比如可设置 HTML5 中 iframe 的 sandbox 属性、IE中 iframe 的 security 属性等，专用于防御 iframe Clickjacking；
+    - 作用：对 iframe 的行为进行各种限制，充分实现“最小权限“原则；比如：`<iframe sandbox src="..."> ... </iframe>`
+    - 使用：
+      - 空值/不设值：最严厉调控限制，仅限显示静态资源，无法进行其他操作；
+      - allow-scripts：允许 iframe 中执行  JS；
+      - allow-forms：允许 iframe 中提交 form表单；
+      - allow-same-origin：允许 iframe 中的网页开启同源策略；
+      - allow-popups：允许 iframe 中弹出新窗口或标签页 (比如：window.open()，showModalDialog()，target=”_blank”等)；
+    - 详看：https://developer.mozilla.org/en/docs/Web/HTML/Element/iframe
+    - <img src="/Image/Basics/Special/Security/iframe-3.png" style="zoom:50%;" align="left"/>
+
+  - 方法3：通过 JS 限制 iframe 嵌入规则
+
+    - 基本：用以阻止 iframe 嵌套形式的跳转(代码会修改 iframe-即重定向回主页)
+    - <img src="/Image/Basics/Special/Security/iframe-4.png" style="zoom:50%;" align="left" />
+
+  - 方法4：其他方法
+
+    - 详看：https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet
+
+
+
 #### 	3-2、运营商劫持
 
-#### 	3-3、CDN劫持
+<img src="/Image/Basics/Special/Security/jc-3.png" style="zoom:50%;" />
 
-#### 	3-4、JSON劫持
+3-2-1、基本：分四类：DNS劫持、内容劫持、HTTP劫持、HTTPS劫持
 
-#### 	3-5、流量劫持
+- DNS劫持：亦称域名劫持，将用户重新定位到其它网站，比如钓鱼网站，现已被严厉监管；
+
+- - 补充：旨在劫持的网络范围内拦截域名解析请求并分析，将审查范围以外请求放行，否则返回假的 IP 地址或什么都不做使请求失去响应；
+  - 效果：无法访问特定网络或访问的是假网址；
+  - 本质：对 DNS 解析服务器做手脚，或使用伪造 DNS 解析服务器，通过某些手段取得域名解析记录控制权，进而修改域名解析结果；
+  - 注意：用户上网的 DNS 服务器均为运营商分配，故运营商可为所欲为，但不排除运营商被黑可能；
+  - <img src="/Image/Basics/Special/Security/jc-1.png" style="zoom:50%;" align="left" />
+
+- 内容劫持：在 DNS 劫持基础上发展过来，目前无解；
+
+- - 前身：运营商为了加快用户的访问速度同时减少自己的流量损耗而做的一个缓存机制；
+  - 含义：用户在像服务器请求数据时运营商会将用户请求转移到此缓存池中，若缓存中有则直接返回，无则再去像服务器请求然后拦截并缓存服务端给用户的回调数据；
+  - 作用：极大的降低运营商像服务器请求的次数，也能加快用户的访问；
+  - 问题：非法商家对缓存池内部作某种处理，比如直接对返回的内容进行修改，使得用户获取到错误数据；
+  - <img src="/Image/Basics/Special/Security/jc-2.png" style="zoom:50%;" align="left" />
+
+- HTTP劫持：在运营商的路由器节点上，设置协议检测，一旦发现是 HTTP 请求且是 html 类型请求，则拦截处理；
+
+- - 比如：类似 DNS 劫持返回 302 让用户浏览器跳转到另外的地址，钓鱼网站；
+  - 比如：运营商在服务器返回给用户的 HTML  数据中插入 js 或 dom 节点，比如弹窗广告，以获取相应利益；
+
+- HTTPS劫持：此劫持方式有2种：
+
+- - 伪造证书：通过病毒或其他方式将伪造证书的根证书安装在用户系统中(较少)；
+  - 代理服务器也有客户的证书与私钥，或客户端与代理认证时不校验合法性，导致可通过代理来与服务端进行数据交互(较多)；
+
+3-2-2、方式
+
+- iframe展示原来正常网页；
+- 直接返回一个带广告的HTML；
+- 在原html中插入js，再通过js脚本安插广告；
+- 注意：劫持方式多种多样，详搜网；
+
+3-2-3、防御
+
+防御方式A：防御 DNS 劫持：
+
+- 方式1：或域名备份或提高安全意识或专门应急小组；
+- 详看：https://www.4hou.com/info/news/7597.html
+- 方式2：不使用运营商的DNS解析服务，而使用自己的解析服务器或提前在自己的App中将解析好的域名以IP的形式发出去即可绕过运营商DNS解析；
+- 详看：https://juejin.im/post/59ba146c6fb9a00a4636d8b6
+
+防御方式B：防御 HTTP/HTTPS 劫持：
+
+- 方式1：加入防运营商劫持代码，能防大部分注入型劫持；
+
+- - 思路：用JS 代码检查所有的外链是否属于白名单
+  - 核心：MutationObserver — 监视DOM树所的更改；
+  - 随后：加入运营商劫持代码后，不在白名单和安全标签（shendun-eddy）内的script或者iframe都会被remove掉；
+  - 问题：http劫持插入的代码往往在第一行， 同步加载的代码已经被执行了，并不能做到百分百拦截；
+
+- 方式2：全站 HTTPS，最根本的解决方式 (一劳永逸)；
+
+- 方式3：进行日志监控，记录证据，向工信部投诉；
+
+- 方式4：增加 CSP 内容安全策略，定义页面可以加载哪些资源，减少 XSS 的发生，详看：1-7-3
+
+防御方式C：其他防御方式
+
+- 方式1：利用 mutationObserver 对 dom 节点监控，若发现非白名单的标签，进行移除
+
+- ```javascript
+  var MutationObserver =
+    window.MutationObserver ||
+    window.WebKitMutationObserver ||
+    window.MozMutationObserver;
+  var whiteListForCSP = [
+    "http(s)?://(.)+.xxx.com",
+    "http(s)?://hm.baidu.com",
+    "http(s)?://res.wx.qq.com",
+  ];
+  
+  // Mutation 观察者对象能监听在某个范围内的 DOM 树变化
+  if (MutationObserver) {
+    var observer = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        // 返回被添加的节点,或者为null.
+        var nodes = mutation.addedNodes;
+        for (var i = 0; i < nodes.length; i++) {
+          var node = nodes[i];
+          var tagName = node.tagName && node.tagName.toLowerCase();
+          if (
+            (tagName === "script" ||
+              tagName === "iframe" ||
+              tagName === "img" ||
+              tagName === "link") &&
+            node.src &&
+            node.src.indexOf(
+              window.location.protocol + "://" + window.location.hostname
+            ) != 0 &&
+            !new RegExp("^(" + whiteListForCSP.join(")|(") + ")").test(node.src)
+          ) {
+            try {
+              node.parentNode.removeChild(node);
+              console.log("拦截非白名单文件:", node.src);
+            } catch (e) {}
+          }
+        }
+      });
+    });
+  }
+  // 传入目标节点和观察选项
+  observer.observe(document, {
+    subtree: true,
+    childList: true,
+  });
+  
+  ```
+
+
+
+#### 	3-3、CDN劫持-静态资源完整性校验缺乏
+
+- 基本：因性能考虑，静态资源一般存储到 CDN 以提高应用访问速度，但攻击者可劫持 CDN并污染其中资源，以进行某种操作比如贴片广告、XSS注入等；且攻击者往往使用某种算法或随机进行劫持，故难以定位；
+
+- 防御：使用 SRI，全称 Subresource Integrity - 子资源完整性，指浏览器通过验证资源完整性 (通常从 CDN 获取) 来判断其是否被篡改的安全特性；
+
+- 使用：开启浏览器提供的 SRI (Subresource Integrity-子资源完整性) 功能，即 HTML 页面中通过 `<script>` 和 `<link>` 元素所指定的资源文件，通过给 link 标签或 script 标签增加 integrity 属性即可开启；
+
+- 原理：
+
+- - 当浏览器在 script 或 link 标签中遇到 integrity 属性后，会在执行脚本或者应用样式表前，对比所加载文件的哈希值和期望的哈希值；
+  - 当脚本或者样式表的哈希值与期望值不一致时，浏览器必须拒绝执行脚本或应用样式表，且必须返回一网络错误，说明获得脚本或样式表失败；
+  - 即浏览器在处理 script 元素时，须检查对应 JS 脚本文件完整性，检查其是否与元素 integrity 属性所指定的 SRI 值一致，若不匹配则中止对此脚本处理；
+
+- 组成：
+
+- - 一部分：指定哈希值的生成算法(sha256、sha384 及 sha512)；
+
+  - 二部分：经过 base64 编码的实际哈希值(经过Base64编码后的该资源文件的Hash值)；
+
+  - 两者间：通过一个短横(-)分割；integrity 值可包含多个由空格分隔的哈希值，只要文件匹配其中任意一个哈希值，即可通过校验并加载该资源；
+
+    ```html
+    <script src="https://xxx.js" integrity="sha384-eivAQsRgJIi2KsTdSnfoEGIRTo25NCAqjNJNZalV63WKX3Y51adIzLT4So1pk5tX"></script>
+    ```
+
+- 注意：crossorigin="anonymous" 作用是引入跨域脚本，在 H5 中有一种方式可获取到跨域脚本的错误信息：
+
+- - 首先，跨域脚本的服务器须通过 `Access-Controll-Allow-Origin` 头信息允许当前域名可以获取错误信息；
+  - 然后，当前域名 script 标签也须声明支持跨域，即 crossorigin 属性，link、img 等标签均支持跨域脚本，若上述2条件无法满足则可使用 trycatch 方案；
+
+- 配置：
+
+- - 首先：利用 webpack 的 `html-webpack-plugin` 和 `webpack-subresource-integrity` 生成包含 integrity 属性 script 标签；
+
+  - ```javascript
+    import SriPlugin from "webpack-subresource-integrity";
+    
+    const compiler = webpack({
+      output: {
+        crossOriginLoading: "anonymous",
+      },
+    
+      plugins: [
+        new SriPlugin({
+          hashFuncNames: ["sha256", "sha384"],
+          enabled: process.env.NODE_ENV === "production",
+        }),
+      ],
+    });
+    ```
+
+  - 然后：利用 webpack 的 `script-ext-html-webpack-plugin` 将 onerror 事件和 onsuccess 事件注入到 script 标签中，当浏览器对资源 SRI 校验失败或请求超时时，便会触发 onerror 事件，进而执行自定操作比如：重新 load 静态文件服务器、或上报异常；
+
+  - ```javascript
+    const ScriptExtHtmlWebpackPlugin = require("script-ext-html-webpack-plugin");
+    
+    module.exports = {
+      //...
+      plugins: [
+        new HtmlWebpackPlugin(),
+        new SriPlugin({
+          hashFuncNames: ["sha256", "sha384"],
+        }),
+    
+        new ScriptExtHtmlWebpackPlugin({
+          custom: {
+            test: /\/*_[A-Za-z0-9]{8}.js/,
+            attribute: "onerror",
+            value: "loadScriptError.call(this, event)",
+          },
+        }),
+    
+        new ScriptExtHtmlWebpackPlugin({
+          custom: {
+            test: /\/*_[A-Za-z0-9]{8}.js/,
+            attribute: "onsuccess",
+            value: "loadScriptSuccess.call(this, event)",
+          },
+        }),
+      ],
+    };
+    ```
+
+  - 然后：将loadScriptError 和 loadScriptSuccess 两个方法注入到 html 中，可以使用 inline 的方式；
+
+  - ```javascript
+    (function () {
+      function loadScriptError(event) {
+        // 上报
+        // ...
+        // 重新加载 js
+        return new Promise(function (resolve, reject) {
+          var script = document.createElement("script");
+          script.src = this.src.replace(/\/\/11.src.cn/, "https://x.y.z");
+          // 替换 cdn 地址为静态文件服务器地址
+          script.onload = resolve;
+          script.onerror = reject;
+          script.crossOrigin = "anonymous";
+          document.getElementsByTagName("head")[0].appendChild(script);
+        });
+      }
+    
+      function loadScriptSuccess() {
+        // 上报
+        // ...
+      }
+      window.loadScriptError = loadScriptError;
+      window.loadScriptSuccess = loadScriptSuccess;
+    })();
+    ```
+
+  - 最终：
+
+  - ```html
+    <script type="text/javascript" src="//11.url.cn/aaa.js" integrity="sha256-xxx sha384-yyy" crossorigin="anonymous"
+    		onerror="loadScriptError.call(this, event)" onsuccess="loadScriptSuccess"></script>
+    ```
+
+  - 注意：触发 onerror 事件时，无法进一步细分 onerror 原因，或校验失败，或请求超时；
+
+  - 注意：假若要判断 CDN 劫持，可通过再请求一次数据，并比较文件部分内容即可(前n或后n字符)；
+
+  - 注意：通常 CDN 劫持者会在 js 文件最前面注入一些代码来达到其目的，因注入中间代码需要 AST 解析，成本较高，故比较全部字符串没有意义；
+
+  - <img src="/Image/Basics/Special/Security/cdn-1.png" style="zoom:50%;" align="left"/>
+
+- 详看：[使用 SRI 解决 CDN 劫持](https://mp.weixin.qq.com/s?__biz=MzIzNjcwNzA2Mw==&mid=2247486163&idx=1&sn=92105500004f64e3b946a6a2010b69c8&chksm=e8d2874bdfa50e5d547a731e33e6e7fc12bf4e0e8993176d763b91626528ecdc45226bb87e79&mpshare=1&scene=1&srcid=0110F1yAtDRU1nbbRs3oo4kO&rd2werd=1#wechat_redirect)
+
+
+
+#### 	3-4、流量劫持
+
+- 防御：`<script>` 加上onerror监测劫持，资源去除js后缀防劫持；
+
+- 详看：https://www.zhihu.com/question/35720092
+
+- 详看：https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
+
+- ```javascript
+  var path = require("path");
+  var writeJson = require("write-json");
+  var HtmlWebpackPlugin = require("html-webpack-plugin");
+  var SriPlugin = require("webpack-subresource-integrity");
+  var WebpackAssetsManifest = require("webpack-assets-manifest");
+  var ScriptExtHtmlWebpackPlugin = require("script-ext-html-webpack-plugin");
+  var ScriptExtInlineHtmlWebpackPlugin = require("script-ext-inline-html-webpack-plugin");
+  
+  var attackCatch = `
+  (function () {
+    function log(url, ret) {
+      return fetch(url, {
+        method: "post",
+        body: encodeURIComponent(
+          JSON.stringify({
+            sizes: ret.sizes,
+            diff: ret.diff,
+            jscontent: ret.context,
+            cdn: ret.cdn,
+            edge: ret.edge,
+            url: ret.url,
+            protocol: ret.protocol,
+          })
+        ),
+        headers: { "Content-type": "application/x-www-form-urlencoded" },
+      });
+    }
+    function fetchError(res) {
+      return Promise.resolve({
+        text: function () {
+          return res.status;
+        },
+        headers: res.headers || {},
+        status: res.status,
+      });
+    }
+    function loadscript(url) {
+      return fetch(url)
+        .then(function (res) {
+          if (res.ok) {
+            return res;
+          }
+          return fetchError(res);
+        })
+        .catch(function (err) {
+          return fetchError({ status: err });
+        });
+    }
+    function getHeader(res1, res2, key) {
+      if (res1.headers.get) {
+        return res1.headers.get(key);
+      } else if (res2.headers.get) {
+        return res2.headers.get(key);
+      } else {
+        return "";
+      }
+    }
+    window.attackCatch = function (ele) {
+      var src = ele.src;
+      var protocol = location.protocol;
+      function getSourceData(res1, res2, len1, len2, context1) {
+        return Promise.resolve({
+          diff: len1 === len2 ? 0 : 1,
+          sizes: [len1, len2].join(","),
+          cdn: getHeader(res1, res2, "X-Via-CDN"),
+          edge: getHeader(res1, res2, "X-via-Edge"),
+          context: context1 ? context1 : res1.status + "," + res2.status,
+          url: src,
+          protocol: protocol,
+        });
+      } //如果不支持fetch，可能就是404或者cdn超时了，就不发log了。
+      if (window.fetch) {
+        //加载2次，对比有缓存无缓存的size
+        Promise.all([
+          loadscript(src),
+          loadscript(src + "?vt=" + new Date().valueOf()),
+        ])
+          .then(function (values) {
+            var res1 = values[0],
+              res2 = values[1];
+            //如果支持fetch，我们二次获取时根据http.status来判断，只有200才回报。
+            if (res1.status == "200" && res2.status == "200") {
+              var cdn = res1.headers.get("X-Via-CDN");
+              var edge = res1.headers.get("X-Via-Edge");
+              return Promise.all([res1.text(), res2.text()]).then(function (
+                contexts
+              ) {
+                var context1 = contexts[0];
+                var len1 = context1.length,
+                  len2 = contexts[1].length;
+                return getSourceData(res1, res2, len1, len2, context1);
+              });
+            } else if (res1.status == "200") {
+              return res1.text().then(function (context) {
+                var len1 = context.length;
+                return getSourceData(res1, res2, len1, -1);
+              });
+            } else if (res2.status == "200") {
+              return res2.text().then(function (context) {
+                var len2 = context.length;
+                return getSourceData(res1, res2, -1, len2);
+              });
+            } else {
+              return getSourceData(res1, res2, -1, -1);
+            }
+          })
+          .then(function (ret) {
+            if (ret && ret.context) log("日志服务接口，", ret);
+          });
+      }
+    };
+  })();
+  `;
+  
+  module.exports = {
+    entry: {
+      index: "./index.js",
+    },
+    output: {
+      path: __dirname + "/dist",
+      filename: "[name].js",
+      crossOriginLoading: "anonymous",
+    },
+    plugins: [
+      new HtmlWebpackPlugin(),
+      new SriPlugin({
+        hashFuncNames: ["sha256", "sha384"],
+        enabled: true,
+      }),
+      new WebpackAssetsManifest({
+        done: function (manifest, stats) {
+          var mainAssetNames = stats.toJson().assetsByChunkName;
+          var json = {};
+          for (var name in mainAssetNames) {
+            if (mainAssetNames.hasOwnProperty(name)) {
+              var integrity =
+                stats.compilation.assets[mainAssetNames[name]].integ;
+              //重新⽣成⼀次integrity的json⽂件，因为版本问题，webpack4才⽀持直接⽣成。
+              json[mainAssetNames[name]] = integrity;
+            }
+          }
+          writeJson.sync(__dirname + "/dist/integrity.json", json);
+        },
+      }),
+      new ScriptExtHtmlWebpackPlugin({
+        custom: {
+          test: /.js$/,
+          attribute: 'onerror="attackCatch(this)"',
+        },
+      }),
+      new ScriptExtInlineHtmlWebpackPlugin({
+        prepend: attackCatch,
+      }),
+    ],
+  };
+  ```
+
+#### 	3-5、JSON劫持
+
+- 详看：https://paper.seebug.org/130/
+
+
 
 ### 四、前端加密
 
 RSA非对称加密方式
 
+
+
 ### 五、其他安全问题
 
-5-1、DDOS攻击
+5-1、DDOS攻击 (分布式拒绝服务攻击 (DDoS-Distributed Denial of Service))
+
+- 基本：指借助于客户/服务器技术，将多个计算机联合起来作为攻击平台，对一或多个目标发动攻击，从而成倍地提高拒绝服务攻击的威力；
+- 目的：利用目标系统网络服务功能缺陷或直接消耗其系统资源，使该目标系统无法提供正常服务；
+- 形式：通过大量合法请求，占用大量网络资源，以达到瘫痪网络目的：
+  - 通过使网络过载来干扰甚至阻断正常的网络通讯；
+  - 通过向服务器提交大量请求，使服务器超负荷；
+  - 阻断某服务与特定系统或个人的通讯；
+  - 阻断某一用户访问服务器；
+
+5-1-1、SYN Flood Attack
+
+- 背景：在三次握手过程中，服务器发送 SYN-ACK 之后，收到客户端的 ACK 前的 TCP 连接称为半连接 (half-open connect)，此时服务器处于 SYN_RCVD 状态，而当收到 ACK 后，服务器才转入 ESTABLISHED 状态；
+- 基本：属于 DDOS 攻击中的一种具体表现形式，攻击者在短时间内，伪造大量不存在的 IP 地址，不断向服务器发送 SYN 包，服务器则不断响应确认包，并等待客户确认，而由于源地址不存在，服务器则需不断地重发直至超时，同时这些伪造的 SYN 包，将长时占用服务端的未连接队列，此时正常的 SYN 请求将会被丢弃，导致目标系统运行缓慢，严重者会引起网络堵塞甚至系统瘫痪；
+- 检测：检测 SYN 攻击非常方便，当在服务器上拥有大量的半连接状态连接时，尤其是源 IP 地址是随机的，基本上可断定 SYN 攻击；
+- 防御：
+  - 缩短超时 (SYN Timeout) 时间；
+  - 增加最大半连接数；
+  - 过滤网关防护；
 
 5-2、接口防刷
 
-5-3、第三方依赖包
+- 基本：API 频繁调用
+- 防御：IP限制、验证码、请求头消息校验等；
+- 详看：https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/254
+- <img src="/Image/Basics/Special/Security/else-1.png" style="zoom:50%;" align="left"/>
+
+5-3、第三方依赖包：
+
+- 基本：第三方包的安全漏洞导致的风险；
+- 防御：自动化检查漏洞工具：NSP、Snyk；
 
 5-4、错误内容推断
 
+- 基本：攻击者提交脚本文件，躲过了文件类型校验，服务端存储，小白访问时会请求伪装成图片的 JS 脚本，此时若浏览器错误推断此响应内容类型(MIME types)，则会将此图片文件当做 JS  脚本执行；
+- 原因：后端服务器在返回响应中设置的 Content-Type Header 仅供浏览器提供当前响应内容类型的建议，而浏览器有可能会自作主张地，根据响应中实际内容去推断内容类型；
+- 防御：设置 `X-Content-Type-Options` 这个 HTTP Header 明确禁止浏览器去推断响应类型；
+- 详看：https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
+
 5-5、本地存储泄露
 
+- 基本：前端通过 cookie 存储用户信息支撑应用运行、前后分离、离线模式、SPA 应用趋势，若前端应用存在漏洞，则容易被窃取；
+- 防御：前端不存储敏感信息；
+
 5-6、控制台代码注入
+
+- 基本：黑客诱骗用户去控制台粘贴恶意代码；
 
 5-7、HTTPS流程、证书与安全问题
 
