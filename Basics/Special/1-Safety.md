@@ -1,6 +1,5 @@
 ---
 typora-root-url: ../../Source
-
 ---
 
 
