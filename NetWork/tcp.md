@@ -38,13 +38,13 @@ typora-root-url: ../Source
 
 #### 1-4、TCP协议解决
 
-互联网由用户网络、企业内部网络、骨干网等复数多个网络组成，IP层及其之下的数据链路层负责如何选择和跨越不同网络，TCP上层负责如何构造消息、TCP层则负责如何将任意长度的消息可靠、有序发送；
+​	互联网由用户网络、企业内部网络、骨干网等复数多个网络组成，IP层及其之下的数据链路层负责如何选择和跨越不同网络，TCP上层负责如何构造消息、TCP层则负责如何将任意长度的消息可靠有序发送；
 
 
 
 ### 二、TCP协议
 
-TCP是面向连接的、可靠的、基于字节流的传输层通信协议；
+​	TCP是面向连接的、可靠的、基于字节流的传输层通信协议；
 
 - 基于字节流：1、消息无边界，无论消息多长均能传输；2、有序；即便先到达，也不能交予应用层处理；
 - 可靠传输：无论网络出现何种状况，均能保证信息可达；
@@ -83,11 +83,30 @@ TCP是面向连接的、可靠的、基于字节流的传输层通信协议；
 
 2-3-1、IP头部
 
+<img src="/Image/NetWork/tcp/7.png" style="zoom:50%;" align="left"/>
+
 2-3-2、UDP头部
 
-2-3-3、TCP头部/TCP Segment报文段？
+<img src="/Image/NetWork/tcp/8.png" style="zoom:50%;" align="left"/>
 
-补充：消息传输的核心要素、如何标识连接、报文段、TCP Options
+2-3-3、TCP头部(Segment报文段)
+
+<img src="/Image/NetWork/tcp/9.png" style="zoom:50%;" align="left"/>
+
+- 补充：通过 TCP 四元组标识一个连接：源地址、源端口、目的地址、目的端口；
+  - 注意：对于 IPv4 地址，单主机最大 TCP 连接数为 2^(32+16+32+16)；
+  - 注意：并非都得通过四元组标识连接：QUIC 协议；
+  - <img src="/Image/NetWork/tcp/11.png" style="zoom:50%;" align="left"/>
+- 补充：Source Port & Destination Port 定义TCP连接，Sequence Number & Acknowledgment Number 用以唯一标识TCP报文，类似物流系统中的订单号，Acknowledgment Number 还用于确认报文以实现数据可达性；
+- 补充：常用的TCP Options
+- <img src="/Image/NetWork/tcp/10.png" style="zoom:50%;" align="center"/>
+- <img src="/Image/NetWork/tcp/12.png" style="zoom:50%;" align="center"/>
+  - MSS：最大段大小项
+  - SACK：选择确认项：
+  - WSOPT：窗口缩放项：
+  - TSOPT：时间戳项：
+  - UTO：用户超时项：
+  - TCP-AO：TCP 认证选项：
 
 
 
