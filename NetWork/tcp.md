@@ -2,6 +2,14 @@
 typora-root-url: ../Source
 ---
 
+
+
+
+
+
+
+
+
 ### 一、历史
 
 #### 1-1、NCP协议：TCP/IP协议前身ARPA
@@ -45,8 +53,10 @@ typora-root-url: ../Source
 ​	TCP是面向连接的、可靠的、基于字节流的传输层通信协议；
 
 - 基于字节流：1、消息无边界，无论消息多长均能传输；2、有序；即便先到达，也不能交予应用层处理；
-- 可靠传输：无论网络出现何种状况，均能保证信息可达；
-- 面向连接：一对一；
+- 面向连接：一对一，客户端与服务器的连接，双方通信前需三次握手，UDP 没有建立连接过程；
+- 可靠传输：无论网络出现何种状况，均能保证信息可达(相应 UDP`无状态`, `不可控`)
+  - 有状态：记录已发送数据、对方已收数据、未收数据，并保证数据包按序到达，不丢包；
+  - 可控制：自适应调整自身行为，配合网络环境控制发送行为；
 
 
 
@@ -146,8 +156,8 @@ typora-root-url: ../Source
 
 <img src="/Image/NetWork/tcp/28.png" style="zoom:40%;" align="center"/>
 
-- TSOPT(TimeStamp)：时间戳项：
-  - 描述：种类为 8，总长为 10 字节，由 Options 通用格式知，TSOPT 值占 8 个字节，：`kind(1 字节) + length(1 字节) + info(8 个字节)`，其中 info 由 2 部分组成：**timestamp**、**timestamp echo**，各占 4 字节；作用有二：
+- ***<u>TSOPT(TimeStamp)：时间戳项</u>*：**
+  - 描述：种类为 8，总长为 10 字节，由 Options 通用格式知，TSOPT 值占 8 个字节，：`kind(1 字节) + length(1 字节) + info(8 个字节)`，其中 info 由 2 部分组成：`timestamp`、`timestamp echo`，各占 4 字节；作用有二：
     - 计算往返时延 RTT(Round-Trip Time)；
     - 防止序列号回绕；
   - 作用A：计算往返时延 RTT(Round-Trip Time)；
@@ -161,11 +171,23 @@ typora-root-url: ../Source
     - <img src="/Image/NetWork/tcp/30.png" style="zoom:50%;" align="left" />
     - 问题：正如上文介绍，序列号是有值范围的(0~2^32-1)，若超出范围就会重新由0开始计算，但若某序号报文滞留在网络中，当序列号回绕时，发出与滞留报文序列号相同的报文，此时就会存在两个序号相同的报文，就会产生接收方的消息混乱；
     - 解决：引入时间戳；因每次发包时均将发包机器当前内核时间记录在报文中，则即使2次发包序列号相同，时间戳也不可能相同，如此即可区分数据报，解决回绕问题；
-- MSS：允许的从对方接收的最大报文段；
-- SACK：选择确认项：
-- WSOPT：窗口缩放项：
-- UTO：用户超时项：
-- TCP-AO：TCP 认证选项：
+- **<u>*MSS：握手时发送端告知可接收最大报文段大小/ TCP 数据部分(不含头)最大值*</u>**；
+  - 描述：种类2，长度4字节，仅指 TCP 承载数据，不包含 TCP 头部，默认大小 536 字节 (默认 MTU—IP数据包最大值，576 字节，含 20字节 IP 头部，含 20字节 TCP 头部)，MSS 在握手阶段协商，可进一步细分为：**发送方最大报文段SMSS(SENDER MAXIMUM SEGMENT SIZE)**、**接收方最大报文段 RMSS (RECEIVER MAXIMUM SEGMENT SIZE)**
+  - <img src="/Image/NetWork/tcp/57.png" style="zoom:40%;" align="left"/>
+  - 作用A：尽量让每个 Segment 报文段携带更多数据，减少头部空间占用比率；
+  - 作用B：防止 Segment 被某个设备的 IP 层基于 MTU 分层；
+    - 原因：TCP 面向字节流，不限传输长度，但发送报文时，所使用内存有限，TCP 下的网络层和数据链路层会限制报文长度；故 TCP 须将其从上层接收的、任意长度的字节流按 MSS (最大报文段大小)和流控(接收端能力) 拆分成许多 Segment 段；若不进行分层，则 IP 层一定会基于 MTU 进行拆分，而基于 MTU 拆分报文一旦丢失某一段就要重传所有报文，效率低下，故要避免；
+  - 比如：假如以太网 MTU = 1500，某次握手协商 MSS = 1460；
+    - 普通情况：1460 + 20(TCP头部) + 20(IP头部) = 1500 刚好满足无需 TCP IP 拆分；
+    - 特殊情况：1460 + 24(TCP头部+扩展头部)，此时先拆分，再下发 IP 层；
+- ***<u>SACK-Permitted：表明支持 SACK 选择性确认中间报文段功能</u>***
+  - 描述：种类4，长度2字节；
+- **<u>*SACK：选择性确认窗口中间的 Segment 报文段*</u>**
+  - 描述：种类5，长度可变，选择确认，数据部分表示对方已收到的报文，以有效重传丢失报文段
+  - 详见：**<u>四、超时重传的 SACK 小节</u>**
+- **<u>*WSOPT：窗口缩放项：*</u>**
+- **<u>*UTO：用户超时项：*</u>**
+- **<u>*TCP-AO：TCP 认证选项：*</u>**
 
 
 
@@ -453,3 +475,150 @@ net.ipv4.tcp_max_tw_buckets = 262144
 
 - 控制 time_wait 状态连接的最大数量；
 - 超出后直接关闭连接；
+
+
+
+
+
+### 四、超时重传
+
+#### 4-1、基本
+
+​	TCP 会将消息拆分成许多 Segment 段，此后 TCP 还必须保证每个发送的 Segment 段一定会到达对方；TCP重传与确认思想，在后续演化为滑动窗口，并再演化为后来的序列号，确认序列号，以及序列号设计理念；
+
+- 注意：检测超时后(RTO)，重传特定报文(SACK)
+
+<img src="/Image/NetWork/tcp/70.png" style="zoom:50%;" />
+
+
+
+#### 4-2、超时计算
+
+​	重传间隔也叫做**超时重传时间**(Retransmission TimeOut，简称RTO)；
+
+- 注意：因涉及重传，RTT 计算复杂，精准测量需通过数据包中的 Timestamp 选项 (Timestamp 会将发送时间、接收时间一并存放)；
+- 注意：严格说 RTT 针对的是网络特性，并不局限于 TCP，在需要测量报文往返时间的场景都会用到，HTTP/3 开始关注传输层和网络层，也可能引入RTT；
+
+<img src="/Image/NetWork/tcp/81.png" style="zoom:50%;" align="left" />
+
+##### 4-2-1、RTO 计算
+
+- RTO 略大于 RTT
+- RTO 应当平滑，降低瞬时变化：每产生一次新的 RTT，就根据一定的算法对 SRTT(Smoothed round-trip time—Smoothed RTT) 进行更新，因平滑因子 α 的范围是`0.8 ~ 0.9`，RTT 对于 RTO 的影响太小， 适用于 RTT 稳定地方；
+
+```
+// 经典方法
+// SRTT 初始值 = 0, α 为平滑因子，范围是0.8 ~ 0.9，建议值是0.8;
+// β 为加权因子，一般为1.3 ~ 2.0， lbound 是下界，ubound 是上界;
+
+1、计算平滑 RTT
+SRTT =  (α * SRTT) + ((1 - α) * RTT)  
+
+2、计算 RTO
+RTO = min(ubound, max(lbound, β * SRTT))
+```
+
+- RTO 应当对 RTT 变化敏感：
+
+```
+// 标准方法(Jacobson/Karels 算法)
+// α = 1/8 = 0.125, β = 1/4 = 0.25, K = 4, µ = 1, G = 最小时间颗粒;
+
+1、首次计算 RTO(R为首次测量得到的 RTT):
+SRTT = R
+RTTVAR(round-trip-time variation) = R/2
+RTO = SRTT + max(G, K*RTTVAR)
+
+2、后续计算 RTO(R'为最新测量得到的 RTT):
+SRTT = (1 - α) * SRTT + α * R'
+RTTVAR = (1 - β) * RTTVAR + β * (|R' - SRTT|)
+// 记录最新的 RTT 与当前 SRTT 间的差值
+RTO = µ * SRTT + K * RTTVAR 
+// 在 SRTT 的基础上加上了最新 RTT 与 SRTT 的偏移, 从而感知 RTT 变化
+```
+
+
+
+#### 4-3、重传机制演变
+
+##### 4-3-1、PAR-Positive Acknowledgement with Retransmisson(定时器重传)
+
+<img src="/Image/NetWork/tcp/71.png" style="zoom:50%;" />
+
+​	PAR，定时器重传，消息增加标识，服务端接收后回传须包含标识，当发送报文就开启以定时器，若一定时间内未收到包含发出信息标识的确认报文时，则执行重发；缺点是效率低下，且对方接收与处理能力有限，需增加 limit 字段限制发送方；
+
+##### 4-3-2、提升并发能力的 PAR 改进版
+
+<img src="/Image/NetWork/tcp/72.png" style="zoom:50%;" />
+
+​	注意：为消息增加标识仅作用于报文，但 TCP 是面向字节流的，解决的是应用层字节流的可靠发送，故后续 TCP 中引入序列号和窗口大小，序列号的值是对应字节，比如：发送 Seq Number = 569，即第569字节，Segment 长度为 1328，则下一 segment 段的 Seq Number = 569 + 1328 = 1897，即第1897字节；
+
+##### 4-3-3、Sequence 序列号 / Acknowledge 序列号
+
+描述：为消息引入序列号，解决应用层字节流的可靠发送；
+
+- **设计目的：解决应用层字节流的可靠发送；**
+  - 跟踪应用层的发送端数据是否送达；
+  - 确定接收端有序接收到字节流；
+- **序列号的值针对的是字节而非报文；**
+  - 即序列号的值与报文包含的字节长度相关，比如某报文序列号 = 100，字节数是 50，则确认序号只能是151，而不能是其他值；
+
+<img src="/Image/NetWork/tcp/73.png" style="zoom:50%;" align="left" />
+
+<img src="/Image/NetWork/tcp/74.png" style="zoom:50%;" align="left"  />
+
+问题：序列号的复用-PAWS序列号回绕问题(达序列号最大值后，新序列号会进行复用)；
+
+<img src="/Image/NetWork/tcp/75.png" style="zoom:50%;"  />
+
+解决：timestamps，见 TCP Options timestamp 描述；
+
+<img src="/Image/NetWork/tcp/76.png" style="zoom:50%;" align="left" />
+
+
+
+##### 4-3-4、SACK-TCP Selective Acknowledgement
+
+​	问题：TCP 序列号采用累积确认方式，当接收方没有收到报文5，但收到报文6、7、8，接收方只能反复告知发送方缺失报文5，但发送方无法立即获悉此情况，也立即无法得知报文6、7、8是否被对方接收到；此时 Server 发送窗口/Client 接收窗口停止；
+
+<img src="/Image/NetWork/tcp/77.png" style="zoom:70%;"  />
+
+此时发送方：
+
+- 要么采用积极悲观 ***<u>Go-Back-N</u>*** 策略重传报文所有报文(5678)，但可能浪费带宽；
+- 要么采用保守乐观**<u>*Selective repeat ARQ (亦称 Selective Reject (SREJ))*</u>** 策略只重传报文5，但大量丢包时效率低下；详见：https://tools.ietf.org/html/rfc3366#page-8；
+
+​    解决：引入选择性确认SACK，以更有效重传丢失报文段；比如下述 SACK 表明报文3未收到，报文 4 已收到，此时 server 可单纯发送 3 即可，避免陷入上述两策略问题；
+
+<img src="/Image/NetWork/tcp/78.png" style="zoom:70%;"  />
+
+<img src="/Image/NetWork/tcp/79.png" style="zoom:50%;"  />
+
+<img src="/Image/NetWork/tcp/80.png" style="zoom:50%;"  />
+
+
+
+##### 4-3-5、TCP New Reno
+
+
+
+
+
+### 五、流量控制
+
+### 六、拥塞管理
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
