@@ -606,6 +606,105 @@ RTO = µ * SRTT + K * RTTVAR
 
 ### 五、流量控制
 
+#### 5-1、基本
+
+​	TCP 需要把发送的数据放到**发送缓存区**, 将接收的数据放到**接收缓存区**，流量控制即通过控制接收缓存区的大小，来间接控制发送方的发送；若对方的接收缓存区满，则不能再继续发送；
+
+#### 5-2、滑动窗口
+
+- 注意：MSS 是防止报文在 IP 层分段；因每个路由器的分段标准都不同，若任由其基于IP分段，则效率低下；而滑动窗口为了告知对方，自身缓冲区还有多少，告知对方自身处理能力，此值大小可大于MSS的值；
+
+##### 5-2-1、发送端窗口
+
+描述：包含已发送且已确认、已发送但未确认、未发送但可以发送、未发送也不可以发送；
+
+<img src="/Image/NetWork/tcp/90.png" style="zoom:50%;" align="left" />
+
+- 发送窗口：已发送但未确认部分 + 未发送但可以发送部分；
+- 可用窗口：未发送但可以发送部分，大小为 `SND.UNA + SND.WND - SND.NXT`
+  - SND 即 `send`
+  - WND 即 `window`
+  - UNA 即 `unacknowledged`，表示未被确认
+  - NXT 即 `next`，表示下一个发送的位置
+
+<img src="/Image/NetWork/tcp/91.png" style="zoom:50%;" align="left" />
+
+##### 5-2-2、接收端窗口
+
+描述：约等于对端发送窗口的接收窗口大小，约等于是因为程序处理可能快速，此时 window 变大，但为告知对方己方窗口大小有延迟(传输)，故存在偏差；
+
+- REV 即 `receive`
+- NXT 表示下一个接收的位置
+- WND 表示接收窗口大小
+
+<img src="/Image/NetWork/tcp/92.png" style="zoom:50%;" align="left" />
+
+
+
+##### 5-2-3、窗口滑动与流量控制
+
+​	客户端发送窗口大小等于服务端接收窗口大小，服务端发送窗口大小等于客户端接收窗口大小；
+
+<img src="/Image/NetWork/tcp/93.png" style="zoom:50%;" align="center" />
+
+假设双方三次握手，初始化各自窗口大小均为 200 个字节(例子与上图无关)：
+
+- 首先，此时若 A 给 B 发送 100 字节，则 A 的SND.NXT 右移 100 字节，即 A 当前的**可用窗口**减少 100 字节；
+- 然后，100 字节到达 B 端，并被放入 B 的缓冲队列中，但假若 B 目前无法处理那么多字节，只能处理 40 个字节，那么其余 60 个字节被留在缓冲队列中；因处理能力低下，故 B 的接收窗口应缩小，比如这里应缩小 60 字节，由 200 变为 140 字节，因缓冲队列还有 60 个字节没被处理；所以，B 在接下来的 ACK 报文中携带上缩小后的滑动窗口大小，即140；
+- 然后，A 端收到后，确认 B 已处理 40 字节，SND.UNA 右移 40 字节，并调整发送窗口大小为 140 字节；
+- 最后，如此往复；
+
+<img src="/Image/NetWork/tcp/94.png" style="zoom:50%;" align="center" />
+
+<img src="/Image/NetWork/tcp/95.png" style="zoom:50%;" align="center" />
+
+##### 5-2-4、操作系统缓冲区与滑动窗口关系
+
+注意：下图中发送与接收窗口大小不变，实际中，两窗口所存放字节数均存放在系统缓冲区中，系统会自动对缓冲区进行调整，或应用程序不及时处理也会对其造成影响；
+
+- 应用层没有及时读取缓存，导致发送停滞
+  - <img src="/Image/NetWork/tcp/96.png" style="zoom:50%;" align="left"/>
+- 收缩窗口导致丢包：应先收缩窗口，再减少缓存；并在窗口关闭后，定时探测窗口大小
+  - <img src="/Image/NetWork/tcp/97.png" style="zoom:50%;" align="left"/>
+
+飞行中报文的适合数量 = 最大接收窗口 = BPS *  RTT` ，相同带宽下，若 RTT 越大，接收窗口越大，应配置更大滑动窗口：
+
+```
+// Linux 下调整接收窗口与应用缓存
+net.ipv4.tcp_adv_win_scale = 1
+应用缓存 = buffer / (2^tcp_adv_win_scale)
+
+// Linux 中对 TCP 缓冲区的调整方式
+net.ipv4.tcp_rmem = 4096 87380 6291456
+// 读缓存最小值、默认值、最大值，单位字节，覆盖 net.core.rmem_max
+net.ipv4.tcp wmem = 4096 16384 4194304
+// 写缓存最小值、默认值、最大值，单位字节，覆盖net.core.wmem_max
+net.ipv4.tcp mem = 1541646 2055528 3083292
+// 系统无内存压力、启动压力模式阀值、最大值，单位为页的数量
+net.ipv4.tcp_moderate_rcvbuf = 1
+// 开启自动调整缓存模式
+```
+
+
+
+#### 5-3、性能优化
+
+描述：现实中，不仅需要考虑发送窗口的可用窗口，还需考虑发送效率；当有效信息比重低时，网络传输效率低下，比如 **SWS(Silly Window  syndrome) 糊涂窗口综合征**，应当在合理范围内大量传输小报文；
+
+<img src="/Image/NetWork/tcp/99.png" style="zoom:50%;" />
+
+- 策略1：**<u>*SWS避免算法*</u>**：
+  - 等待服务端，使其有时间处理缓冲区内容，避免频繁、值也愈发小的窗口大小调整，从而提升效率；
+  - <img src="/Image/NetWork/tcp/100.png" style="zoom:40%;" align="left"/>
+- 策略2：**<u>*TCP delayed acknowledgment 延迟确认*</u>**
+  - <img src="/Image/NetWork/tcp/101.png" style="zoom:40%;" align="left"/>
+  - 问题：上述策略共用存在问题：前者Nagle 发送后，后者 Delay 延迟确认，导致 Nagle 无法及时发送剩余消息；解决：关闭其中一个；
+  - <img src="/Image/NetWork/tcp/102.png" style="zoom:40%;" align="left"/>
+
+- 策略3：**<u>*TCP_CORK*</u>**，Nagle 允许有一个已发送但未确认小报文，而 <u>***TCP_CORK***</u> 要求所有必须大报文，但要求结合 `sendfile` 零拷贝技术实现；
+  - 普通场景：文件从磁盘拷贝到内存，再从内存发给 Linux Core TCP缓冲区，经过发送窗口再发往用户;
+  - `sendfine` 场景： 直接由内核将磁盘文件读入到TCP发送缓冲区中直接发送，减少2次拷贝；
+
 ### 六、拥塞管理
 
 
