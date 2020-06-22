@@ -713,16 +713,17 @@ net.ipv4.tcp_moderate_rcvbuf = 1
 
 ​	TCP 负责控制两端间的流量，也要负责监控整个网络的拥塞情况并加以管理，而TCP 协议向应用层提供不定长的字节流发送服务，就表明 TCP 协议先天性就有意愿占满网络中的带宽，当网络中许多 TCP 连接同时试图占满整个带宽时，有可能发生恶性拥塞事件，所以有必要启用拥塞控制，以减少拥塞情况，提升网络整体速度；
 
-​	TCP 拥塞控制涉及 2 个核心状态：**拥塞窗口(Congestion Window，cwnd)**、**慢启动阈值(Slow Start Threshold，ssthresh)**，以及 3 个算法：**慢启动**、**拥塞避免**、**快速重传与快速恢复**；
+##### 6-1-1、拥塞窗口
 
-- cwnd：目前还能传输的数据量大小；
-  - 注意：**<u>*通告窗口/接收窗口 (rwnd)*</u>** 是 **<u>*接收端*</u>** 给的限制，而 **<u>*拥塞窗口 (cwnd)*</u>** 是 <u>***发送端***</u> 给的限制，两者均用以限制 **<u>*发送窗口*</u>** 的大小，控制发送速率：`发送窗口大小 = min(rwnd, cwnd)`
-  - 注意：TCP 报文头部的 window 字段即 **<u>*通告窗口*</u>**，也即对方的 **<u>*接收窗口*</u>**；而 **<u>*拥塞窗口*</u>** 由握手后初始化；
-  - 注意：若无丢包情况下(无拥塞)，**<u>*拥塞窗口*</u>** 大小是会以指数方式快速变大；
-  - <img src="/Image/NetWork/tcp/111.png" style="zoom:50%;" align="left"/>
-- ssthresh：
+​	发送方维持一个**<u>*拥塞窗口 cwnd (congestion window)*</u>** 的状态变量；其大小取决于网络的拥塞程度，且会动态变化；发送方让自身发送窗口等于拥塞窗口，而其控制原则是：网络不拥塞则增大拥塞窗口以发送更多分组；网络拥塞则减小拥塞窗口以减少注入网络中的分组；
 
-##### 6-1-1、拥塞控制发展
+- 注意：此外，还有TCP 报文头部的 window 字段即 **<u>*通告窗口*</u>**，也即对方的 **<u>*接收窗口*</u>**；
+- 注意：若无丢包情况下(无拥塞)，**<u>*拥塞窗口*</u>** 大小是会以指数方式快速变大；
+- <img src="/Image/NetWork/tcp/111.png" style="zoom:50%;" align="left"/>
+
+
+
+##### 6-1-2、拥塞控制发展
 
 - 以丢包作为拥塞依据：
   - New Reno：RFC6582
@@ -735,42 +736,221 @@ net.ipv4.tcp_moderate_rcvbuf = 1
 
 #### 6-2、以丢包作为拥塞依据的拥塞控制
 
-##### 6-2-1、慢启动-懵
+##### 6-2-1、慢启动
 
-描述：TCP 刚开始传输数据时，一开始不清楚网络状态，故可先保守地、缓慢发送飞行报文，当无丢包时，才快速增加，下图为慢启动时的<u>***初始窗口 IW (Initial Window)***</u> 的历史变迁；
+描述：TCP 刚开始传输数据时，并不清楚此时的网络状态，可先保守地缓慢地由小到大增大发送窗口，即逐渐增大拥塞窗口值；通常会先把 **拥塞窗口 cwnd** 设置为一个最大报文段 MSS 的值，下图为慢启动时的<u>***初始窗口 IW (Initial Window)(拥塞窗口-cwnd)***</u> 的值历史变迁；
 
 <img src="/Image/NetWork/tcp/112.png" style="zoom:50%;" align="left"/>
 
 - 注意：**SMSS (SENDER MAXIMUM SEGMENT SIZE)**：最大发送 Segment 段大小；
 - 注意：**MSS (Maximum Segment Size)：** 基本单位，值为 1460 字节或 576 字节；
 
-流程：
+流程：慢启动流程：
+
+<img src="/Image/NetWork/tcp/113.png" style="zoom:50%;" align="left"/>
 
 - 首先，三次握手，交换信息(含双方**接收窗口大小 (rwnd)**)；
 - 然后，双方各自初始化 **拥塞窗口 (cwnd)** 大小；
-- 然后，开始传输，往后发送端每收到 ACK 则 cwnd +1，，则 cwnd 翻倍，直至触碰 **慢启动阀值**；
+- 然后，开始传输，每经过一**传输轮次(RTT)**，则将**拥塞窗口(cwnd) 加倍 (每收到一 ACK，cnwd + 1，共有 cnwd 个 segment，故一轮下来 cnwd 将增加 cnwd 即翻倍)**，以指数方式增长，直至触碰 **慢启动阀值**；
 
 ##### 6-2-2、拥塞避免
 
-​	慢启动算法是以指数增长方式增加拥塞窗口，此时若出现丢包，丢包数量就会变的很大，拥塞避免可以解决此问题；拥塞避免定义一个值：慢启动阀值，当拥塞窗口 cwnd 到达此值 A 时，就进入拥塞避免算法，cwnd 大小由指数增长方式改为线性方式增长，
+​	慢启动并非指 **cwnd** 增长速率慢，而是指初始值小；而为防止 **cwnd** 增长过大引起网络拥塞，还需设置**<u>*慢启动阀值/门限 (ssthresh-slow start threshold)*</u>** 状态量，当到达此值时则启用**拥塞避免**算法，以线性方式增加 cwnd，让 cwnd 缓慢增大：
 
-而当后续出现丢包时，则进入快速重传与快速恢复；
+```
+cwnd += SMSS * SMSS / cwnd
+```
 
-需要将此预值重设为此时拥塞窗口的一半B，并且拥塞窗口 cwnd 将成为一较小数值再次慢启动，到达B时，再进入拥塞避免算法；
+​	<img src="/Image/NetWork/tcp/118.png" style="zoom:50%;" />
 
-##### 6-2-3、快速重传与快速恢复
+​	具体表现为每经过一**传输轮次(RTT)**，则将**拥塞窗口 cwnd + 1 (每收到一个 ACK，cnwd += 1/cnwd ，一共有 cnwd 个 segment，故一轮下来 cnwd 将加 1)**，而非加倍，以线性方式增长；
+
+<img src="/Image/NetWork/tcp/114.png" style="zoom:50%;"/>
+
+​	无论在慢启动阶段还是在拥塞避免阶段，只要发送方判断网络出现拥塞(RTO)，则将设置**慢启动阀值/门限(ssthresh)**为出现拥塞时的，发送窗口值的一半(但不能小于2)，然后将拥塞窗口 cwnd 重新设置为 IW，再次进入慢启动，以迅速减少主机发送的分组数，使发生拥塞的节点有充足时间将队列中积压的分组处理完毕；
+
+<img src="/Image/NetWork/tcp/115.png" style="zoom:50%;"/>
+
+<img src="/Image/NetWork/tcp/119.png" style="zoom:50%;"/>
+
+注意：同一时刻只运行单个算法，但算法间可相互切换：
+
+- 当 cwnd < ssthresh 时，使用慢启动算法；
+- 当 cwnd = ssthresh 时，可使用慢启动算法，亦可使用拥塞避免算法；
+- 当 cwnd > ssthresh 时，使用拥塞避免算法；
+
+<video src="/Image/NetWork/tcp/120.mov" style="zoom:50%;" align="left"></video>
+
+
+
+##### 6-2-3、快速重传
+
+失序数据段产生原因：
+
+- 若报文丢失，将产生连续失序 ACK 段；
+- 若网络路径与设备导致数据段失序，将产生少量失序 ACK 段；
+- 若报文重复，将产生少量失序 ACK 段；
+
+<img src="/Image/NetWork/tcp/120.png" style="zoom:50%;"/>
+
+​	拥塞控制主要解决丢包问题，即场景一问题；在过去没有快速重传时，须等待 RTO，再发送 pkt1，效率低下，快速重传要求接收方每收到一个 **失序报文** 即立刻发出重复确认，而不用等到接收方自己发送数据时才进行捎带确认，以让发送方及早获悉有报文段没有到达；比如下图：
+
+<img src="/Image/NetWork/tcp/116.png" style="zoom:50%;"/>
+
+​	情景：B 端收到 M1M2 并回送确认 ACK，但未收到 M3，此时收到 M4M5：
+
+- 过去：因 M4M5 为失序报文，根据可靠传输原理，B 端可什么都不做，也可在适当时机重发对 M2 的 ACK；
+- 现在：因使用快速重传算法，B 端应及时发送对 M2 的确认 ACK，以让发送方及早获悉 M3 没有到达，无论 B 端收到多少新报文，但均为失序报文，均继续发送对 M2 的确认 ACK；当 A 端收到 3 个重复 ACK 时，意识到丢包，并马上进行重传，而不用等待 RTO 时间到期才重传，由于发送方尽早重传未被确认报文段，因此采用此算法后可让整个网络吞吐量提高约 20%；
+
+<img src="/Image/NetWork/tcp/121.png" style="zoom:50%;"/>
+
+- 问题：无法得知具体缺失报文，是仅重传 M3，还是重传所有未确认报文，前者在大量丢包时效率低下，后者可能浪费带宽；
+- 解决：选择性重传(SACK，Selective Acknowledgment)，在 TCP 头部选项，通过 SACK 的 `left edge`、`right edge ` 告知发送端已收到的区间的数据报，以更有效地重传；
+- 注意：**快速重传**，解决的是**是否需要重传**的问题；**选择性重传(SACK，Selective Acknowledgment)**，解决的是**如何重传**的问题；
+- 注意：快速重传意味着丢包，但收到重复 ACK，意味着网络仍在流动，没必要马上进入慢启动，因其会突然减少数据流，在正常且未失序 ACK 段到达前，启动快速恢复，更好利用网络资源；
+
+
+
+##### 6-2-4、快速恢复
+
+快恢复算法与快速重传配合使用：
+
+- 首先，当发送方连续收到3个重复确认时，就执行“乘法减小”算法，将 **慢启动阀值/门限 (ssthresh)** 减半，但注意并非执行慢启动算法，而是将 cwnd 值设置为 **慢启动阀值/门限 (ssthresh)** 减半后的数值；
+- 然后，开始执行**拥塞避免算法** (“加法增大”)，使拥塞窗口缓慢地线性增大；总结即：
+  - **慢启动阀值/门限 (ssthresh)**降低为 **拥塞窗口(cwnd)** 的一半
+  - **拥塞窗口(cwnd)** 大小变为 **慢启动阀值/门限 (ssthresh)**
+  - **拥塞窗口(cwnd)** 线性增加
+
+<img src="/Image/NetWork/tcp/117.png" style="zoom:50%;"/>
+
+<img src="/Image/NetWork/tcp/122.png" style="zoom:50%;"/>
+
+- 注意：快速恢复时 cwnd 为 ssthresh + 3 * MSS 是当时调研网络环境得出的经验数据；
+
+- 注意：不管单丢包还是连续丢包，每次仍返回应收但未收的 Seq ACK；
+
+- 注意：接收端中，当接收到的包的 Sequence number 与接收窗口中的 rcv.nxt 一样，才讲 ACK 的 Acknowledge number 更新为 rcv.nxt 值；否则 ack number 一直不变，此时发送端在连续收到含有不变 ack number 的 ACK，就可断定某包未被对方收到，从而启动快速重传；
+
+  
 
 
 
 #### 6-3、以探测带宽作为拥塞依据的拥塞控制
 
+​	前述拥塞控制算法均基于丢包实现，不丢包不启用，2016年 Google 提出基于带宽探测的拥塞控制，极大提升了 TCP 的拥塞控制性能；
+
+<img src="/Image/NetWork/tcp/123.png" style="zoom:50%;"/>
+
+​	网络中的瓶颈路由器：当其等待队列全满或过载时就会发送拥塞，下图为大管道向小管道传输数据引发拥堵；
+
+<img src="/Image/NetWork/tcp/124.png" style="zoom:50%;"/>
+
+##### 6-3-1、传统拥塞控制算法问题
+
+<img src="/Image/NetWork/tcp/125.png" style="zoom:50%;"/>
+
+- 传统拥塞算法问题：变化不平滑；
+
+<img src="/Image/NetWork/tcp/126.png" style="zoom:50%;"/>
+
+- CUBIC 拥塞控制算法变化平滑，但也基于丢包驱动，带来的时延也很大；
+
+
+
+##### 6-3-2、BBR 控制算法
+
+##### 6-3-2-1、最佳控制点
+
+<img src="/Image/NetWork/tcp/127.png" style="zoom:50%;"/>
+
+- 上图：y 轴 RTT，一开始，RTT不变，带宽增加，表示应用端进程并未开足马力发送数据，故 RRT 不变，带宽增加；等达到最大带宽后，路由器开始挤压队列，此后 RTT 开始变大；
+- 下图：y 轴 带宽，一开始带宽利用增加，到后面因达到最大带宽而不变，此时出现挤压；
+- 结论：传统拥塞控制算法在丢包时进行控制，但更好的控制位置应在 RTT 开始变化时，此时控制发送速率，可享受最大带宽，且拥有最小时延和最低丢包率；
+- 问题：难以测量此控制点在哪；
+- 解决：目标是将路由器的缓冲队列降至0，而关注路由器发现，刚开始挤压时即最佳控制点，即空队列时；
+- 注意：上述图表中，RTT 与 BW 独立变化，即 RTT 变慢时，BW 吞吐量可维持不变；同理，RTT 不变时，BW 可升高或降低；
+
+<img src="/Image/NetWork/tcp/128.png" style="zoom:50%;"/>
+
+<img src="/Image/NetWork/tcp/129.png" style="zoom:50%;"/>
+
+##### 6-3-2-2、BBR (TCP Bottleneck Bandwidth and Round-trip propagation time) 基本
+
+BBR  由 Google 于 2016 年发布，Linux 4.9 内核引入，QUIC 使用；但注意 QUIC 需要客户端支持，BBR 则无需终端支持，因其采用不同策略面对路由器上缓存队列产生的拥塞；
+
+<img src="/Image/NetWork/tcp/130.png" style="zoom:50%;"/>
+
+BBR 在 Youtube 上的应用结果：吞吐量提升、RTT 时延减少、重新缓冲时间间隔变长  (时延结果差异巨大，是因为每个国家路由器的缓冲队列长度不一样)；
+
+<img src="/Image/NetWork/tcp/131.png" style="zoom:50%;"/>
+
+<img src="/Image/NetWork/tcp/132.png" style="zoom:50%;"/>
+
+<img src="/Image/NetWork/tcp/133.png" style="zoom:50%;"/>
+
+
+
+##### 6-3-2-3、BBR (TCP Bottleneck Bandwidth and Round-trip propagation time) 原理
+
+<img src="/Image/NetWork/tcp/134.png" style="zoom:50%;"/>
+
+##### 6-3-2-3-1、最佳控制点的寻找：
+
+- RTT 中含有排队噪声 (ACK 延迟确认、网络设备排队等)，若能将 RTT 的排队噪声去除，剩下的即为 RTprop；RTprop：从发送数据到接收数据整个链路时间；
+- 若反复、多次测量 RTT，并取噪声最小值，则近似得出 RTprop；
+- 若反复、多次测量发送速率，取最大值，则近似得出 BtlBw；由此2个值找到最佳控制点；
+
+<img src="/Image/NetWork/tcp/135.png" style="zoom:50%;"/>
+
+##### 6-3-2-3-2、pacing_gain 调整	
+
+- 问题：TCP 链路发生变化，最佳控制点则会发生变化；
+- 解决：引入 **pacing_gain**，其用于检测带宽变化和线路变换，以迅速寻找最佳控制点；
+- 原理：pacing_gain 会进行周期性改变发送速率，来观察带宽与 RTT 的关系：
+  - 若检测时提升速率，带宽增加且 RTT 没有变化则可认为线路发生变化，直到RTT变化，此时降低发送速率，若 RTT 回归，则表示达到新链路的最佳控制点；
+  - 若线路切换低速线路则过程大致同上；
+- 循环：后续过程中，会不断进行周期性改变发送速率以检测变化，在拥塞的边缘来回不断试探；
+
+下图是在10Mbps、40-ms 的链路环境下的 700ms 内的测量：
+
+<img src="/Image/NetWork/tcp/136.png" style="zoom:50%;"/>
+
+##### 6-3-2-3-3、BBR 执行方式
+
+1、收到ACK时，更新 RTprop、BtlBw，找出最小 RTT，更新，计算发送速率，若带宽上升，则更新 BtlBw;
+
+<img src="/Image/NetWork/tcp/142.png" style="zoom:50%;"/>
+
+2、发送数据时，若超出带宽，则等待一段时间，发送时也会使用 pacing_gain 来探测有无带宽发生变化；
+
+<img src="/Image/NetWork/tcp/143.png" style="zoom:50%;"/>
 
 
 
 
 
+##### 6-3-2-4、BBR 与 CUBIC 对比
+
+<img src="/Image/NetWork/tcp/137.png" style="zoom:50%;"/>
+
+- 上图 y 轴：数据发送和接收的字节数，单位为MB，蓝线为收到的 ACK 确认；
+- 下图 y 轴：RTT；绿线为基于 BBR 发送字节数，红线为基于 CUBIC 发送字节数；
+- 结论：BBR 能及时排空瓶颈路由挤压队列数据，CUBIC 则无法实现，而且进入了拥塞控制阶段；
 
 
 
+<img src="/Image/NetWork/tcp/138.png" style="zoom:50%;"/>
 
+- 多条初始速度不同的 TCP 链路快速平均分享带宽(使用 BBR 后最后因 pacing_gain 的调整，最后均分带宽)；
 
+<img src="/Image/NetWork/tcp/139.png" style="zoom:50%;"/>
+
+- Google B4 WAN 实践；
+
+<img src="/Image/NetWork/tcp/140.png" style="zoom:50%;"/>
+
+- RTT 大幅下降
+
+<img src="/Image/NetWork/tcp/141.png" style="zoom:50%;"/>
+
+- 不同丢包率下的吞吐量：CUBIC VS BBR
