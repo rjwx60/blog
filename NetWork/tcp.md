@@ -8,8 +8,6 @@ typora-root-url: ../Source
 
 
 
-
-
 ### 一、历史
 
 #### 1-1、NCP协议：TCP/IP协议前身ARPA
@@ -129,24 +127,34 @@ typora-root-url: ../Source
 
 - 注意：ISN 的构建使用半随机方法构建(基于时钟+偏移量+加密散列函数+每隔 4 ms 加1)，以确保不同连接间唯一性，防止重叠，避免不同连接间的相互影响，也为了避免连接被攻击者预测、伪造报文；
 
-##### 2-3-3-4、Window(窗口大小)、Checksum(校验和)
+##### 2-3-3-4、Checksum(校验和)
+
+- Checksum：占 2 字节16 位，防止传输过程中数据包损坏，若此值校验错误，TCP 会直接丢弃并等待重传；
+- 注意：TCP Header 的校验和会对 TCP 数据、Header、和部分 IP 头部字段进行校验，此举是违反分层原则；
+- 补充：Pseudo-Header 是一虚拟的数据结构，其中的信息是从数据报所在IP分组头的分组头中提取，既不向下传送也不向上递交，而仅仅是为计算校验和。这样的校验和，既校验了 TCP&UDP 用户数据的源端口号和目的端口号以及 TCP&UDP 用户数据报的数据部分，又检验了 IP 数据报的源 IP 地址和目的地址；Pseudo-Header 保证 TCP&UDP 数据单元到达正确的目的地址。因此，Pseudo-Header 中包含 IP 地址并且作为计算校验和需要考虑的一部分；最终目的端根据伪报头和数据单元计算校验和以验证通信数据在传输过程中没有改变而且到达了正确的目的地址；
+
+<img src="/Image/NetWork/tcp/181.png" style="zoom:50%;" align="center"/>
+
+##### 2-3-3-5、Window(窗口大小)
 
 - Window：占 2 字节16 位，但实际中不够用，故 TCP 引入窗口缩放的选项(Options类)，作为窗口缩放的比例因子，此值范围在 0 ~ 14，比例因子可将窗口值扩大为原来的 2 ^ n 次方；
-- Checksum：占 2 字节16 位，防止传输过程中数据包损坏，若此值校验错误，TCP 会直接丢弃并等待重传；
 
-##### 2-3-3-5、TCP Flags(标志位)
+##### 2-3-3-6、TCP Flags(标志位)
 
-常见标记位：SYN、ACK、FIN、RST、PSH
+<img src="/Image/NetWork/tcp/182.png" style="zoom:50%;" align="center"/>
+
+常见标记位：SYN、ACK、FIN、RST、PSH、URG
 
 - RST：即 Reset，重置报文标志，用来强制断开连接；
 - FIN： 即 Finish，结束报文标志，表示发送方准备断开连接；
-- PSH： 即 Push, 告知对方这些数据包收到后应该马上交给上层的应用，不能缓存；
+- PSH： 即 Push，告知对方这些数据包收到后应该马上交给上层的应用，不能缓存(接收端收到上述报文时，接收方应尽快将缓冲区内容交由上层应用处理)；
+- URG：终止行为，优先处理含此标志位的报文；比如 ctrl + C 取消 npm 包下载；
 
-##### 2-3-3-6、UrgentPointer(紧急指针)
+##### 2-3-3-7、UrgentPointer(紧急指针)
 
 若设置 URG 位，则此域将被检查作为额外指令，告诉 CPU 从数据包的某个位置开始读取数据；
 
-##### 2-3-3-7、TCP Options
+##### 2-3-3-8、TCP Options
 
 
 
@@ -707,6 +715,12 @@ net.ipv4.tcp_moderate_rcvbuf = 1
 
 
 
+
+
+
+
+
+
 ### 六、拥塞控制
 
 #### 6-1、基本
@@ -954,3 +968,65 @@ BBR 在 Youtube 上的应用结果：吞吐量提升、RTT 时延减少、重新
 <img src="/Image/NetWork/tcp/141.png" style="zoom:50%;"/>
 
 - 不同丢包率下的吞吐量：CUBIC VS BBR
+
+
+
+
+
+
+
+
+
+
+
+### 七、额外功能
+
+#### 7-1、TCP Keep-Alive 功能
+
+​	TCP Keep-Alive 是对长时间未发送数据的连接进行关闭处理(双向，两方均可检测，探测对端连接是否仍然有效)，以减少内存和端口等资源占用，关闭流程：若达到关闭条件，则向对方发送探测包：
+
+- 若收到对方应答则表示此连接仍活跃，此时进入下一潜伏状态；
+- 若无收到对方应答，则间隔一定时间后再发送，若上述探测达到一定次数则关闭连接；
+
+```
+// 发送心跳周期(探测包)(单位: s)
+net.ipv4.tcp_keepalive_time = 7200
+// 探测包重试次数
+net.ipv4.tcp_keepalive_probes = 9
+// 探测包发送间隔(单位: s)
+net.ipv4.tcp_keepalive_intvl = 75
+```
+
+​    查看 tcp keep-alive 相关状态：`sudo sysctl -a | grep keepalive`，但实际中大部分应用并无默认开启 TCP 的 `keep-alive  `选项，原因是检测期太长(7200s=2h)，而若时间自定过短也失去此功能的原有意义；
+
+<img src="/Image/NetWork/tcp/180.png" style="zoom:50%;" align="center"/>
+
+#### 7-2、TCP 多路复用(Multiplexing)功能
+
+##### 7-2-1、基本
+
+​	TCP 是面向字节流的不定长的协议，较难实现 TCP 多路复用，但可从编程层面实现 TCP 多路复用；
+
+- 多路复用：在一个信道上传输多路信号或数据流的过程和技术
+- <img src="/Image/NetWork/tcp/183.png" style="zoom:50%;" align="left"/>
+- HTTP2 的多路复用是基于 TCP 连接上的多路复用
+- <img src="/Image/NetWork/tcp/184.png" style="zoom:50%;" align="left"/>
+
+##### 7-2-2、编程实现
+
+- 1、非阻塞 socket：同时处理多个 TCP 连接
+
+<img src="/Image/NetWork/tcp/185.png" style="zoom:50%;" align="left"/>
+
+- 2、epoll + 非阻塞 socket
+
+<img src="/Image/NetWork/tcp/186.png" style="zoom:50%;" align="left"/>
+
+- 2-1、红黑树存放所有连接，(发生变化)事件触发，存放队列中；
+
+<img src="/Image/NetWork/tcp/187.png" style="zoom:50%;" align="left"/>
+
+- 3、epoll + 非阻塞 socket + 同步编程 = 协程
+
+<img src="/Image/NetWork/tcp/188.png" style="zoom:50%;" align="left"/>
+
