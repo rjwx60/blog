@@ -6,7 +6,7 @@ typora-root-url: ../Source
 
 #### 1-1、定义
 
-​	**数组**(Array)，是一种使用一组连续的内存空间，来存储一组具有相同类型的数据的线性表数据结构；
+**数组**(Array)，是一种使用一组连续的内存空间，来存储一组具有相同类型的数据的线性表数据结构；
 
 - 连续的内存空间和相同类型的数据：见1-1特点；此使得数组访问效率极高，可实现随机访问，但删除和插入效率低下，因为了保证连续性，就需做大量的数据搬移工作；
 
@@ -396,6 +396,9 @@ class ArrayJava {
 
 ### 三、LeedCode示例
 
+详看：https://leetcode-cn.com/problemset/all/?search=Array
+
 补充：https://juejin.im/post/5d5b307b5188253da24d3cd1#heading-27
 
 补充：https://juejin.im/book/5cb42609f265da035f6fcb65/section/5cea46ce51882521ee5fc965
+
