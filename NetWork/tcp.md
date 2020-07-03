@@ -445,8 +445,6 @@ net.ipv4.tcp_synack_retries
 
 - 注意：若出现数据包混乱，TCP 会直接发送 RST 重置报文；
 
-  - <img src="/Image/NetWork/tcp/55.png" style="zoom:50%;" />
-  - <img src="/Image/NetWork/tcp/56.png" style="zoom:50%;" />
 
 ##### 3-2-2-1、同时挥手(情况罕见)
 
@@ -483,6 +481,29 @@ net.ipv4.tcp_max_tw_buckets = 262144
 
 - 控制 time_wait 状态连接的最大数量；
 - 超出后直接关闭连接；
+
+
+
+##### 3-2-4、重置报文
+
+当发现到达的报文段对相关连接而言是不正确时，TCP 会发出重置报文段，此会导致 TCP 连接的快速拆卸：
+
+- 某连接请求到达本地却无相关进程在目的端口监听
+  - 具体表现为 UDP 协议会生成一个 ICMP 目的不可达信息，而 TCP 则使用重置报文段来代替完成；
+- 替代 FIN 来终止连接
+  - 正常终止连接的方法是发送 FIN，此亦称为有序释放，而在任意时刻通过重置报文段来释放连接的则称终止释放，此时任何排队的数据都将会被抛弃；
+- 半开连接
+  - 若 A 端在未告知 B 端情况下 A 关闭或终止连接，则称此 TCP 连接处于半开状态；半开通常发生在主机崩溃或非正常关机的情况下；TCP 规定接收方回复一个重置报文段作为响应；
+- 时间等待错误
+  - 在 TIME_WAIT 期间收到连接的报文或更为特殊的 RST 重置报文段时，就会发生时间等待错误 TIME-WAIT Assassination-TWA，即 RST 能破坏 TIME_WAIT 状态并强制连接提前关闭；目前许多系统通过不对 TIME-WAIT 状态时收到的 RST 报文作出回应来规避上述问题；
+
+
+
+<img src="/Image/NetWork/tcp/55.png" style="zoom:50%;" />
+
+<img src="/Image/NetWork/tcp/56.png" style="zoom:50%;" />
+
+
 
 
 
