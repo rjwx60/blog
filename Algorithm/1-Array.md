@@ -378,17 +378,17 @@ class ArrayJava {
 
 #### 2-2、JS 数组实质
 
-2-2-1、基本
+##### 2-2-1、基本
 
 ​	JS 中，JSArray 继承自 JSObject，或者说它就是一个特殊的对象，内部是以 key-value 键值对形式存储数据，所以 JS 中的数组可以存放不同类型值。JSArray 有两种存储方式，快数组与慢数组。初始化空数组时，使用快数组，快数组使用连续的内存空间，当数组长度达到最大时，JSArray 就会进行动态扩容以存储更多元素，而当数组中 hole (空洞元素) 过多时，则会转变为慢数组，以哈希表形式存储数组，以节省内存空间；相对于慢数组，快数组性能要好得多；
 
-2-2-2、示例：
+##### 2-2-2、示例：
 
-2-2-3、快数组
+##### 2-2-3、快数组
 
-2-2-4、慢数组
+##### 2-2-4、慢数组
 
-2-2-5、两者切换
+##### 2-2-5、两者切换
 
 
 
@@ -401,4 +401,273 @@ class ArrayJava {
 补充：https://juejin.im/post/5d5b307b5188253da24d3cd1#heading-27
 
 补充：https://juejin.im/book/5cb42609f265da035f6fcb65/section/5cea46ce51882521ee5fc965
+
+
+
+#### 3-1、类型
+
+- ##### 双向指针
+
+- ##### N数之和
+
+- ##### 多维数组
+
+- ##### 数据统计
+
+
+
+##### 3-1-1、双向指针
+
+##### 3-1-1-1、**<u>调整数组元素顺序使奇前偶后</u>**
+
+输入整数数组，实现函数来调整该数组中数字的顺序，使所有奇数位于数组前半部分，所有偶数位于数组的后半部分；
+
+```javascript
+function reOrderArray(array) {
+  if (Array.isArray(array)) {
+    let start = 0;
+    let end = array.length - 1;
+    while (start < end) {
+      while (array[start] % 2 === 1) {
+        start++;
+      }
+      while (array[end] % 2 === 0) {
+        end--;
+      }
+      if (start < end) {
+        [array[start], array[end]] = [array[end], array[start]]
+      }
+    }
+  }
+  return array;
+}
+
+// 思路:
+// 1、头尾各放置一指针，向内逼近移动，若符合条件则交换位置
+```
+
+##### 3-1-1-2、**<u>调整数组元素顺序使奇前偶后2</u>**
+
+输入整数数组，实现函数来调整该数组中数字的顺序，使所有奇数位于数组前半部分，所有偶数位于数组的后半部分，<u>**但相对顺序不发生变化**</u>
+
+```javascript
+// 1、3-1-1-1中，相对顺序会发生变化，比如 [1,2,3,4,5,6] -> [1,5,3,4,2,6]
+// 2、3-1-1-2中，则要求不能发生变化，比如 [1,2,3,4,5,6] -> [1,3,5,2,4,6]
+function reOrderArray(array) {
+  if (Array.isArray(array)) {
+    let headO = 0;
+    let headT = 0
+    while (start < end) {
+      while (array[start] % 2 === 1) {
+        start++;
+      }
+      while (array[end] % 2 === 0) {
+        end--;
+      }
+      if (start < end) {
+        [array[start], array[end]] = [array[end], array[start]]
+      }
+    }
+  }
+  return array;
+}
+
+// 思路:
+// 1、可构建两个空数组进行存放，然后再合并
+// 2、可利用冒泡思想，前后若不同则前后两两交换
+// 3、可嵌套循环，偶数取出放最后，后数前移；
+```
+
+##### 3-1-2、**<u>和为 S 的两个数字</u>**
+
+输入一个递增排序的数组和一个数字`S`，在数组中查找两个数，使得他们的和正好是`S`，如果有多对数字的和等于`S`，输出两个数的乘积最小
+
+```javascript
+function FindNumbersWithSum(array, sum) {
+  if (array && array.length > 0) {
+    let left = 0;
+    let right = array.length - 1;
+    while (left < right) {
+      const s = array[left] + array[right];
+      if (s > sum) {
+        right--;
+      } else if (s < sum) {
+        left++;
+      } else {
+        return [array[left], array[right]]
+      }
+    }
+  }
+  return [];
+}
+
+// 思路:
+// 1、双指针夹逼法
+// 2、因为数据本身已是递增排序的序列，故返回的第一个即乘积最小，比如[3,8] < [5,7]
+```
+
+##### 3-1-3、**<u>和为 S 的连续正数序列</u>**
+
+输入一个正数`S`，打印出所有和为S的连续正数序列。
+
+例如：输入`15`，有序`1+2+3+4+5` = `4+5+6` = `7+8` = `15` 所以打印出3个连续序列`1-5`，`5-6`和`7-8`
+
+```javascript
+function FindContinuousSequence(sum) {
+  var result = [];
+  var child = [1, 2];
+  let big = 2;
+  let small = 1;
+  let currentSum = 3;
+  while (big < sum) {
+    while (currentSum < sum && big < sum) {
+      child.push(++big);
+      currentSum += big;
+    }
+    while (currentSum > sum && small < big) {
+      child.shift();
+      currentSum -= small++;
+    }
+    if (currentSum === sum && child.length > 1) {
+      result.push(child.slice());
+      child.push(++big);
+      currentSum += big;
+    }
+  }
+  return result;
+}
+
+// 思路:
+// 1、提示很明显了，关键是连续，可联想到队列
+// 2、构建一虚拟队列，初始元素 1，2，队列头尾分别对应头尾指针，若头右移，则队列增加一个数，若尾右移，则队列减少一个数(队列头方向居右)；当队列和大于目标值，尾指针右移，以谨慎缩小与目标值的差值；当队列和小于目标值，头指针右移，以大胆增加自身值；
+```
+
+
+
+##### 3-1-2、N数之和
+
+详见 TwoSum 及其下 More 部分
+
+
+
+##### 3-1-3、多维数组
+
+##### 3-1-3-1、构建乘积数组
+
+给定一个数组A`[0,1,...,n-1]`,请构建一个数组B`[0,1,...,n-1]`,其中B中的元素 `B[i]=A[0]*A[1]*...*A[i-1]*A[i+1]*...*A[n-1]`。注意不能使用除法。
+
+```javascript
+function multiply(A) {
+  var B = [];
+  if (Array.isArray(A) && A.length > 0) {
+    // 计算下三角
+    B[0] = 1;
+    for (let i = 1; i < A.length; i++) {
+      B[i] = B[i - 1] * A[i - 1];
+      // B1 = B0 * A0 = A0
+      // B2 = B1 * A1 = A0 * A1
+      // B3 = B2 * A2 = A0 * A1 * A2
+      // ......
+    }
+    // 乘上三角
+    let temp = 1;
+    for (let i = A.length - 2; i >= 0; i--) {
+      temp = temp * A[i + 1];
+      // A1 ... A[length - 1]
+      B[i] = B[i] * temp;
+    }
+  }
+  return B;
+}
+
+// 思路:
+// 1、注意到 B[i] = A组每元素乘积 / A[i], 即效果图如下
+// 2、考察抽象空间思维与边界值的处理
+```
+
+<img src="/Image/Algorithm/Array/5.png" style="zoom:50%;" align="center"/>
+
+##### 3-1-3-2、顺时针打印矩阵
+
+输入一个矩阵，按照从外向里以顺时针的顺序依次打印出每一个数字。
+
+```
+例如，如果输入如下4 X 4矩阵：
+1 2 3 4 
+5 6 7 8
+9 10 11 12 
+13 14 15 16 
+则依次打印出数字1,2,3,4,8,12,16,15,14,13,9,5,6,7,11,10
+```
+
+```javascript
+function printMatrix(matrix) {
+  var start = 0;
+  var result = [];
+  var rows = matrix.length;
+  var coloums = matrix[0].length;
+  if (!rows || !coloums) {
+    return false;
+  }
+  
+  // 关键: 循环结束的条件
+  while (coloums > start * 2 && rows > start * 2) {
+    printCircle(matrix, start, coloums, rows, result);
+    start++;
+    // start = 0-0 1-1 2-2 3-3 ...
+  }
+  return result;
+}
+
+// 打印一圈
+function printCircle(matrix, start, coloums, rows, result) {
+  // 行末尾 (x,?)
+  var entX = coloums - start - 1;
+  // 末尾列 (?,y)
+  var endY = rows - start - 1;
+  
+  // 1、左到右打印
+  for (var i = start; i <= entX; i++) {
+    result.push(matrix[start][i]);
+  }
+  // 若非单行则继续打印
+  if (endY > start) {
+    // 2、上到下打印
+    for (var i = start + 1; i <= endY; i++) {
+      result.push(matrix[i][entX]);
+    }
+    // 若非单列则继续打印
+    if (entX > start) {
+      // 3、右到左打印
+      for (var i = entX - 1; i >= start; i--) {
+        result.push(matrix[endY][i]);
+      }
+      // 若行数不少于2则继续打印
+      if (endY > start + 1) {
+        // 4、下到上打印
+        for (var i = endY - 1; i > start; i--) {
+          result.push(matrix[i][start]);
+        }
+      }
+    }
+  }
+}
+
+// 思考:
+// 1、不要复杂化，单一问题单一解决，这样会容易理解和清晰的多
+// 2、将打印一圈拆解为四部: 第一步：从左到右打印一行、第二步：从上到下打印一列、第三步：从右到左打印一行、第四步：从下到上打印一列;
+// 3、最后一圈很有可能出现几种异常情况,打印矩阵最里面一圈可能只需三步、两步、甚至一步
+```
+
+<img src="/Image/Algorithm/Array/6.png" style="zoom:30%;" align="center"/>
+
+<img src="/Image/Algorithm/Array/7.png" style="zoom:50%;" align="center"/>
+
+
+
+
+
+
+
+##### 3-1-4、数据统计
 
