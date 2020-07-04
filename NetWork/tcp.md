@@ -523,7 +523,7 @@ net.ipv4.tcp_max_tw_buckets = 262144
 
 #### 4-2、超时计算
 
-​	重传间隔也叫做**超时重传时间**(Retransmission TimeOut，简称RTO)；
+​	重传间隔也叫做 **<u>超时重传时间(Retransmission TimeOut，简称RTO)</u>**，RTO 的设置是保证 TCP 性能的关键；
 
 - 注意：因涉及重传，RTT 计算复杂，精准测量需通过数据包中的 Timestamp 选项 (Timestamp 会将发送时间、接收时间一并存放)；
 - 注意：严格说 RTT 针对的是网络特性，并不局限于 TCP，在需要测量报文往返时间的场景都会用到，HTTP/3 开始关注传输层和网络层，也可能引入RTT；
@@ -532,8 +532,8 @@ net.ipv4.tcp_max_tw_buckets = 262144
 
 ##### 4-2-1、RTO 计算
 
-- RTO 略大于 RTT
-- RTO 应当平滑，降低瞬时变化：每产生一次新的 RTT，就根据一定的算法对 SRTT(Smoothed round-trip time—Smoothed RTT) 进行更新，因平滑因子 α 的范围是`0.8 ~ 0.9`，RTT 对于 RTO 的影响太小， 适用于 RTT 稳定地方；
+- RTO 应略大于 RTT
+- RTO 应当平滑，降低瞬时变化：每产生一次新的 RTT，就根据一定的算法对 SRTT(Smoothed round-trip time—Smoothed RTT) 进行更新，因平滑因子 α 的范围是`0.8 ~ 0.9`，RTT 对于 RTO 的影响太小， 适用于 RTT 稳定地方 —> **<u>经典方法</u>**；
 
 ```
 // 经典方法
@@ -547,7 +547,7 @@ SRTT =  (α * SRTT) + ((1 - α) * RTT)
 RTO = min(ubound, max(lbound, β * SRTT))
 ```
 
-- RTO 应当对 RTT 变化敏感：
+- RTO 应当对 RTT 变化敏感 —> **<u>标准方法</u>**：
 
 ```
 // 标准方法(Jacobson/Karels 算法)
@@ -560,31 +560,32 @@ RTO = SRTT + max(G, K*RTTVAR)
 
 2、后续计算 RTO(R'为最新测量得到的 RTT):
 SRTT = (1 - α) * SRTT + α * R'
-RTTVAR = (1 - β) * RTTVAR + β * (|R' - SRTT|)
+
 // 记录最新的 RTT 与当前 SRTT 间的差值
-RTO = µ * SRTT + K * RTTVAR 
+RTTVAR = (1 - β) * RTTVAR + β * (|R' - SRTT|)
+
 // 在 SRTT 的基础上加上了最新 RTT 与 SRTT 的偏移, 从而感知 RTT 变化
+RTO = µ * SRTT + K * RTTVAR 
 ```
+
+- RTO 应有边界：测量 RTT 时，TCP 时钟始终处于运转状态，TCP 时钟通常为某个变量，其值随系统时钟变化而更新(但非一对一同步更新)；将 TCP 时钟一个滴答时间长度称为 ***粒度***，粒度会影响 RTT 测量及 RTO 的设置，粒度用于优化 RTO 的更新情况，并给 RTO 设置了一个下界，计算公式如下：
+
+```
+// G = 计时器粒度, 1000ms 为整个 RTO 下界值, RTO 至少为 1s
+RTO = max(srtt + max(G, 4(rttvar)), 1000);
+```
+
+- 时间戳小选项使发送端即使在丢包、延时、失序的情况下也能测量 RTT，使得 RTO 的设置更为精确；
+
+
+
+
 
 
 
 #### 4-3、重传机制演变
 
-##### 4-3-1、PAR-Positive Acknowledgement with Retransmisson(定时器重传)
-
-<img src="/Image/NetWork/tcp/71.png" style="zoom:50%;" />
-
-​	PAR，定时器重传，消息增加标识，服务端接收后回传须包含标识，当发送报文就开启以定时器，若一定时间内未收到包含发出信息标识的确认报文时，则执行重发；缺点是效率低下，且对方接收与处理能力有限，需增加 limit 字段限制发送方；
-
-##### 4-3-2、提升并发能力的 PAR 改进版
-
-<img src="/Image/NetWork/tcp/72.png" style="zoom:50%;" />
-
-​	注意：为消息增加标识仅作用于报文，但 TCP 是面向字节流的，解决的是应用层字节流的可靠发送，故后续 TCP 中引入序列号和窗口大小，序列号的值是对应字节，比如：发送 Seq Number = 569，即第569字节，Segment 长度为 1328，则下一 segment 段的 Seq Number = 569 + 1328 = 1897，即第1897字节；
-
-##### 4-3-3、Sequence 序列号 / Acknowledge 序列号
-
-描述：为消息引入序列号，解决应用层字节流的可靠发送；
+补充：为消息引入序列号，解决应用层字节流的可靠发送，引入 Sequence 序列号 / Acknowledge 序列号 ；
 
 - **设计目的：解决应用层字节流的可靠发送；**
   - 跟踪应用层的发送端数据是否送达；
@@ -592,21 +593,39 @@ RTO = µ * SRTT + K * RTTVAR
 - **序列号的值针对的是字节而非报文；**
   - 即序列号的值与报文包含的字节长度相关，比如某报文序列号 = 100，字节数是 50，则确认序号只能是151，而不能是其他值；
 
-<img src="/Image/NetWork/tcp/73.png" style="zoom:50%;" align="left" />
+<img src="/Image/NetWork/tcp/73.png" style="zoom:50%;" align="" />
 
-<img src="/Image/NetWork/tcp/74.png" style="zoom:50%;" align="left"  />
+<img src="/Image/NetWork/tcp/74.png" style="zoom:50%;" align=""  />
 
 问题：序列号的复用-PAWS序列号回绕问题(达序列号最大值后，新序列号会进行复用)；
 
-<img src="/Image/NetWork/tcp/75.png" style="zoom:50%;"  />
+<img src="/Image/NetWork/tcp/75.png" style="zoom:50%;"   />
 
 解决：timestamps，见 TCP Options timestamp 描述；
 
-<img src="/Image/NetWork/tcp/76.png" style="zoom:50%;" align="left" />
+<img src="/Image/NetWork/tcp/76.png" style="zoom:50%;" align="" />
 
 
 
-##### 4-3-4、SACK-TCP Selective Acknowledgement
+##### 4-3-1、PAR-Positive Acknowledgement with Retransmisson(基于计时器的重传)
+
+<img src="/Image/NetWork/tcp/71.png" style="zoom:50%;" />
+
+​	**<u>基于计时器重传-PAR</u>**，消息增加标识，服务端接收后回传须包含标识，当发送报文就开启以定时器，若一定时间内未收到包含发出信息标识的确认报文时，则执行重发；缺点是网络利用率和效率低下，且对方接收与处理能力有限，需增加 limit 字段限制发送方；
+
+##### 4-3-2、提升并发能力的 PAR 改进版
+
+<img src="/Image/NetWork/tcp/72.png" style="zoom:50%;" />
+
+​	注意：为消息增加标识仅作用于报文，但 TCP 是面向字节流的，解决的是应用层字节流的可靠发送，故后续 TCP 中引入序列号和窗口大小，序列号的值是对应字节，比如：发送 Seq Number = 569，即第569字节，Segment 长度为 1328，则下一 segment 段的 Seq Number = 569 + 1328 = 1897，即第1897字节；
+
+
+
+##### 4-3-3、快速重传  (详看 6-2-3、快速重传)
+
+
+
+##### 4-3-4、SACK-TCP Selective Acknowledgement 带选择确认的重传
 
 ​	问题：TCP 序列号采用累积确认方式，当接收方没有收到报文5，但收到报文6、7、8，接收方只能反复告知发送方缺失报文5，但发送方无法立即获悉此情况，也立即无法得知报文6、7、8是否被对方接收到；此时 Server 发送窗口/Client 接收窗口停止；
 
@@ -627,7 +646,15 @@ RTO = µ * SRTT + K * RTTVAR
 
 
 
-##### 4-3-5、TCP New Reno
+##### 4-3-x、TCP New Reno
+
+
+
+
+
+
+
+
 
 
 
