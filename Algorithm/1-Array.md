@@ -671,3 +671,209 @@ function printCircle(matrix, start, coloums, rows, result) {
 
 ##### 3-1-4、数据统计
 
+##### 3-1-4-1、某元素个数超出数组长度一半
+
+数组中有一个数字出现的次数超过数组长度的一半，请找出这个数字。例如输入一个长度为9的数组{1,2,3,2,2,2,5,4,2}。由于数字2在数组中出现了5次，超过数组长度的一半，因此输出2。如果不存在则输出0
+
+```javascript
+function MoreThanHalfNum_Solution(numbers) {
+  if (numbers && numbers.length > 0) {
+    var length = numbers.length;
+    var temp = {};
+    for (var i = 0; i < length; i++) {
+      // 判断逻辑
+      if (temp['s' + numbers[i]]) {
+        temp['s' + numbers[i]]++;
+      } else {
+        temp['s' + numbers[i]] = 1;
+      }
+      // 结束边界
+      if (temp['s' + numbers[i]] > length / 2) {
+        return numbers[i];
+      }
+    }
+    return 0;
+  }
+}
+// 思路1: 开辟额外空间存储每个值出现的次数，时间复杂度最大为O(n)，逻辑简单
+
+
+function MoreThanHalfNum_Solution(numbers) {
+  if (numbers && numbers.length > 0) {
+    var target = numbers[0];
+    var count = 1;
+    for (var i = 1; i < numbers.length; i++) {
+      if (numbers[i] === target) {
+        count++;
+      } else {
+        count--;
+      }
+      if (count === 0) {
+        target = numbers[i];
+        count = 1;
+      }
+    }
+    count = 0;
+    for (var i = 0; i < numbers.length; i++) {
+      if (numbers[i] === target) count++;
+    }
+    return count > numbers.length / 2 ? target : 0;
+  }
+}
+// 思路2: 记录两个变量: 数组中某个值以及它出现的次数，时间复杂度O(n) 无需开辟额外空间
+```
+
+
+
+##### 3-1-4-2、首个出现1次字符
+
+在一个字符串(`0<=字符串长度<=10000`，全部由字母组成)中找到第一个只出现一次的字符,并返回它的位置, 如果没有则返回`-1`
+
+注意：需要区分大小写
+
+```javascript
+function FirstNotRepeatingChar(str) {
+  if (!str) {
+    return -1;
+  }
+  let countMap = {};
+  const array = str.split('');
+  const length = str.length;
+  for (let i = 0; i < length; i++) {
+    const current = array[i];
+    let count = countMap[current];
+    if (count) {
+      countMap[current] = count + 1;
+    } else {
+      countMap[current] = 1;
+    }
+  }
+  for (let i = 0; i < length; i++) {
+    if (countMap[array[i]] === 1) {
+      return i;
+    }
+  }
+  return -1;
+}
+// 思路1: 用 Map 存储每个字符出现的字数, 第一次循环存储次数，二次循环 Map 找到首个出现一次的字符。时间复杂度O(n)、空间复杂度O(n)
+
+function FirstNotRepeatingChar(str) {
+  // write code here
+  for (var i = 0; i < str.length; i++) {
+    if (str.indexOf(str[i]) == str.lastIndexOf(str[i])) {
+      return i;
+    }
+  }
+  return -1;
+}
+// 思路2: 使用 API 方法，indexOf 与 lastIndexOf 判断索引是否一致，但因 indexOf 自身复杂度为 O(n), 故整体的时间复杂度为O(n2)，空间复杂度为0
+```
+
+
+
+##### 3-1-4-3、扑克牌顺子-懵逼
+
+扑克牌中随机抽`5`张牌，判断是否是顺子，即这`5`张牌是否连续。现假设 `2-10`为数字本身，`A`为`1`，`J`为`11` ，`Q` 为 `12` ， `K` 为 `13` ，鬼牌可看成任何数字，也可将其当作`0`处理；
+
+```javascript
+function IsContinuous(numbers) {
+  if (numbers && numbers.length > 0) {
+    numbers.sort();
+    let kingNum = 0;
+    let spaceNum = 0;
+    for (let i = 0; i < numbers.length - 1; i++) {
+      if (numbers[i] === 0) {
+        kingNum++;
+      } else {
+        const space = numbers[i + 1] - numbers[i];
+        if (space == 0) {
+          return false;
+        } else {
+          spaceNum += space - 1;
+        }
+      }
+    }
+    return kingNum - spaceNum >= 0;
+  }
+  return false;
+}
+
+1.数组排序
+2.遍历数组
+3.若为0，记录0的个数加1
+4.若不为0，记录和下一个元素的间隔
+5.最后比较0的个数和间隔数，间隔数>0的个数则不能构成顺子
+6.注意中间如果有两个元素相等则不能构成顺子
+```
+
+
+
+##### 3-1-5、其他
+
+##### 3-1-5-1、连续子数组最大和-懵逼
+
+输入一个整型数组，数组里有正数也有负数。数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值，要求时间复杂度为`O(n)` 例如:`{6,-3,-2,7,-15,1,2,2}`,连续子向量的最大和为8(从第0个开始,到第3个为止)
+
+```javascript
+function FindGreatestSumOfSubArray(array) {
+  if (Array.isArray(array) && array.length > 0) {
+    let sum = array[0];
+    let max = array[0];
+    for (let i = 1; i < array.length; i++) {
+      if (sum < 0) {
+        sum = array[i];
+      } else {
+        sum = sum + array[i];
+      }
+      if (sum > max) {
+        max = sum;
+      }
+    }
+    return max;
+  }
+  return 0;
+}
+
+// 思路:
+// 记录一个当前连续子数组最大值 max 默认值为数组第一项
+// 记录一个当前连续子数组累加值 sum 默认值为数组第一项
+
+// 1.从数组第二个数开始，若 sum<0 则当前的sum不再对后面的累加有贡献，sum = 当前数
+// 2.若 sum>0 则sum = sum + 当前数
+// 3.比较 sum 和 max ，max = 两者最大值
+```
+
+
+
+##### 3-1-5-2、将数组元素排成最小序列输出-懵逼
+
+输入一个正整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。
+
+例如输入数组`{3，32，321}`，则打印出这三个数字能排成的最小数字为`321323`
+
+```javascript
+function PrintMinNumber(numbers) {
+  if (!numbers || numbers.length === 0) {
+    return "";
+  }
+  return numbers.sort(compare).join('');
+}
+
+function compare(a, b) {
+  const front = "" + a + b;
+  const behind = "" + b + a;
+  return front - behind;
+}
+
+// 思路:
+// 定义一种新的排序规则，将整个数组重新排序：
+// a和b两个数字可以有两种组合：ab和ba，若ab<ba则ab应该排在ba前面，否则ab应该排在ba后面。
+// 使用数组的sort方法，底层是快排，也可以手写一个快排。
+// sort方法接收一个比较函数，compareFunction：如果 compareFunction(a, b) 小于 0 ，那么 a 会被排列到 b 之前
+```
+
+
+
+##### 3-1-5-3、[数组+归并排序](http://www.conardli.top/docs/dataStructure/数组/数组中的逆序对.html#题目)
+
+##### 3-1-5-4、[统计数组元素出现次数](http://www.conardli.top/docs/dataStructure/数组/在排序数组中查找数字.html#题目)
