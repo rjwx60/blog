@@ -223,3 +223,148 @@ class StackJs {
 补充：https://juejin.im/book/5cb42609f265da035f6fcb65/section/5cf4c699f265da1bc23f6252
 
 补充：https://juejin.im/book/5cb42609f265da035f6fcb65/section/5cea46f55188253a275a3a04
+
+
+
+#### 2-1、题目
+
+##### 2-1-1、栈实现队列
+
+用两个栈来实现一个队列，完成队列的Push和Pop操作；
+
+```javascript
+const stack1 = [];
+const stack2 = [];
+
+function push(node)
+{
+    stack1.push(node);
+}
+function pop()
+{
+    if(stack2.length === 0){
+       while(stack1.length>0){
+        stack2.push(stack1.pop());
+       }
+    }
+    return stack2.pop() || null;
+}
+
+// 思路:
+// 用栈1入栈实现队列的 push 操作, 而当队列 pop 时，先将栈1所有数据拿出并放入栈2，栈2再排出
+```
+
+<img src="/Image/Algorithm/Stack/3.png" style="zoom:50%;" align=""/>
+
+
+
+
+
+##### 2-1-2、队列实现栈
+
+用两个队列实现栈，完成栈的Push和Pop操作；
+
+```javascript
+const queue1 = []
+const queue2 = []
+
+function push(x) {
+  if (queue1.length === 0) {
+    queue1.push(x)
+		
+    // push 的时候完成位置的逆序
+    while (queue2.length) {
+      queue1.push(queue2.shift())
+    }
+  } else if (queue2.length === 0) {
+    queue2.push(x)
+
+    while (queue1.length) {
+      queue2.push(queue1.shift())
+    }
+  }
+};
+
+function pop() {
+  if (queue1.length !== 0) {
+    return queue1.shift()
+  } else {
+    return queue2.shift()
+  }
+};
+
+// 思路:
+// 关键在 push 时完成元素的逆序，因为队列先进先出，只有逆序后才能实现栈的先进后出
+// 每次只将元素 push 到空队列中，随后才将另一队列元素加入，如此实现先入元素后放，实现逆序
+```
+
+
+
+##### 2-1-3、包含 min 函数的栈
+
+定义栈的数据结构，请在该类型中实现一个能够得到栈中所含最小元素的min函数（时间复杂度应为O（1））
+
+```javascript
+var dataStack = [];
+var minStack = [];
+ 
+function push(node)
+{
+    dataStack.push(node);
+    if(minStack.length === 0 ||  node < min()){
+        minStack.push(node);
+    }else{
+        minStack.push(min());
+    }
+}
+function pop()
+{
+    minStack.pop();
+    return dataStack.pop();
+}
+function top()
+{
+    var length = dataStack.length;
+    return length>0&&dataStack[length-1]
+}
+function min()
+{
+    var length = minStack.length;
+    return length>0&&minStack[length-1]
+}
+
+// 思路:
+// 关键在于要求复杂度为 O(1), 栈的操作中只有 push 和 pop 复杂度为1, 由此确定大致方向, 更由此推断 min 值应存放在栈顶
+// 1.定义两个栈，一个栈用于存储数据，另一个栈用于存储每次数据进栈时栈的最小值.
+// 2.每次数据进栈时，将此数据和最小值栈的栈顶元素比较，将二者比较的较小值再次存入最小值栈.
+// 3.数据栈出栈，最小值栈也出栈。
+```
+
+
+
+##### 2-1-4、滑动窗口最大值
+
+给定一个数组 nums，有一个大小为 k 的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口 k 内的数字。滑动窗口每次只向右移动一位。 返回滑动窗口最大值，具体如下：详见：[链接](http://www.conardli.top/docs/dataStructure/栈和队列/滑动窗口的最大值.html#思路)
+
+```
+输入: nums = [1,3,-1,-3,5,3,6,7], 和 k = 3
+输出: [3,3,5,5,6,7] 
+
+  滑动窗口位置                  最大值
+---------------               -----
+[1  3  -1] -3  5  3  6  7       3
+ 1 [3  -1  -3] 5  3  6  7       3
+ 1  3 [-1  -3  5] 3  6  7       5
+ 1  3  -1 [-3  5  3] 6  7       5
+ 1  3  -1  -3 [5  3  6] 7       6
+ 1  3  -1  -3  5 [3  6  7]      7
+```
+
+
+
+
+
+##### 2-1-5、 [栈的压入弹出序列](http://www.conardli.top/docs/dataStructure/栈和队列/栈的压入弹出序列.html#栈的压入、弹出序列)
+
+##### 2-1-6、[接雨水](https://leetcode-cn.com/problems/trapping-rain-water/)
+
