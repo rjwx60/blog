@@ -6,9 +6,14 @@ typora-root-url: ../Source
 
 #### 1-1、定义
 
- 	**链表**(LinkList)，是由一组节点组成的线性集合数据结构，每个节点由数据和到序列中下一个节点的引用(指针/链接)组成。最简单的链表允许在迭代期间有效地从序列中的任何位置插入或删除元素。更复杂的变体链表能添加额外的链接，并允许有效地插入或删除任意元素引用。注意链表不像数组，其中的元素在内存中并非连续存放；
+ 	**链表**(LinkList)，是由一组节点组成的线性集合数据结构，每个节点由数据和到序列中下一个节点的引用(指针/链接)组成。最简单的链表允许在迭代期间有效地从序列中的任何位置插入或删除元素。更复杂的变体链表能添加额外的链接，并允许有效地插入或删除任意元素引用。注意链表不像数组，其中的元素在内存中并非连续存放；此外，链表在开发中也是经常用到的数据结构，`React16`的 `Fiber Node`连接起来形成的`Fiber Tree`, 就是个单链表结构。
+
+- 需要遍历才能查询到元素，查询慢。
+- 插入元素只需断开连接重新赋值，插入快。
 
 <img src="/Image/Algorithm/LinkList/1.png" style="zoom:50%;" />
+
+<img src="/Image/Algorithm/LinkList/8.png" style="zoom:30%;" />
 
 #### 1-2、特点
 
@@ -864,6 +869,8 @@ class CircularLinkedList extends LinkedList {
 
 
 
+
+
 ### 二、LeedCode
 
 补充：https://juejin.im/book/5cb42609f265da035f6fcb65/section/5e5b4698f265da5749474beb
@@ -873,3 +880,205 @@ class CircularLinkedList extends LinkedList {
 补充：https://juejin.im/book/5cb42609f265da035f6fcb65/section/5cf4c68b6fb9a07eaf2b7b44
 
 补充：https://juejin.im/post/5d5b307b5188253da24d3cd1#heading-22
+
+
+
+#### 2-1、类型
+
+- ##### 基本应用
+
+- ##### 环形链表
+
+- ##### 双向指针
+
+- ##### 双向链表
+
+
+
+##### 2-1、基本应用
+
+##### 2-1-1、打印链表结点(从尾结点开始)
+
+输入一个链表(即给你头结点)，按链表值从尾到头的顺序返回一个`ArrayList`
+
+```javascript
+/*function ListNode(x){
+    this.val = x;
+    this.next = null;
+}*/
+function printListFromTailToHead(head)
+{
+    const array = [];
+    while(head){
+        array.unshift(head.val);
+        head = head.next;
+    }
+    return array;
+}
+
+// 思路:
+// 遍历链链表即不断找到当前节点的 next 结点，当 next 结点为 null 则说明此乃最后一个结点，停止遍历；而因为是从尾到头的顺序，可使用JS 数组来存储打印结果，每次从队列头部插入
+```
+
+
+
+##### 2-1-2、删除链表中的结点
+
+给定单链表的头指针和要删除的指针节点，在O(1)时间内删除该节点；
+
+```javascript
+var deleteNode = function (head, node) {
+  // 1、删除的节点不是尾部节点 - 将next节点覆盖当前节点
+  if (node.next) {
+    node.val = node.next.val;
+    node.next = node.next.next;
+  // 2、删除的节点是尾部节点且等于头节点，只剩一个节点 - 将头节点置为null
+  } else if (node === head) {
+    node = null;
+    head = null;
+  // 3、删除的节点是尾节点且前面还有节点 - 遍历到末尾的前一个节点删除
+  } else {
+    node = head;
+    // 遍历直至尾结点的前一结点，尾结点.next = null
+    while (node.next.next) {
+      node = node.next;
+    }
+    // 尾结点的上一结点.next = null 即可将尾结点删除
+    node.next = null;
+    // 疑问: 此时尾结点的上一结点已经成了尾结点了呀，为何还要置 null ?
+    node = null;
+  }
+  return node;
+};
+
+// 思路:
+// 删除操作中，当知道被删结点即可操作，
+// 前两种情况时间复杂度是 O(1) 第三种情况时间复杂度是 O(n)，且这种情况只会出现1/n次，所以算法时间复杂度是O(1)
+```
+
+
+
+##### 2-1-3、删除链表中重复结点
+
+```javascript
+// 若链表无序
+function deleteDuplication(pHead) {
+  const map = {};
+  if (pHead && pHead.next) {
+    let current = pHead;
+    // 计数
+    while (current) {
+      const val = map[current.val];
+      map[current.val] = val ? val + 1 : 1;
+      current = current.next;
+    }
+    current = pHead;
+    while (current) {
+      const val = map[current.val];
+      if (val > 1) {
+        // 删除节点
+        console.log(val);
+        if (current.next) {
+          current.val = current.next.val;
+          current.next = current.next.next;
+        } else if (current === pHead) {
+          current = null;
+          pHead = null;
+        } else {
+          current = pHead;
+          while (current.next.next) {
+            current = current.next;
+          }
+          current.next = null;
+          current = null;
+        }
+
+      } else {
+        current = current.next;
+      }
+    }
+  }
+  return pHead;
+}
+
+// 思路:
+// 用 map 存储每个结点出现的次数，并删除出现次数大于1的结点，时间复杂度：O(n)，空间复杂度：O(n)
+
+
+// 若链表有序
+function deleteDuplication(pHead) {
+  // 1、当前结点或当前结点的next为空，返回该结点
+  if (!pHead || !pHead.next) {
+    return pHead;
+  // 2、当前结点是重复结点：找到后面第一个不重复的结点
+  } else if (pHead.val === pHead.next.val) {
+    let tempNode = pHead.next;
+    while (tempNode && pHead.val === tempNode.val) {
+      tempNode = tempNode.next;
+    }
+    return deleteDuplication(tempNode);
+  // 3、当前结点不重复：将当前的结点的next赋值为下一个不重复的结点
+  } else {
+    pHead.next = deleteDuplication(pHead.next);
+    return pHead;
+  }
+}
+
+// 思路:
+// 上述方式时间复杂度：O(n)、空间复杂度：O(1)
+// 运用迭代思想，处理好边界问题，很多模式均为: 迭代 + 边界问题的处理
+```
+
+
+
+##### 2-1-4、反转链表
+
+输入一个链表，反转链表后，输出新链表的表头
+
+```javascript
+// H -> A -> B -> C -> D 反转为 
+// D -> C -> B -> A -> H
+
+var reverseList = function (head) {
+  let currentNode = null;
+  // 1、缓存头结点为: headNode
+  let headNode = head;
+  while (head && head.next) {
+    // 2、缓存头结点的下一结点为: currentNode
+    // H -> A -> B -> C -> D
+    // cacheNode = currentNode = A
+    currentNode = head.next;
+    
+    // 2、更改头结点的下一结点 A 为: A 的下一结点 B (即删除 A 结点)
+    // H -> B -> C -> D
+    // cacheNode = currentNode = A
+    head.next = currentNode.next;
+    
+    // 3、将游离结点 A 重新固定，固定到头结点前面，注意此时使用的是缓存值，如此语义更清晰
+    // A - H -> B -> C -> D
+    currentNode.next = headNode;
+    // 4、更新缓存点为: 新的头结点 A, 即 currentNode 开始新一轮的迭代过程
+    headNode = currentNode;
+  }
+  return headNode;
+};
+
+// 思路:
+// 以链表的头部结点为基准点，先将基准点的下一个结点从链表剥离，然后将头结点则下一结点的下一结点连接，然后将剥离出的结点挪到头部作为头结点，最后当基准结点的 next 为 null，则其已经成为最后一个结点，此时链表已经反转完成
+```
+
+
+
+##### 2-1-5、[复杂链表的复制]([http://www.conardli.top/docs/dataStructure/%E9%93%BE%E8%A1%A8/%E5%A4%8D%E6%9D%82%E9%93%BE%E8%A1%A8%E7%9A%84%E5%A4%8D%E5%88%B6.html#%E9%A2%98%E7%9B%AE](http://www.conardli.top/docs/dataStructure/链表/复杂链表的复制.html#题目))
+
+输入一个复杂链表(每结点中有结点值、以及2个指针：一个指向下一个结点，另一个指针则指向任意一个结点)，返回结果为：复制后的复杂链表的 head；
+
+
+
+
+
+##### 2-2、环形链表
+
+##### 2-3、双向指针
+
+##### 2-4、双向链表
