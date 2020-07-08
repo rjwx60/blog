@@ -4,13 +4,80 @@ typora-root-url: ../Source
 
 
 
-##### 剩：二补充1+补充2
-
-
-
 ### 一、总结
 
-<img src="/Image/Basics/EventLoop/1.png" style="zoom:50%;" align="left"/>
+<img src="/Image/Basics/EventLoop/1.png" style="zoom:50%;" align="center"/>
+
+<img src="/Image/Basics/EventLoop/300.png" style="zoom:50%;" align="center"/>
+
+<img src="/Image/Basics/EventLoop/301.png" style="zoom:50%;" align="center"/>
+
+<img src="/Image/Basics/EventLoop/302.png" style="zoom:50%;" align="center"/>
+
+<img src="/Image/Basics/EventLoop/303.png" style="zoom:50%;" align="center"/>
+
+<img src="/Image/Basics/EventLoop/304.png" style="zoom:50%;" align="center"/>
+
+
+
+
+
+#### 1-1、背景
+
+##### 1-1-1、进程线程
+
+多进程：同一时间里，同一计算机系统中，允许 2/2+ 进程处于运行状态；
+
+多线程：程序中包含多个执行流，单个程序中可同时运行多个不同线程，来执行不同任务；
+
+- 比如：Chrome 的 Tab 页即一个进程，而一进程中可拥有多个线程，比如渲染、JS 引擎、HTTP 请求线程等；
+
+两者关系：
+
+- 1进程由 1/1+ 个线程组成，线程是1进程中代码的不同执行路线；
+- 1进程的内存空间是共享的，每个线程都可用这些共享内存；
+
+
+
+##### 1-1-2、任务分类
+
+任务可分为同步异步任务(前者能立即执行)，亦可分为宏任务(macro-task)与微任务(micro-task)；
+
+- 宏任务—MacroTask：整体代码、setTimeout、setInterval、setImmediate、I/O、UI rendering；
+- 微任务—MicroTask：process.nextTick、Promises.then-catch-finally、Object.observe、MutationObserver；
+
+
+
+##### 1-1-3、浏览器内核
+
+作用：通过取得页面内容、整理信息、应用CSS、计算&组合、最终输出可视化图像结果；
+
+多线程：内核是多线程，在内核控制下，各线程相互配合以保持同步，常驻线程：
+
+- GUI 渲染线程：
+  - 负责页面渲染、解析HTML、CSS，构建DOM树、布局、绘制等；重绘/回流，将执行该线程；
+  - 注意：该线程与 JS 引擎线程互斥：
+    - 当执行JS引擎线程时，GUI渲染会被挂起；
+    - 当任务队列空闲时，主线程才会去执行GUI渲染；
+- JS引擎线程：
+  - 负责处理 JS 脚本、执行代码；
+  - 负责执行待执行事件，即定时器计数结束，或者异步请求成功并正确返回时，将依次进入任务队列，等待 JS引擎线程的执行；
+  - 注意：该线程与 GUI 渲染线程互斥：
+    - 当 JS 引擎线程执行 JS 脚本时间过长，将导致页面渲染的阻塞；
+- 定时触发器线程：
+  - 负责执行异步定时器一类函数的线程，比如： setTimeout、setInterval；
+    - 主线程依次执行代码时，遇到定时器，会将定时器交给该线程处理；
+    - 当计数完毕后，事件触发线程会将计数完毕后的事件加入到任务队列的尾部，等待JS引擎线程执行；
+- 事件触发线程：
+  - 负责将准备好的事件交给 JS引擎线程执行；比如 setTimeout定时器计数结束、ajax等异步请求成功并触发回调函数，或用户触发点击事件时；该线程会将整装待发的事件，依次加入到任务队列队尾，并等待 JS 引擎线程的执行；
+- 异步http请求线程：
+  - 负责执行异步请求一类函数的线程，比如： Promise、axios、ajax 等；
+    - 主线程依次执行代码时，遇到异步请求，会将函数交给该线程处理；
+    - 当监听到状态码变更，若有回调函数，事件触发线程会将回调函数加入到任务队列尾部，并等待 JS 引擎线程执行；
+
+
+
+
 
 
 
@@ -79,7 +146,44 @@ typora-root-url: ../Source
 
 
 
+##### 1-3-4、补充-待整理
+
+- 调用一个函数总是会为堆栈创造一个新的栈帧；
+- JS 运行时，包含了一个待处理的消息队列 Message Queue；每一 Message 都关联着一个用以处理这个消息的函数；
+- EventLoop 期间的某个时刻，运行时从最先进入队列的消息开始处理队列中的消息，此时，消息会被移出队列，并作为输入参数，调用与之关联的函数!!!!!!
+- JS 函数的处理会一直进行到执行栈再次为空为止；然后事件循环将会处理队列中的下一个消息；
+- JS 函数执行时，永远不会被抢占，并在其他代码运行之前完全运行，此时若运行时间过长就会发生阻塞；
+- JS 永不阻塞，指的是处理 I/O 通常通过事件和回调来执行；比如：当执行异步操作时候，还可处理其它事情；
+  - 例外：https://stackoverflow.com/questions/2734025/is-javascript-guaranteed-to-be-single-threaded/2734311#2734311
+- 当异步方法如 setTimeout()、ajax请求、DOM事件执行，会交由浏览器内核的其他模块去管理；
+
+<img src="/Image/Basics/EventLoop/110.png" style="zoom:50%;" />
+
+<img src="/Image/Basics/EventLoop/111.png" style="zoom:50%;" />
+
+<img src="/Image/Basics/EventLoop/112.png" style="zoom:50%;" />
+
+
+
+
+
 #### 1-4、Node EventLoop 事件循环机制
+
+
+
+##### 1-4-1、浏览器运行
+
+<video src="/Image/Basics/EventLoop/8.mov" style="zoom:50%;" align="left"></video>
+
+
+
+
+
+##### 1-4-2、Node运行
+
+<video src="/Image/Basics/EventLoop/9.mov" style="zoom:50%;" align="left"></video>
+
+
 
 
 
@@ -165,7 +269,7 @@ typora-root-url: ../Source
 
 
 
-##### 3-8、如何分辨宏微任务？什么是宏任务 macro-task & 微任务 micro-task ？ 
+##### 3-8、如何分辨宏微任务？什么是宏任务 macro-task & 微任务 micro-task ? 为何分宏微任务? 
 
 宏任务：整体代码，setTimeout， setInterval，setImmediate，I/O，UI rendering；
 
@@ -173,10 +277,10 @@ typora-root-url: ../Source
 
 详看：[这里](https://segmentfault.com/a/1190000014940904#articleHeader7) [和这里](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/?utm_source=html5weekly)
 
-- 宏任务：即两次 render 间的任务；浏览器为了让 JS 内部 macro-task 与 DOM任务 有序执行，会在：旧 macro-task 执行结束后、新 macro-task 执行前，对页面进行重新渲染 render：
+- 宏任务：即两次 render 间的任务；浏览器为了让 JS 内部 macro-task 与 DOM任务有序执行，会在旧 macro-task 执行结束后、新 macro-task 执行前，对页面进行重新渲染 render：
   - 旧宏 macro-task -> render -> 新宏 macro-task -> render -> …
 
-- 微任务：即栈空、且在当前 macro-task 执行结束后，在下一个新的 macro-task 执行前的任务；微任务的存在，使得无需分配新的 macro-task，减小性能开销。只要栈空，且当前宏任务执行完毕，微任务队列会立即执行。微任务执行期间，又有新的微任务，则推入队列尾部，后执行。
+- 微任务：即栈空且在当前 macro-task 执行结束后，在下一个新的 macro-task 执行前的任务；微任务的存在，使得无需再分配新的 macro-task，减小性能开销。只要栈空且当前宏任务执行完毕，微任务队列会立即执行。微任务执行期间，又有新的微任务，则推入队列尾部，后执行；
 
 <img src="/Image/Basics/EventLoop/105.png" style="zoom:50%;" align=""/>
 
@@ -184,7 +288,7 @@ typora-root-url: ../Source
 
 
 
-### 三、示例A
+### 三、示例A-浏览器相关
 
 #### 3-1、示例1
 
@@ -192,13 +296,13 @@ typora-root-url: ../Source
 
 解释：node环境：跑完微任务 跑所有宏任务 再次跑所有微任务
 
+注意：process.nextTick 的概念和 then 不太一样，前者是加入到执行栈底部，故与其他表现并不一致；
+
 ```javascript
 // 1 7 6 8 2 4 9 11 3 10 5 12
 ```
 
 解释：浏览器环境：需先用 Promise.resolve().then(()=>{ 替换 process.nextTick；
-
-注意：process.nextTick 的概念和 then 不太一样，前者是加入到执行栈底部，故与其他表现并不一致；
 
 ```javascript
 //  1 7 6 8 2 4 3 5 9 11 10 12
@@ -294,5 +398,140 @@ typora-root-url: ../Source
 
 
 
-### 四、示例集合B
 
+
+
+
+
+
+### 四、示例B-Node相关
+
+#### 4-1、示例1：浏览器端与Node端区别：浏览器端：
+
+<img src="/Image/Basics/EventLoop/200.png" style="zoom:50%;" align="left"/>
+
+解释：浏览器没有 process.nexTick，故用promiseThen代替，但性质不一样(见下方)：
+
+首先，执行外围宏任务110，发现新的宏任务setTimeoutA，加塞队列，后执行微任务then输出58；
+
+然后，执行微任务时又发现新的宏任务setTimeoutB，加载宏任务队列中，还发现新的微任务，加载到微任务列表中，故随后输出79；
+
+随后，执行下一个宏任务setTimeoutA输出2；
+
+然后，执行微任务输出34；
+
+最后，再执行下一个setTimeoutB输出6；
+
+
+
+
+
+#### 4-1、示例1：浏览器端与Node端区别：Node端：
+
+<img src="/Image/Basics/EventLoop/201.png" style="zoom:50%;" align="left"/>
+
+
+
+
+
+#### 4-2、示例2：nextTick 探讨
+
+<img src="/Image/Basics/EventLoop/202.png" style="zoom:50%;" align="left"/>
+
+解释：先宏任务1、10，再来 nextTick8、9，然后微任务 then-5、7，然后宏任务 setTimeout2、6，再来微任务 then-3+nextTick-4
+
+原因：process.nextTick 的概念和 then 不太一样：process.nextTick 是加入到执行栈底部，所以和其他的表现并不一致；
+
+
+
+
+
+#### 4-3、示例3：
+
+<img src="/Image/Basics/EventLoop/203.png" style="zoom:50%;" align="left"/>
+
+解释：
+
+宏任务—17、nextTick栈底—6、微任务—8、宏任务—249.11(同为setTimeout同一阶段同一处理)、nextTick栈底—3.10、微任务—5.12
+
+
+
+#### 4-3-1、示例3-1：类似示例3，只是加大了setTimeout等待时间
+
+<img src="/Image/Basics/EventLoop/204.png" style="zoom:50%;" align="left"/>
+
+<img src="/Image/Basics/EventLoop/205.png" style="zoom:50%;" align="left"/>
+
+
+
+
+
+#### 4-4、示例4：
+
+<img src="/Image/Basics/EventLoop/206.png" style="zoom:50%;" align="left"/>
+
+25341
+
+
+
+#### 4-4-1、示例4补充+疑问
+
+<img src="/Image/Basics/EventLoop/207.png" style="zoom:50%;" align="left"/>
+
+<img src="/Image/Basics/EventLoop/208.png" style="zoom:50%;" align="left"/>
+
+234
+
+
+
+#### 4-4-2、
+
+<img src="/Image/Basics/EventLoop/209.png" style="zoom:50%;" align="left"/>
+
+注意：分析嵌套Promise关键是理清微任务有哪些，执行顺序还是宏微宏微，若无宏任务，则连续的微任务，但执行顺序是以加入队列的先后执行的，上图中一轮，promise1后只有then微任务，进入then执行，输出then11和promise2，随后发现2个微任务，一个是里面的then，一个是外面的then，然后执行…
+
+<img src="/Image/Basics/EventLoop/210.png" style="zoom:50%;" align="left"/>
+
+<img src="/Image/Basics/EventLoop/211.png" style="zoom:50%;" align="left"/>
+
+
+
+
+
+#### 4-4-3、
+
+<img src="/Image/Basics/EventLoop/212.png" style="zoom:50%;" align="left"/>
+
+注意：若内里return ，则回归正统的链式调用，由上往下执行，promise1、then11、promise2、then21、then23、then12
+
+
+
+#### 4-4-4、
+
+<img src="/Image/Basics/EventLoop/213.png" style="zoom:50%;" align="left"/>
+
+<img src="/Image/Basics/EventLoop/214.png" style="zoom:50%;" align="left"/>
+
+注意：若有多个Promise，执行效果同5-2，只是多了些代码，大体还是宏微宏微结构；
+
+
+
+#### 4-4-5、
+
+<img src="/Image/Basics/EventLoop/215.png" style="zoom:50%;" align="left"/>
+
+注意：async类型题目，将async后的内容纳入 promise.then 即可
+
+<img src="/Image/Basics/EventLoop/216.png" style="zoom:50%;" align="left"/>
+
+
+
+
+
+#### 4-4-6、
+
+<img src="/Image/Basics/EventLoop/217.png" style="zoom:50%;" align="left"/>
+
+注意：nextTick 发生在宏任务之后，微任务之前，setImmediate为宏任务，将其与setTimeout并列即可
+
+<img src="/Image/Basics/EventLoop/218.png" style="zoom:50%;" align="left"/>
