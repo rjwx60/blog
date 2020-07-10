@@ -108,12 +108,6 @@ var searchInsert = function(nums, target, leftIndex, rightIndex) {
 
 
 
-#### Code：2020-07-10
-
-```javascript
-
-```
-
 
 
 #### More：
