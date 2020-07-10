@@ -66,7 +66,52 @@ function shrinkArea(nums, target, leftIndex, rightIndex) {
 // 内存消耗： 33.2 MB , 在所有 JavaScript 提交中击败了 100.00% 的用户
 
 // 思路:
-// 1、用类似二分法处理：搜寻中间值，然后比对，若大于中间值则取后半段，再取其中中间值，以此类推...
+// 用类似二分法处理：搜寻中间值，然后比对，若大于中间值则取后半段，再取其中中间值，以此类推...
+
+
+/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number}
+ */
+var searchInsert = function(nums, target, leftIndex, rightIndex) {
+  if(leftIndex !== undefined) {
+    var midIndex = Math.floor((leftIndex + rightIndex) / 2);
+    var value = nums[midIndex];
+    // number = 2 避免进入死循环
+    if((rightIndex - leftIndex ) === 1) {
+        return target > nums[leftIndex] ? leftIndex + 1 : leftIndex;
+    }
+    // numbers > 2
+    if(value > target) {
+        return searchInsert(nums, target, leftIndex, midIndex);
+    } else if(value < target) {
+        return searchInsert(nums, target, midIndex, rightIndex);
+    } else {
+        return midIndex;
+    }
+  } else {
+    // 特殊值
+    if(!target) {
+        nums.unshift(target);
+        return 0;
+    }
+    return searchInsert(nums, target, 0, nums.length);
+  }
+};
+// 执行用时： 64 ms , 在所有 JavaScript 提交中击败了 87.88% 的用户 
+// 内存消耗： 32.8 MB , 在所有 JavaScript 提交中击败了 100.00% 的用户
+
+// 思路:
+// Code1 基础上的改进：由递归改为尾递归
+```
+
+
+
+#### Code：2020-07-10
+
+```javascript
+
 ```
 
 
@@ -151,21 +196,24 @@ var searchInsert = function(nums, target) {
 // Runtime: 64 ms, faster than 22.58% of JavaScript online submissions for Search Insert Position.
 // Memory Usage: 33.7 MB, less than 98.01% of JavaScript online submissions for Search Insert Position.
 
+
 // 3-1、二分法优化
 var searchInsert = function(nums, target) {
   const length = nums.length;
-  // 优化: 特殊值处理
+  // 优化: 边界判断
   if (nums[length - 1] < target) {
     return length;
   } else if (length === 0) {
     return 0;
   }
-  let left = 0;
-  right = length - 1;
-  // 
+  let left = 0; right = length - 1;
+  // ≤ 改为了等号
   while (left < right) {
     // 优化: 位运算，不怕大数计算，不怕溢出
+    // 若 left 和 right 都很大的情况下，加和可能超过最大安全数，导致结果不精确
+    // 若改成 left + (right - left) / 2，不过如果 right 很大，而 left 很小，也会溢出
     let mid = (left + right) >>> 1;
+    // 优化: if 判断条件减少为两个，因 target === nums[mid] 的命中结果的情况很罕见，且没必要专门返回等值时的索引，返回左侧索引+1 即可，故可略去
     if (target > nums[mid]) {
       left = mid + 1;
     } else {
@@ -184,9 +232,10 @@ var searchInsert = function(nums, target) {
 
 #### Think：
 
-- Code1 思路一开始就是对的，但临界值没有考虑好，比如最先使用的是 ceil 而非 floor，就会有若 nums 只有一个元素，取中间值 0.5，使用 floor 的话就会变为 1 溢出；比如未考虑 target 为 0 的情况；但普遍行为却处理的还好，可能因为判断条件简单?
+- Code1 思路一开始就是对的，但边界处理没有做好，比如最先使用的是 ceil 而非 floor，就会有若 nums 只有一个元素，取中间值 0.5，使用 floor 的话就会变为 1 溢出；比如未考虑 target 为 0 的情况；但普遍行为却处理的还好，可能因为判断条件简单?
 - Code1 最大的感悟是，对临界、特殊情况的掌控感不足，导致卡在这上面的时间很长(一开始还看错题，以为除了要返回插入索引还要进行插入操作)
-- Code1 的性能真的不忍直视…
+- Code1 代码1的性能真的不忍直视…
+- 本题最大的关键在于使用减治(排除)思想的二分法解决，详看0000
 
 
 
