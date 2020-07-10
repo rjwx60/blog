@@ -1,10 +1,10 @@
 #### [35.Search Insert Position](https://leetcode-cn.com/problems/search-insert-position/)
 
-Given a sorted array and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order.
+Given a sorted array and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order. You may assume no duplicates in the array.
 
-You may assume no duplicates in the array.
+给定一个排序数组和一个目标值，在数组中找到目标值，并返回其索引。如果目标值不存在于数组中，返回它将会被按顺序插入的位置。
 
-
+你可以假设数组中无重复元素。
 
 
 
@@ -176,10 +176,6 @@ var searchInsert = function(nums, target) {
 };
 // Runtime: 52 ms, faster than 83.92% of JavaScript online submissions for Search Insert Position.
 // Memory Usage: 33.9 MB, less than 67.81% of JavaScript online submissions for Search Insert Position.
-
-
-
-
 ```
 
 
