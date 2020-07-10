@@ -73,7 +73,13 @@ var pivotIndex = function(nums) {
 
 
 
-#### Code-2：2020-07-08
+#### More：
+
+##### More1：
+
+作者：缺失-作者链接是后期补上，但这题找不到出处…
+
+链接：https://leetcode-cn.com/problems/find-pivot-index/solution/gong-shi-fa-by-diao-min-bu-ke-hai-zhen/
 
 ```javascript
 /**
@@ -99,12 +105,17 @@ var pivotIndex = function(nums) {
 
 // 思路:
 // 1、思路是相通的: S 是数组的和，当索引 i 是中心索引时，位于 i 左边数组元素的和 leftsum 满足 S - nums[i] - leftsum, 只需要判断当前索引 i 是否满足 leftsum==S-nums[i]-leftsum 并动态计算 leftsum 的值;
-// 2、但这个比前一个方法快，虽然用了两次循环，但上一个方法将所有累计值均存储起来，最后一步才判断，而此方法则将计算和与判断操作分离，故一旦检索到结果就提前结束，所以更快；
+// 2、但这比前一方法快，虽然用了两次循环，但上一方法将所有累计值均存储起来最后一步才判断，而此方法则将计算和与判断操作分离，一旦检索到结果就提前结束，故更快；
 ```
 
 
 
-#### Code：2020-07-08
+
+
+##### More2：
+
+作者：lvshanke
+链接：https://leetcode-cn.com/problems/find-pivot-index/solution/dan-ke-xi-lie-yong-shi-9375nei-cun-10000-by-lvshan/
 
 ```javascript
 /**
@@ -138,5 +149,5 @@ var pivotIndex = function(nums) {
 
 
 
-#### More：
+#### Expand：
 
