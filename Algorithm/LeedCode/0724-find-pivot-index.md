@@ -141,6 +141,57 @@ var pivotIndex = function(nums) {
 
 
 
+##### MoreX：
+
+更多解法：
+
+https://leetcode-cn.com/problems/find-pivot-index/solution/
+
+
+
+#### Top：
+
+```javascript
+// top1: 68ms
+// 感悟:
+var pivotIndex = function(nums) {
+    let total = 0
+    let index = -1
+    let sum = 0
+    let flag = false
+    nums.forEach(item => {
+        total += item
+    })
+    while (index < nums.length - 1) {
+        sum += nums[index] ? nums[index] : 0
+        if (sum * 2 + nums[index+1] === total) {
+            flag = true
+            break
+        }
+        index++
+    }
+    return flag ? index+1 : -1
+};
+
+// top2: 72ms
+var pivotIndex = function (nums) {
+    let sum = 0, left = 0;
+    for (let i = 0; i < nums.length; i++) {
+        sum += nums[i];
+    }
+    for (let i = 0; i < nums.length; i++) {
+        if (i !== 0 ) {
+            left += nums[i - 1];
+        }
+        if (sum - nums[i] - left - left === 0) return i;
+    }
+    return -1
+};
+// 感悟:
+```
+
+
+
 #### Think：
 
 - Code1 未考虑 map[sum] 为 0 的特殊值情况，而使用 !map[sum] 判断(应使用 undefined)，导致没有考虑 [-1,-1,0,1,1,-1] 的情况;

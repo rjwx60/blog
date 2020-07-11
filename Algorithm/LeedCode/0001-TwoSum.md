@@ -207,6 +207,47 @@ var twoSum = function(nums, target, i = 0, maps = {}) {
 
 
 
+##### More-X：
+
+更多解法：
+
+https://leetcode-cn.com/problems/two-sum/solution/
+
+
+
+#### Top：
+
+```javascript
+// top1: 44ms
+var twoSum = function(nums, target) {
+  let map = new Map();
+  for (let i = 0; i < nums.length; i++) {
+    let dif = target-nums[i]
+    if (map.has(dif)) {
+      return [map.get(dif), i]
+    }
+    map.set(nums[i], i);
+  }
+};
+// 感悟:
+
+// top2: 48ms
+var twoSum = function(nums, target) {
+    let map={};
+    let i=0;
+    while(i<nums.length){
+        const dis=target-nums[i];
+        if(map[dis]!=undefined){
+            return [map[dis],i]
+        }
+        map[nums[i]]=i;
+        i++;
+    }
+    return;
+};
+// 感悟:
+```
+
 
 
 #### Think：

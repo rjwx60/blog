@@ -222,6 +222,41 @@ var searchInsert = function(nums, target) {
 
 
 
+##### MoreX：
+
+更多解法：
+
+https://leetcode-cn.com/problems/search-insert-position/solution/
+
+
+
+#### Top：
+
+```javascript
+// top1: 44ms
+var searchInsert = function(nums, target) {
+    for(let i=0;i<nums.length;i++){
+        if(nums[i]>=target){
+            return i
+        }
+    }
+    return nums.length
+};
+// 感悟:
+
+// top2: 48ms
+var searchInsert = function (nums, target) {
+    let index = nums.findIndex(item => target === item || target < item)
+    if (index === -1) {
+        index = nums.length
+    }
+    return index
+};
+// 感悟:
+```
+
+
+
 
 
 #### Think：

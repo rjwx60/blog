@@ -136,6 +136,70 @@ var merge = function(intervals) {
 
 
 
+##### MoreX：
+
+更多解法：
+
+https://leetcode-cn.com/problems/merge-intervals/solution/
+
+
+
+#### Top：
+
+```javascript
+// top1: 64ms
+const merge = function(intervals) {
+    // 定义结果数组
+    const res = []  
+    // 缓存区间个数
+    const len = intervals.length
+    // 将所有区间按照第一个元素大小排序
+    intervals.sort(function(a, b) {
+        return a[0] - b[0]
+    }) 
+    // 处理区间的边界情况
+    if(!intervals || !intervals.length) {
+        return []
+    }
+    // 将第一个区间（起始元素最小的区间）推入结果数组（初始化）
+    res.push(intervals[0])
+    // 按照顺序，逐个遍历所有区间
+    for(let i=1; i<len; i++) {
+        // 取结果数组中的最后一个元素，作为当前对比的参考
+        prev = res[res.length-1]  
+        // 排除第一个元素的情况
+        if(intervals[i][0] <= prev[1]) {
+					prev[1] = Math.max(prev[1], intervals[i][1])
+        } else {
+					res.push(intervals[i])
+        }
+    }
+    return res
+};
+// 感悟:
+
+
+// top2: 68ms
+var merge = function(intervals) {
+    if (intervals.length === 0) return [];
+    intervals.sort((a, b) => a[0] - b [0]);
+    let resArr = [];
+    let cur, last;
+    resArr.push(intervals[0]);
+    for (let i = 1; i < intervals.length; i++) {
+        curr = intervals[i];
+        last = resArr[resArr.length - 1];
+        if (curr[0] <= last[1]) {
+            last[1] = Math.max(last[1], curr[1]);
+        } else {
+            resArr.push(curr);
+        }
+    }
+    return resArr;
+};
+// 感悟:
+```
+
 
 
 #### Think：

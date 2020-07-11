@@ -211,11 +211,54 @@ var rotate = function(matrix) {
 
 
 
-##### More4：
+##### MoreX：
 
-更多做法：
+更多解法：
 
 https://leetcode-cn.com/problems/rotate-matrix-lcci/solution/xuan-zhuan-ju-zhen-by-leetcode-solution/
+
+
+
+#### Top：
+
+```javascript
+// top1: 48ms
+var rotate = function(matrix) {
+    const n = matrix.length;
+    let count = (n / 2) | 0;
+    for (let i = 0; i < count; i++) {
+        for (let j = 0; j < n; j++) {
+            let tmp = matrix[i][j];
+            matrix[i][j] = matrix[n-i-1][j];
+            matrix[n-i-1][j] = tmp;
+        }
+    }
+
+    for (let i = 0; i < n; i++) {
+        for (let j = i; j < n; j++) {
+            let tmp = matrix[i][j];
+            matrix[i][j] = matrix[j][i];
+            matrix[j][i] = tmp;
+        }
+    }
+};
+// 感悟: ...
+
+
+// top2: 52ms
+var rotate = function(matrix) {
+  const length = matrix.length;
+  for(let i = length - 1; i >= 0; i--) {
+    for(let j = 0; j < length; j++) {
+      matrix[j].push(matrix[i][j]);
+    }
+  }
+  for(let i = 0; i < length; i++) {
+    matrix[i].splice(0, length);
+  }
+};
+// 感悟: ...
+```
 
 
 
