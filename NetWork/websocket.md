@@ -2,7 +2,166 @@
 typora-root-url: ../Source
 ---
 
-### 一、问题与解决
+
+
+### 零、问题区
+
+##### 0-1、知道 websocket 与 http 区别，协议层面的连接实现、心跳机制、安全防范等
+
+- 靠记忆
+
+##### 0-2、知道 websocket ⽤法，包括但不限于：鉴权，房间分配，⼼跳机制，重连⽅案等
+
+##### 0-2-1、鉴权
+
+websocket 本身没有鉴权机制，只能自己实现：
+
+- socket 连接建立时，检查连接的 HTTP 请求头信息(比如cookies中关于用户的身份信息、登录信息(加密))；
+- socket 建立连接之后，客户端必须携带授权内容，如此服务端在接收到消息时，检查连接是否已授权过，及授权是否过期；
+- 以上两点，只要答案为否，则服务端主动关闭 socket 连接
+
+websocket 鉴权机制的实现：
+
+- websocket 的增加一个自定义的 channleHandle 在 webscoketChannleHandle 前，每次判断 body 里面的 token 信息；
+- 若不合格，则直接用 channel.close(); 关闭连接
+- 详看：https://www.cnblogs.com/duanxz/p/5440716.html
+
+##### 0-2-2、房间分配
+
+主要方式是 node 服务端存储和管理房间，客户端进入房间、留言等其他操作、退出房间，服务端均 broadcast(广播)房间内所有成员
+
+详看：Nice
+
+https://stackoverflow.com/questions/4445883/node-websocket-server-possible-to-have-multiple-separate-broadcasts-for-a-si
+
+https://github.com/gw19/join-and-chat-in-multiple-rooms-with-socket-io/blob/master/server/server.js
+
+##### 0-2-3、心跳重连
+
+心跳机制是每隔一段时间会向服务器发送一个数据包，告诉服务器自身状况，同时确认服务器端是否连接正常(后者回传数据包)
+
+```javascript
+let ws, tt;
+// 避免重复连接
+let lockReconnect = false;
+let wsUrl = "wss://echo.websocket.org";
+
+function createWebSocket() {
+  try {
+    ws = new WebSocket(wsUrl);
+    init();
+  } catch(e) {
+    // console.log('失败重连');
+    reconnect(wsUrl);
+  }
+}
+
+// 事件初始化
+function init() {
+  ws.onclose = function () {
+    // console.log('连接关闭');
+    reconnect(wsUrl);
+  };
+  ws.onerror = function() {
+    // console.log('发生异常了');
+    reconnect(wsUrl);
+  };
+  ws.onopen = function () {
+    // 心跳检测重置
+    heartCheck.start();
+  };
+  ws.onmessage = function (event) {
+    // console.log('接收到消息');
+    heartCheck.start();
+  }
+}
+function reconnect(url) {
+  if(lockReconnect) return;
+  // 避免瞬时多次触发重连
+  lockReconnect = true;
+  // 没连接上会一直重连，设置延迟避免请求过多
+  tt && clearTimeout(tt);
+  tt = setTimeout(function () {
+    createWebSocket(url);
+    lockReconnect = false;
+    // 间隔 4s 尝试重连
+  }, 4000);
+}
+
+// 心跳检测 - 实现1
+var heartCheck = {
+  timeout: 3000,
+  timeoutObj: null,
+  serverTimeoutObj: null,
+  start: function(){
+    // console.log('start');
+    var self = this;
+    this.timeoutObj && clearTimeout(this.timeoutObj);
+    this.serverTimeoutObj && clearTimeout(this.serverTimeoutObj);
+    this.timeoutObj = setTimeout(function(){
+      // 发送心跳，后端收到后，返回一个心跳消息，
+      ws.send("123456789");
+      self.serverTimeoutObj = setTimeout(function() {
+        // console.log(ws);
+        ws.close();
+        // createWebSocket();
+      }, self.timeout);
+
+    }, this.timeout)
+  }
+}
+createWebSocket(wsUrl);
+// 详看:
+// https://blog.csdn.net/Toleranty/article/details/80911093
+
+
+// 心跳检测 - 实现2
+var heartCheck = {
+    timeout: 60000,//60ms
+    timeoutObj: null,
+    serverTimeoutObj: null,
+    reset: function(){
+        clearTimeout(this.timeoutObj);
+        clearTimeout(this.serverTimeoutObj);
+　　　　 this.start();
+    },
+    start: function(){
+        var self = this;
+        this.timeoutObj = setTimeout(function(){
+            ws.send("HeartBeat");
+            self.serverTimeoutObj = setTimeout(function(){
+                ws.close();
+              	// 若直接执行 reconnect 会触发 onclose 导致重连2次
+            }, self.timeout)
+        }, this.timeout)
+    },
+}
+
+ws.onopen = function () {
+   heartCheck.start();
+};
+ws.onmessage = function (event) {
+    heartCheck.reset();
+}
+ws.onclose = function () {
+    reconnect();
+};
+ws.onerror = function () {
+    reconnect();
+};
+// 详看: 
+// https://www.cnblogs.com/rsapaper/p/12585070.html
+```
+
+其他：https://blog.csdn.net/du591310450/article/details/86717727
+
+其他：https://my.oschina.net/714593351/blog/1583592
+
+其他：https://www.imooc.com/article/35114
+
+
+
+### 一、发展
 
 #### 		1-1、问题
 
@@ -15,6 +174,8 @@ typora-root-url: ../Source
 ​		Websocket，HTML5 新出的持久化协议(相对于非持久的HTTP)，可看作是 HTTP 协议的补充或拓展补丁，旨在实现通讯双方长连接(真)，是解决 HTTP 本身无法解决的问题而做出的一个改良设计。
 
 ​		Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行协议升级-后文提到)，后续进行数据交换时便不用再发 HTTP header、双方可同时收发信息(双通道)，由被动发送变为主动发送，减轻了服务端的负担、拥有 multiplexing 功能(不用URI复用同一 Websocket 连接)、维持连接状态(通讯双方能发送 Ping/Pong Frame 监控中间节点的异常情况的发生)；
+
+
 
 ### 二、优劣
 
@@ -124,7 +285,7 @@ typora-root-url: ../Source
 
 #### 		4-2、保持心跳
 
-​	心跳帧间隔可通过应用端 websocket 库的 heartbeat 设置，除非涉及业务一般不做处理、心跳帧含有服务健康检查的功能、心跳帧可双向进行；
+​	心跳帧间隔**<u>可通过应用端 websocket 库的 heartbeat 设置</u>**，除非涉及业务一般不做处理，心跳帧含有服务健康检查的功能，心跳帧可双向进行；
 
 <img src="/Image/NetWork/websocket/11.png" style="zoom:50%;" align="left"/>
 
@@ -167,11 +328,15 @@ typora-root-url: ../Source
   - 代理缓存污染攻击成本低(只需铺开恶意页面即可)，而之所以加掩码即可防御，是因为 JS 无法获取掩码内容，确保了唯一性；
   - 浏览器强制执行加密、自动生成掩码是 websocket 特性；
 
+
+
 ### 六、其他
 
 6-1、知乎问答：https://www.zhihu.com/topic/19657811/top-answers
 
 6-2、Chrome 源码看实现：https://www.zhihu.com/topic/19657811/top-answers
+
+
 
 ### 七、转自
 

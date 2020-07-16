@@ -4,6 +4,22 @@ typora-root-url: ../Source
 
 
 
+### 零、问题区
+
+##### 0-1、知道event loop是什么，能举例说明event loop怎么影响平时的编码
+
+- 异步请求数据
+- Angular 报错问题—衍生Angular机制
+
+##### 0-2、知道event loop原理，知道宏微任务，并且能从个⼈理解层⾯说出为什么要区分，知道node和浏览器在实 现loop时候的差别
+
+- 原理如下
+- 宏微任务靠记忆
+- 区分原因看 3-8
+- 实现差别结合示例看图
+
+
+
 ### 一、总结
 
 <img src="/Image/Basics/EventLoop/1.png" style="zoom:50%;" align="center"/>
