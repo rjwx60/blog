@@ -4,10 +4,6 @@ typora-root-url: ../Source
 
 
 
-
-
-
-
 ### 一、历史
 
 #### 1-1、TCP/IP 协议发展
@@ -109,7 +105,7 @@ typora-root-url: ../Source
 
 
 
-##### 2-3-3-1、TCP头部字段(Segment报文段)——Source Port(源端口)、Destination Port(目的端口) 
+##### 2-3-3-1、Source Port(源端口)、Destination Port(目的端口) 
 
 用于定义 TCP 连接，通过 TCP 四元组唯一标识一个连接：源地址、源端口、目的地址、目的端口；
 
@@ -118,7 +114,7 @@ typora-root-url: ../Source
 - 注意：并非都得通过四元组标识连接，还可使用 QUIC 协议标识；
 - <img src="/Image/NetWork/tcp/11.png" style="zoom:50%;" align="left"/>
 
-##### 2-3-3-2、TCP头部字段(Segment报文段)——SequenceNumber(序列号)、AcknowledgmentNumber(确认号)
+##### 2-3-3-2、SequenceNumber(序列号)、AcknowledgmentNumber(确认号)
 
 用以唯一标识 TCP 报文，类似物流系统的订单号，ACK 还用于确认报文，以实现数据可达性；
 
@@ -127,13 +123,13 @@ typora-root-url: ../Source
   - 用以保证数据包按正确的顺序组装；
 - AcknowledgmentNumber：用以告知对方下一个期望接收的序列号，**<u>小于ACK</u>**的所有字节已全部收到；
 
-##### 2-3-3-3、TCP头部字段(Segment报文段)——ISN-Initial Sequence Number(初始序列号)
+##### 2-3-3-3、ISN-Initial Sequence Number(初始序列号)
 
 <u>因 TCP 报文段在经过网络路由后会存在延迟抵达或排序混乱情况，故需要 ISN，而注意：三次握手核心目的之一就是交换双方 ISN，交换后才可得知对方发送信息的初始位置；</u>
 
 - 注意：ISN 的构建使用半随机方法构建(基于时钟+偏移量+加密散列函数+每隔 4 ms 加1)，以确保不同连接间唯一性，防止重叠，避免不同连接间的相互影响，也为了避免连接被攻击者预测、伪造报文；
 
-##### 2-3-3-4、TCP头部字段(Segment报文段)——Checksum(校验和)
+##### 2-3-3-4、Checksum(校验和)
 
 - Checksum：占 2 字节16 位，防止传输过程中数据包损坏，若此值校验错误，TCP 会直接丢弃并等待重传；
 - 注意：TCP Header 的校验和会对 TCP 数据、Header、和部分 IP 头部字段进行校验，此举是违反分层原则；
@@ -141,11 +137,11 @@ typora-root-url: ../Source
 
 <img src="/Image/NetWork/tcp/181.png" style="zoom:50%;" align="center"/>
 
-##### 2-3-3-5、TCP头部字段(Segment报文段)——Window(窗口大小)
+##### 2-3-3-5、Window(窗口大小)
 
 - Window：占 2 字节16 位，但实际中不够用，故 TCP 引入窗口缩放的选项(Options类)，作为窗口缩放的比例因子，此值范围在 0 ~ 14，比例因子可将窗口值扩大为原来的 2 ^ n 次方；
 
-##### 2-3-3-6、TCP头部字段(Segment报文段)——TCP Flags(标志位)
+##### 2-3-3-6、TCP Flags(标志位)
 
 <img src="/Image/NetWork/tcp/182.png" style="zoom:50%;" align="center"/>
 
@@ -156,7 +152,7 @@ typora-root-url: ../Source
 - PSH： 即 Push，告知对方这些数据包收到后应该马上交给上层的应用，不得缓存(接收端收到上述报文时，接收方应尽快将缓冲区内容交由上层应用处理)；
 - URG：终止行为，优先处理含此标志位的报文；比如 ctrl + C 取消 npm 包下载；
 
-##### 2-3-3-7、TCP头部字段(Segment报文段)——UrgentPointer(紧急指针)
+##### 2-3-3-7、UrgentPointer(紧急指针)
 
 若设置 URG 位，则此域将被检查作为额外指令，告诉 CPU 从数据包的某个位置开始读取数据；
 
@@ -1045,7 +1041,7 @@ cwnd += SMSS*SMSS/cwnd(若cwnd>ssthresh)拥塞避免
 
 
 
-#### 6-3、以探测带宽作为拥塞依据的拥塞控制
+#### 6-3、以探测带宽作为拥塞依据的拥塞控制([BBR论文](https://queue.acm.org/detail.cfm?id=3022184))
 
 ​	前述拥塞控制算法均基于丢包实现，不丢包不启用，2016年 Google 提出基于带宽探测的拥塞控制，极大提升了 TCP 的拥塞控制性能；
 
@@ -1225,4 +1221,15 @@ net.ipv4.tcp_keepalive_intvl = 75
 - 3、epoll + 非阻塞 socket + 同步编程 = 协程
 
 <img src="/Image/NetWork/tcp/188.png" style="zoom:50%;" align="left"/>
+
+
+
+
+
+### X、转载
+
+- [Web协议详解与抓包实战—陶辉](https://time.geekbang.org/course/intro/175)
+- [《TCP/IP详解：卷1》](https://book.douban.com/subject/26790659/)
+- [《计算机网络：自顶向下方法》](https://book.douban.com/subject/30280001/)
+- [TCP文章—神三元](https://juejin.im/post/5e527c58e51d4526c654bf41)
 
