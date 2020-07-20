@@ -228,23 +228,15 @@ Cookie 的作用域可通过 **Domain **和 **path** 两个属性来设置，若
 
 - 若 Cookie 字段带上 `Secure`，表示只能通过 HTTPS 传输 cookie；
 - 若 Cookie 字段带上`HttpOnly`，表示只能通过 HTTP 协议传输，不能通过 JS 访问，**<u>此乃预防 XSS 攻击的重要手段</u>**；
+- 若 Cookie 字段带上 `SameSite`，可用于防御 CSRF 攻击，可设置 3 个值，`Strict`、`Lax`和`None`：
+  - None 模式：默认模式，请求会自动携带 Cookie；
+  - Strict 模式：浏览器完全禁止三方请求携带Cookie；
+    - 比如：请求 `bilili.com` ，则只能在 `bilili.com ` 域名下的请求才能携带 Cookie，其他网站请求均不能；
+  - Lax 模式：宽松模式，但只能在 `get 方法提交表单` 或 `a 标签发送 get 请求` 的情况下才可携带 Cookie，其他情况均不能；
 
 
 
-##### 2-3-5、SameSite
-
-`SameSite `属性用于防御 CSRF 攻击，可设置 3 个值，`Strict`、`Lax`和`None`：
-
-- None 模式：默认模式，请求会自动携带 Cookie；
-
-- Strict 模式：浏览器完全禁止三方请求携带Cookie；
-  - 比如：请求 `bilili.com` ，则只能在 `bilili.com ` 域名下的请求才能携带 Cookie，其他网站请求均不能；
-
-- Lax 模式：宽松模式，但只能在 `get 方法提交表单` 或 `a 标签发送 get 请求` 的情况下才可携带 Cookie，其他情况均不能；
-
-
-
-##### 2-3-6、Content-Length
+##### 2-3-5、Content-Length
 
 用于标识报文长度(body 部分)，**<u>发送定长包体</u>**，此属性对于 http 传输过程起十分关键的作用，若设置不当可直接导致传输失败；
 
@@ -271,7 +263,7 @@ res.write("helloworld");
 
 
 
-##### 2-3-7、Transfer-Encoding: chunked
+##### 2-3-6、Transfer-Encoding: chunked
 
 用于表示分块传输数据，**<u>发送不定长包体</u>**，设置此字段后会自动产生 2 个效果:
 
@@ -315,7 +307,7 @@ chunk长度(16进制的数)
 
 
 
-##### 2-3-8、Content-Type
+##### 2-3-7、Content-Type
 
 HTTP 有 2 种主要的表单提交方式，体现在 2 种不同的`Content-Type`取值：
 
@@ -324,7 +316,7 @@ HTTP 有 2 种主要的表单提交方式，体现在 2 种不同的`Content-Typ
 
 因表单提交一般是 `POST`请求，很少考虑`GET`，故此处默认提交的数据放在请求体中；
 
-##### 2-3-8-1、application/x-www-form-urlencoded
+##### 2-3-7-1、application/x-www-form-urlencoded
 
 对于 `application/x-www-form-urlencoded` 格式的表单内容，有以下特点:
 
@@ -336,7 +328,7 @@ HTTP 有 2 种主要的表单提交方式，体现在 2 种不同的`Content-Typ
 {a: 1, b: 2} -> a=1&b=2 -> "a%3D1%26b%3D2"
 ```
 
-##### 2-3-8-2、multipart/form-data
+##### 2-3-7-2、multipart/form-data
 
 `multipart/form-data` 格式最大特点在于：**每个表单元素均为独立的资源表述**；实际场景中，对于图片等文件的上传，基本采用 `multipart/form-data` 字段而非 `application/x-www-form-urlencoded`，原因是没必要做 URL 编码；
 
@@ -359,7 +351,7 @@ data2
 
 
 
-##### 2-3-9、Range
+##### 2-3-8、Range
 
 对于大文件上传，为避免影响用户体验，HTTP 提供 <u>范围请求</u> 方式，允许客户端仅请求资源的某部分(前提是服务端支持 <u>范围请求</u>，可从服务端的响应报文获悉)，
 
@@ -376,7 +368,7 @@ Accept-Ranges: none
 
 当服务器收到请求后，首先会验证范围 **是否合法**，若越界则返回 `416` 错误码，否则读取相应片段，返回 `206` 状态码；同时，服务器还会在响应报文头部添加  `Content-Range` 字段，此字段的格式根据请求头中 `Range` 字段的不同而不同；具体来说，请求 `单段数据` 和请求 `多段数据`，响应头是不一样的：
 
-##### 2-3-9-1、Range—单段数据
+##### 2-3-8-1、Range—单段数据
 
 ```javascript
 // 单段数据
@@ -393,7 +385,7 @@ hello world
 
 其中 Content-Range 字段，0-9 表示请求的返回，100 表示资源的总大小；
 
-##### 2-3-9-2、Range—多段数据
+##### 2-3-8-2、Range—多段数据
 
 ```javascript
 // 多段数据
@@ -429,7 +421,7 @@ eex jspy e
 
 
 
-##### 2-3-10、代理相关字段
+##### 2-3-9、代理相关字段
 
 代理服务器有诸多作用：
 
@@ -437,7 +429,7 @@ eex jspy e
 - **保障安全**：利用心跳机制监控后台服务器，一旦发现故障机就移出服务器集群，并对其上下行数据进行过滤，对非法 IP 限流等；
 - **缓存代理**：将内容缓存到代理服务器，使客户端可直接从代理获取资源而不用去源服务器；
 
-##### 2-3-10-1、Via
+##### 2-3-9-1、Via
 
 代理服务器需表明自身身份，在 HTTP 传输中留下痕迹，可通过字段 Via 实现记录，其值为在 HTTP 传输中报文传达的顺序：
 
@@ -450,7 +442,7 @@ Via: proxy_server1, proxy_server2
 Via: proxy_server2, proxy_server1
 ```
 
-##### 2-3-10-2、X-Forwarded-For
+##### 2-3-9-2、X-Forwarded-For
 
 记录 <u>请求方(包括代理)</u> IP 地址的字段，表示为谁转发；
 
@@ -465,13 +457,13 @@ GET / HTTP/1.1
 ...
 ```
 
-##### 2-3-10-3、X-Real-IP
+##### 2-3-9-3、X-Real-IP
 
 记录最初客户端的 IP 的字段，而不管经过多少代理；
 
 
 
-##### 2-3-11、缓存相关字段
+##### 2-3-10、缓存相关字段
 
 强缓存与协商缓存请看浏览器一章，总结如下：
 
@@ -485,7 +477,7 @@ GET / HTTP/1.1
 
 - **<u>源服务器的缓存控制</u>**
 
-##### 2-3-11-1、private 和 public
+##### 2-3-10-1、private 和 public
 
 源服务器通过在响应中加上 `Cache-Control` 字段来进行缓存控制，其值通常为：
 
@@ -493,13 +485,13 @@ GET / HTTP/1.1
 - `private`：禁止代理服务器缓存；
   - 注意：此举能防范极私密数据，缓存到代理服务器，从而被恶意用户访问获取；
 
-##### 2-3-11-2、proxy-revalidate
+##### 2-3-10-2、proxy-revalidate
 
 - `must-revalidate`：指示**客户端**缓存过期就去源服务器获取；
 
 - `proxy-revalidate`：指示**代理服务器**缓存过期后到源服务器获取；
 
-##### 2-3-11-3、s-maxage
+##### 2-3-10-3、s-maxage
 
 限定缓存在 <u>代理服务器</u> 中可存放多长时间，`s` 即 `share`，与限制客户端缓存时间的 `max-age` 并不冲突
 
@@ -513,7 +505,7 @@ Cache-Control: public, max-age=1000, s-maxage=2000
 
 - **<u>客户端的缓存控制</u>**
 
-##### 2-3-11-4、max-stale 和 min-fresh
+##### 2-3-10-4、max-stale 和 min-fresh
 
 客户端的请求头中，可加入这 2 个字段，来对代理服务器上的缓存进行 <u>宽容</u> 和 <u>限制</u> 操作：
 
@@ -526,7 +518,7 @@ min-fresh: 5
 
 
 
-##### 2-3-11-5、only-if-cached
+##### 2-3-10-5、only-if-cached
 
 表明客户端只接受代理缓存，而不接受源服务器响应；若代理缓存无效，则直接返回 `504（Gateway Timeout）`
 
