@@ -416,6 +416,51 @@ Nginx 相当于是一个跳板机，域名是 `client.com`，客户端首先访�
 
 #### 6-1、网络相关
 
+##### 6-1-1、网络请求
+
+- 构建请求：浏览器会构建请求行 `GET / HTTP/1.1`
+
+- 查找强缓存：检查强缓存，若命中直接使用，否则进入下一步；
+
+- DNS 解析：域名与 IP 的转换系统，但浏览器提供 <u>DNS数据缓存功能</u>，若某域名已解析过，则会将结果缓存再利用；默认端口 80；
+
+- 建立 TCP 连接：Chrome 在同一域名下要求同时最多只能有 6 个 TCP 连接，超过则需等待；<u>详看 TCP 协议</u>；
+
+- 发送 HTTP 请求：请求体只在 POST 方式才会存在；<u>详看 HTTP 协议</u>；
+
+```http
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3
+Accept-Encoding: gzip, deflate, br
+Accept-Language: zh-CN,zh;q=0.9
+Cache-Control: no-cache
+Connection: keep-alive
+Cookie: ......
+Host: www.google.com
+Pragma: no-cache
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1
+```
+
+##### 6-1-2、网络响应
+
+HTTP 请求到达服务器，服务器进行相关处理并响应；<u>详看 HTTP 协议</u>；
+
+响应头包含了服务器及其返回数据的一些信息、服务器生成数据的时间、返回的数据类型以及对即将写入的 Cookie 等信息；
+
+注意：若请求或响应头中包含 **Connection: Keep-Alive**，则表示建立 <u>持久连接</u>，随后请求统一站点的资源会复用此连接，否则断开连接, 流程结束；
+
+```http
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Encoding: gzip
+Content-Type: text/html;charset=utf-8
+Date: Wed, 04 Dec 2019 12:29:13 GMT
+Server: apache
+Set-Cookie: rsv_i=f9a0SIItKqzv7kqgAAgphbGyRts3RwTg%2FLyU3Y5Eh5LwyfOOrAsvdezbay0QqkDqFZ0DfQXby4wXKT8Au8O7ZT9UuMsBq2k; path=/; domain=.google.com
+```
+
+<img src="/Image/Chromium/15.png" style="zoom:50%;" />
+
 
 
 #### 6-2、解析相关
