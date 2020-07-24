@@ -21,7 +21,7 @@ typora-root-url: ../Source
 
 Expires 即过期时间，告知浏览器在此日期前可直接从缓存中获取数据，而无需再次请求；
 
-**<u>缺点</u>**：**服务器时间与浏览器本地时间可能不一致**，即时间计算基准不同就会有问题 (已在 HTTP/1.1版本抛弃)
+**<u>缺点</u>**：**服务器时间与浏览器本地时间可能不一致(修改时间会使缓存失效)**，即时间计算基准不同就会有问题 (已在 HTTP/1.1版本抛弃)
 
 ```http
 // 位于服务端返回的响应头
@@ -47,7 +47,7 @@ Cache-Control 还有诸多属性值来对缓存作更细粒度的操作：
 - **private**：只有客户端能缓存，中间代理服务器不能缓存；
 - **no-cache**：跳过当前强缓存检查阶段，直接发送 HTTP 请求，即直接进入协商缓存阶段；
 - **no-store**：不进行任何形式的缓存；
-- **s-maxage**：作用同 max-age，但针对对象是代理服务器；
+- **s-max-age**：作用同 max-age，但针对对象是代理服务器；
 - 注意：若 **Expires** 和 **Cache-Control** 同时存在，则优先考虑 **Cache-Control**；
 
 
@@ -69,7 +69,7 @@ Cache-Control 还有诸多属性值来对缓存作更细粒度的操作：
 
 ##### 2-2-2、ETag
 
-响应报文字段，此字段是服务器根据当前文件内容，给文件生成的唯一标识，即值会随内容更新而改变；使用机制如下：
+响应报文字段，此字段是服务器基于当前文件内容，给文件生成的唯一标识，即值会随内容更新而改变；使用机制如下：
 
 - 首先，浏览器接收到 **ETag** 值，若再次请求，则会在请求头中携带 **If-None-Match**  字段，此字段值即 **ETag** 值；
 - 然后，服务器接收到 **If-None-Match **后，<u>随即与服务器中该资源的 ETag 作对比</u>: 
@@ -78,11 +78,11 @@ Cache-Control 还有诸多属性值来对缓存作更细粒度的操作：
 
 ##### 2-2-3、两者对比
 
-- 精度上，**ETag** 优于 **Last-Modified**：原因是前者按照内容给资源上标识，能准确感知资源变化，而后者在某些特殊情况下无法准确感知资源变化：
-  - 编辑资源文件，但实际上文件内容并无变更，也会造成缓存失效；
-  - Last-Modified 能够感知的单位时间是秒，若文件在 1 秒内发生多次改变则无法表现出修改；
-- 性能上，**Last-Modified** 优于 **ETag**：原因是前者仅记录时间点，而后者需要根据文件具体内容生成唯一哈希值；
-- 注意：若两种方式均支持，服务器会优先考虑 **ETag**；
+- 精度上，<u>**ETag** 优于 **Last-Modified**</u>：原因是前者按照内容给资源上标识，能准确感知资源变化，而后者在某些特殊情况下无法准确感知资源变化：
+  - **<u>不该重新请求时，重新请求：</u>**编辑文件，但实际上文件内容并无变更，服务端并不清楚文件是否真正改变，仍通过最后编辑时间进行判断，此时资源再次被请求时，会被当做新资源处理，缓存作用失效；
+  - **<u>该重新请求时，无重新请求：</u>**Last-Modified 能感知的最小单位时间是秒，若文件在 1 秒内发生多次改变则无法表现出修改，具有局限性；
+- 性能上，<u>**Last-Modified** 优于 **ETag**</u>：前者仅记录时间点，而后者需要服务器根据文件具体内容生成唯一哈希值；
+- 优先上，若两种方式均支持，服务器会<u>优先考虑 **ETag**；</u>
 
 
 
@@ -95,31 +95,105 @@ Cache-Control 还有诸多属性值来对缓存作更细粒度的操作：
 - Disk Cache
 - Push Cache
 
-##### 2-3-1、Service Worker
 
-其借鉴 Web Worker 思路，让  JS 运行在主线程之外，但由于它脱离了浏览器窗体，故无法直接访问 DOM；但功能仍然强大，比如：<u>离线缓存</u>、<u>消息推送</u>、 <u>网络代理</u> 等功能；同时，Service Worker  也是 PWA 的重要实现机制；
 
-##### 2-3-2、Memory Cache 和 Disk Cache
+##### 2-3-1、Service Worker 
 
-- **Memory Cache**：即内存缓存，效率最快、但存活时间最短，随渲染进程的结束而结束；
-- **Disk Cache**：即存储在磁盘中的缓存，存取效率较慢，但优势在于存储容量和存储时长；
-- 存储位置选择的策略如下：
+**Service Worker**：与 Web Worker类似，是独立的线程(无法直接访问 DOM，无法干扰页面性能)，可帮助实现：<u>离线缓存</u>、<u>消息推送</u>、<u>网络代理</u> 等功能；借助 Service worker 实现的离线缓存即称 <u>Service Worker Cache</u>：可自由选择缓存哪些文件，以及文件的匹配与读取规则，且缓存是持续性的；SW 特点如下:
+
+- 借鉴 `Web Worker` 思路，且是 `PWA` 重要实现机制；
+
+- 使用 `Service Worker` 会涉及到请求拦截，所以需要用 HTTPS 协议来保证安全，即传输协议必须是 `HTTPS`；
+
+- 生命周期包括： install、active、working 三个阶段；一旦 Service Worker 被 install，就将始终存在，只会在 active 与 working 间切换，除非主动终止；这是它可用来实现 <u>离线存储</u> 的重要先决条件；
+
+  
+
+##### 2-3-2、Memory Cache
+
+**Memory Cache**：即内存缓存，<u>存取效率最高、但存活时间最短</u>，非持续性，随进程释放而释放；
+
+主要存储当前页面已抓取到的资源, 比如已下载的样式、脚本、图片；特点如下：
+
+- 存取效率快，但缓存持续时间短，会随着进程释放而释放(一旦关闭 Tab 页即被释放，未关闭但, 排在前排缓存失效)；
+- 从其中读取缓存时，浏览器会忽视 `Cache-Control`中的一些 `max-age、no-cache` 等头部配置, 除非设置  `no-store` 头部配置；
+- 几乎所有的请求资源都能进入 <u>Memory Cache</u>，主要分为 <u>preloader</u> 、<u>preload</u> ：
+  - preloader：用于 <u>当浏览器打开网页时，能一边解析执行 js/css，一边请求下一资源</u>，被请求来的资源就会被放入 `Memory Cache` 中，供后续解析执行操作使用；
+  - preload：能显式指定预加载的资源，比如： `<link rel="preload">`
+
+
+
+##### 2-3-3、Disk Cache / HTTP Cache
+
+**Disk Cache**：即存储在磁盘中的缓存，<u>存取效率较低，但存储容量大和存储持续时间长</u>；
+
+会根据 HTTP header 中的缓存字段来判断哪些资源需要缓存、哪些不需要请求而直接使用、哪些已过期需要重新获取，而若是命中缓存，浏览器会从硬盘中直接读取资源，虽无从内存中读取的快，但却比网络缓存快；
+
+- 注意：强缓存、协商缓存也是属于 `Disk Cache`，它们最终都存储在硬盘里；
+- 区别：Memory Cache 与 Disk Cache 存储位置选择的策略如下：
   - 较大的 JS、CSS 文件会直接存入磁盘，反之内存；
   - 内存使用率比较高时，文件优先放入磁盘；
 
-##### 2-3-3、Push Cache
-
-即推送缓存，是浏览器缓存的最后关卡，属于 HTTP/2 内容，目前应用并不广泛，但可[提前了解](https://jakearchibald.com/2017/h2-push-tougher-than-i-thought/)
 
 
+##### 2-3-4、Push Cache
 
-#### 2-4、总结
+Push Cache 是指 HTTP2 在 server push 阶段存在的缓存，是浏览器缓存最后一道防线(国内尚未普及)，([资料1](https://jakearchibald.com/2017/h2-push-tougher-than-i-thought/)、[资料2](https://www.jianshu.com/p/54cc04190252))：
 
-- 首先通过 **Cache-Control** 验证 <u>强缓存</u> 是否可用
-  - 若可用，直接使用
+- Push Cache 是缓存的最后一道防线；浏览器只有在 Memory Cache、HTTP Cache 和 Service Worker Cache 均未命中的情况下才会去询问 Push Cache；
+- Push Cache 是一种存在于会话—Session 阶段的缓存，当 session 终止时(关闭连接、关闭 Tab)，缓存也随之释放，且缓存时间短暂(Chrome 中只有5分钟)；
+- 不同的页面只要共享同一个 HTTP2 连接，则就可共享同一个 Push Cache；
+  - 注意：视浏览器实现而定，某些浏览器出于对性能考虑，会对相同域名但不同 Tab 标签使用同一 HTTP 连接；
+
+- 所有资源都能被推送，且能够被缓存，但 Edge 和 Safari 支持相对较差
+- 可推送 no-cache 和 no-store 资源；
+- Push Cache 中的缓存只能被使用一次；
+- 浏览器可以拒绝接收已存在的资源推送；
+- 可以给其他域名推送资源；
+
+
+
+
+
+### 2-4、实际应用与场景
+
+##### 2-4-1、实际应用
+
+- 频繁变动的资源使用：`Cache-Control: no-cache`；
+  - 注意：上述字段，使得浏览器每次都请求服务器，然后配合 `ETag` 或 `Last-Modified` 来验证资源是否有效；
+- 不频繁变动的资源使用：`Cache-Control: max-age=31536000`，一年的总秒数…
+  - 注意：为解决更新问题，可在文件名添加 `hash`、版本号等动态字段，以实现更改 <u>引用URL</u> 目的(实现更新内容-重新请求资源)；
+
+
+
+##### 2-4-2、用户场景
+
+- 地址输入栏：先查找 Disk Cache 是否有匹配，否则发送请求； 
+- 普通 F5 刷新：优先使用 Memory Cache，其次是 Disk Cache；
+- 强制 CtrlF5 刷新：浏览器不使用缓存
+
+
+
+#### 2-5、缓存过程总结
+
+首次，浏览器发起 HTTP 请求到获得请求结果，可分为以下几个过程：
+
+- 首先，浏览器首次发起 HTTP 请求，在浏览器缓存中没有发现请求的缓存结果和缓存标识；
+- 然后，浏览器向服务器发起 HTTP 请求，获得该请求响应与缓存规则(即 `Last-Modified` 或 `ETag`)；
+- 然后，浏览器将响应内容存入 `Disk Cache`，将响应内容的引用，存入 `Memory Cache`；
+- 最后，将响应内容存入 `Service Worker` 的 `Cache Storage`  (若 `Service Worker` 的脚本调用了 `cache.put()`)
+
+然后，在下一次请求相同资源时:
+
+- 调用 `Service Worker` 的 `fetch `  事件响应；
+- 查看 `Memory Cache`
+- 查看 `Disk Cache`，并通过 **Cache-Control** 验证 <u>强缓存</u> 是否可用
+  - 若可用，直接使用，返回 200 状态码
   - 否则进入 <u>协商缓存</u>，即发送 HTTP 请求，服务器通过请求头中的 **If-Modified-Since** 或 **If-None-Match** 字段检查资源是否更新
     - 若资源更新，返回资源和  200 状态码；
     - 否则，返回 304 状态码，告诉浏览器直接从缓存获取资源；
+
+<img src="/Image/Chromium/16.png" style="zoom:50%;" align="left" />
 
 
 
@@ -230,19 +304,101 @@ Cookie 本质是浏览器中存储的一个很小的、内容以键值对形式�
 
 ##### 4-2-1、CORS
 
-CORS—跨域资源共享，是 W3C 标准之一，需要浏览器与服务器共同支持：<u>非 IE 和 IE10 以上</u>、<u>服务器需要附加特定的响应头</u>；
+CORS—跨域资源共享，是 W3C 标准之一，其允许浏览器向跨源服务器，发出 `XMLHttpRequest` 或 `Fetch` 请求，且整个 `CORS` 通信过程均由浏览器自动完成，无需要用户参与；**<u>完成 CORS 须要前提</u>**：浏览器须支持此功能：<u>**非 IE 和 IE10 以上**</u>、且服务器端也须同意此种跨域请求：<u>**服务器需附加特定的响应头**</u>；[MDN](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS#Preflighted_requests)
 
-首先，浏览器根据请求方法和请求头的特定字段，将请求作两种分类，凡满足下面条件的属于 **简单请求**，否则为 **非简单请求**：
+- **Access-Control-Allow-Origin**：表示可允许请求的源；可填具体源名，亦可填 `*` 表示允许任意源请求；
+- **Access-Control-Allow-Methods**：表示允许的请求方法列表；
+- **Access-Control-Allow-Headers**：表示允许发送的请求头字段；
+- **Access-Control-Allow-Credentials**：略；
+- **Access-Control-Max-Age**：表示预检请求的有效期，在此期间，不必发出另外一条预检请求；
 
-- 请求方法为 GET、POST、HEAD
-- 请求头取值范围：Accept、Accept-Language、Content-Language、Content-Type
-  - 注意：这里的 Content-Type 仅限3值：`application/x-www-form-urlencoded`、`multipart/form-data`、`text/plain`
 
-##### 4-2-1-1、简单请求
 
-在请求发出前，浏览器会自动为请求头中，添加字段 `Origin`，用以说明请求来源；当服务器拿到请求并回应时，会相应地添加字段 `Access-Control-Allow-Origin`；当浏览器收到时，发现 `Origin` 不在此字段范围内时，就会将响应拦截；
+##### 4-2-1-1、一般流程
 
-所以，**<u>字段 `Access-Control-Allow-Origin` 是服务器用来决定浏览器是否拦截此响应的必需字段</u>**；此外，还有其他可选的功能性字段，用以描述若不拦截时，则字段将会发挥各自的作用：
+- 首先，客户端先根据同源策略，对前端请求 URL 与后台交互地址 API 做匹配：
+  - 若同源则直接发送数据请求；
+  - 若不同源，则发送跨域请求；
+- 然后，服务器收到客户端跨域请求后，根据自身配置返回相应文件头：
+  - 若未配置允许跨域，则文件头不包含 `Access-Control-Allow-origin` 字段；
+  - 若已配置跨域允许，则返回 `Access-Control-Allow-origin + 相应配置规则中的域名的方式`；
+- 最后，浏览器根据与接收到的响应头中的 `Access-Control-Allow-origin` 字段匹配：
+  - 若无该字段，则说明不允许跨域，抛出错误；
+  - 若有该字段，则将 <u>字段内容</u> 同 <u>当前域名</u> 做比对，
+    - 若同源，则说明可跨域，浏览器接受该响应；
+    - 若不同源，则说明该域名不可跨域，浏览器不接受该响应，并抛出错误；
+
+
+
+注意：浏览器根据跨域请求方法和跨域请求头的特定字段，将跨域请求分为两类，凡满足下面条件的属于 **<u>简单请求</u>**，否则为 **<u>非简单请求</u>**，前者只是单纯请求，后者则会先使用 `OPTIONS` 方法发起一个预检请求到服务器，以获知服务器是否允许该实际请求，避免跨域请求对服务器的用户数据产生未预期的影响；
+
+- 请求方法为 GET、POST、HEAD 之一；
+- 请求头取值范围：`Accept`、`Accept-Language`、`Content-Language`、`Content-Type`、`DPR`、`Downlink`、`Save-Data`、`Viewport-Width`、`Width`
+  - 注意：`Content-Type` 仅限3值：`application/x-www-form-urlencoded`、`multipart/form-data`、`text/plain`
+- 请求中的任意 [XMLHttpRequestUpload](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequestUpload) 对象均无注册任何事件监听器；[XMLHttpRequestUpload](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequestUpload) 对象可使用 [XMLHttpRequest.upload](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest/upload) 属性访问；
+- 请求中没有使用 [ReadableStream](https://developer.mozilla.org/zh-CN/docs/Web/API/ReadableStream) 对象
+
+
+
+##### 4-2-1-2、简单请求
+
+在请求发出前，浏览器会自动为请求头中，添加字段 `Origin`，用以说明请求来源；当服务器拿到请求并回应时，会相应地添加字段 `Access-Control-Allow-Origin`，并设置字段值(或请求 Origin 值，或别的值)；然后，当浏览器收到时，若发现 `Origin` 的值不在此字段范围内时，就会将响应拦截；所以，**<u>字段 `Access-Control-Allow-Origin` 是服务器用来决定浏览器是否拦截此响应的必需字段</u>**；
+
+```javascript
+// 1、./index
+...
+<a href="/cors">CORS跨域</a>
+...
+
+// 1-1、./cors/index
+...
+<script src="https://cdn.bootcss.com/axios/0.19.2/axios.min.js"></script>
+<button id="getName">get name</button>
+<script>
+  getName.onclick = () => {
+  // 简单请求
+  axios.get("http://127.0.0.1:8080/api/corsname");
+}
+</script>
+...
+
+// 2、client.js
+const Koa = require('koa');
+const fs = require('fs');
+const app = new Koa();
+
+app.use(async (ctx) => {
+  if (ctx.method === 'GET' && ctx.path === '/') {
+    ctx.body = fs.readFileSync('./index.html').toString();
+  }
+  if (ctx.method === 'GET' && ctx.path === '/cors') {
+    ctx.body = fs.readFileSync('./cors/index.html').toString();
+  }
+})
+console.log('client 8000...')
+app.listen(8000);
+
+
+// 3、server.js
+const Koa = require('koa');
+const app = new Koa();
+
+app.use(async (ctx, next) => {
+  // 关键之处:
+  ctx.set("Access-Control-Allow-Origin", ctx.header.origin);
+  await next();
+  if (ctx.path === '/api/corsname') {
+    ctx.body = {
+      data: 'Test'
+    }
+    return;
+  }
+})
+console.log('server 8080...')
+app.listen(8080);
+```
+
+此外，还有其他可选的功能性字段，用以描述若不拦截时，则字段将会发挥各自的作用：
 
 - **Access-Control-Allow-Credentials**：布尔值，表示是否允许发送 Cookie，对于跨域请求，浏览器默认值设为 false，否则需要设置为 true，并需在前端也需设置 `withCredentials` 属性:
 
@@ -261,11 +417,13 @@ Access-Control-Expose-Headers: xxx
 
 
 
-##### 4-2-2-2、非简单请求
 
-非简单请求不同于简单请求，主要体现在两方面：**预检请求**、**响应字段**，而主流程是：
 
-- 首先，客户端先发送 <u>**预检请求**</u>，用以告知服务器接下来的 CORS 请求的具体信息(方法、请求头)；
+##### 4-2-2-3、非简单请求
+
+非简单请求不同于简单请求，前者只是单纯请求，后者则会先使用 `OPTIONS` 方法发起一个预检请求到服务器，以获知服务器是否允许该实际请求，避免跨域请求对服务器的用户数据产生未预期的影响；即主要体现在两方面：**<u>预检请求</u>**、**<u>响应字段</u>**，主流程是：
+
+- 首先，客户端先发送 <u>**预检请求(而非实际请求)**</u>，用以告知服务器接下来的 CORS 请求的具体信息(方法、请求头)；
   - Access-Control-Request-Method：指出 (接下来的)CORS 请求用到哪个 HTTP 方法；
   - Access-Control-Request-Headers：指出 (接下来的)CORS 请求将要加上什么请求头；
 
@@ -279,25 +437,21 @@ xhr.send();
 ```
 
 ```http
-// 代码执行后随后发送 预检请求, 请求航与请求体如下：
-// 注意预检请求方法为 OPTIONS, 并带有 Origin 源地址与 Host 目的地址字段, 和两个 Access-XX 字段
+// 预检请求请求头 - 代码执行后浏览器随即自动发送 预检请求
+// 预检请求方法为 OPTIONS
 OPTIONS / HTTP/1.1
-Origin: 当前地址
-Host: xxx.com
-Access-Control-Request-Method: PUT
-Access-Control-Request-Headers: X-Custom-Header
+Origin: 源地址
+Host: xxx.com - 目的地址
+Access-Control-Request-Method: PUT - 非简单请求标志之一
+Access-Control-Request-Headers: X-Custom-Header - 非简单请求标志之一
 ```
 
 - 然后，服务端接收并返回 <u>**预检请求的响应**</u>，客户端检查此响应：
-  - 若 CORS 请求不满足预检请求响应头的条件，则触发 `XMLHttpRequest` 的 `onerror `方法，后续 CORS 请求不发出；
-  - 若 CORS 请求满足，则发出真正的 CORS 请求；
-  - Access-Control-Allow-Credentials：略；
-  - Access-Control-Allow-Methods：表示允许的请求方法列表；
-  - Access-Control-Allow-Headers：表示允许发送的请求头字段；
-  - Access-Control-Max-Age：表示预检请求的有效期，在此期间，不必发出另外一条预检请求；
-  - Access-Control-Allow-Origin：表示可允许请求的源；可填具体源名，亦可填 `*` 表示允许任意源请求；
+  - 若 CORS 请求不满足预检请求响应头的条件，则触发 `XMLHttpRequest` 的 `onerror `方法，后续真正 CORS 请求不发出；
+  - 若 CORS 请求满足，则发出真正 CORS 请求；
 
 ```http
+// 预检请求响应头
 HTTP/1.1 200 OK
 Access-Control-Allow-Origin: *
 Access-Control-Allow-Methods: GET, POST, PUT
@@ -309,13 +463,131 @@ Content-Encoding: gzip
 Content-Length: 0
 ```
 
-- 最后，若一切允许，则客户端发送跨域请求：浏览器自动加上 `Origin` 字段，服务端响应头返回  `Access-Control-Allow-Origin`，流程同简单请求；
+- Access-Control-Allow-Credentials：略；
+
+- Access-Control-Allow-Methods：表示允许的请求方法列表；
+- Access-Control-Allow-Headers：表示允许发送的请求头字段；
+- Access-Control-Max-Age：表示预检请求的有效期，在此期间，不必发出另外一条预检请求；
+- Access-Control-Allow-Origin：表示可允许请求的源；可填具体源名，亦可填 `*` 表示允许任意源请求；
+- 最后，若一切允许，则客户端发送真正的 CORS 跨域请求：流程同简单请求：客户端自动加上 `Origin` 字段，服务端返回  `Access-Control-Allow-Origin`；
+
+
+
+##### 4-2-2-4、注意事项
+
+##### 4-2-2-4-1、减少预检请求次数：
+
+- 尽量发出简单请求；
+- 服务端设置 `Access-Control-Max-Age` 字段：在有效时间内浏览器无需再为同一请求发送预检请求；
+  - 局限性：只能为同一请求缓存，无法针对整个域或模糊匹配 URL 做缓存；
+
+##### 4-2-2-4-2、携带身份凭证
+
+跨域 [XMLHttpRequest](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest) 或 [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) 请求，浏览器默认 **<u>不会</u> **发送身份凭证信息比如 Cookie，若要坚持发送凭证信息，则需满足 3 个条件：
+
+- 客户端请求头设置 `withCredentials` 为 `true`；
+- 服务器设置首部字段 `Access-Control-Allow-Credentials` 为 `true`；
+- 服务器的 `Access-Control-Allow-Origin` 不能为 `*`；
+
+```javascript
+// 1、login
+...
+<script>
+// 关键 1:
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = 'http://127.0.0.1:8080'
+login.onclick = () => {
+	axios.post('/api/login')
+}
+</script>
+...
+
+// 2、server.js
+const Koa = require("koa");
+const router = require("koa-router")();
+const koaBody = require("koa-body");
+const app = new Koa();
+const TOKEN = "xxxxxxx-yyyyyyy-zzzzzzzz";
+
+app.use(async (ctx, next) => {
+  // 关键 2:
+  ctx.set("Access-Control-Allow-Origin", ctx.header.origin);
+  ctx.set("Access-Control-Request-Method", "PUT,POST,GET,DELETE,OPTIONS");
+  ctx.set(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Access, cc"
+  );
+  // 关键 3: 
+  ctx.set("Access-Control-Allow-Credentials", true);
+});
+app.use(async (ctx, next) => {
+  // 若是登录接口则跳过后面的token验证
+  if (ctx.path === "/api/login") {
+    await next();
+    return;
+  }
+  // 对所有非登录的请求验证 token
+  const cookies = ctx.cookies.get("token");
+  console.log(cookies);
+  if (cookies && cookies === TOKEN) {
+    await next();
+    return;
+  }
+  ctx.body = {
+    code: 401,
+    msg: "权限错误",
+  };
+  return;
+});
+// 若不加 multipart：true ctx.request.body 会获取不到值
+app.use(koaBody({ multipart: true }));
+
+router.get("/api/corsname", async (ctx) => {
+  ctx.body = {
+    data: "Test",
+  };
+});
+
+router.post("/api/login", async (ctx) => {
+  ctx.cookies.set("token", TOKEN, {
+    expires: new Date(+new Date() + 1000 * 60 * 60 * 24 * 7),
+  });
+  ctx.body = {
+    msg: "成功",
+    code: 0,
+  };
+});
+
+app.use(router.routes());
+console.log("server 8080...");
+app.listen(8080);
+```
+
+
 
 
 
 ##### 4-2-2、JSONP
 
-XMLHttpRequest 对象遵循同源政策，但 `script`标签不一样，可通过 src 填上目标地址发出 GET 请求，实现跨域请求，也即 JSONP 原理，最大优势是兼容性好(兼容 IE 低版本)，但缺点也明显：只支持 GET 请求；
+XMLHttpRequest 对象遵循同源政策，但 `script` 标签没有跨域限制，可通过 src 填上目标地址发出 GET 请求，实现跨域请求，也即 JSONP 原理，最大优势是兼容性好(兼容 IE 低版本)，但缺点也明显：只支持 GET 请求；
+
+- 首先，前端定义一个解析函数；比如： `jsonpCallback = function (res) {}`
+- 然后，通过 `params`  的形式包装 `script` 标签的请求参数，并声明为上述执行函数名；比如：`cb=jsonpCallback`；
+- 然后，后端获取到前端声明的执行函数(`jsonpCallback`)，并以带上参数且调用执行函数的方式传递给前端
+- 最后，前端在 `script` 标签请求返回资源时就会去执行 `jsonpCallback`，并通过回调的方式拿到数据；
+
+```html
+// 1、创建全局函数，等待执行
+<script type='text/javascript'>
+    window.jsonpCallback = function (res) {
+        console.log(res)
+    }
+</script>
+// 2、构建请求脚本，等待请求内容返回
+<script src='http://localhost:8080/api/jsonp?id=1&cb=jsonpCallback' type='text/javascript'></script>
+// 3、服务端拿到 URL 参数，处理请求，最后在响应体中写入 jsonpCallback(...)，并将处理后的内容以函数参数形式传入
+// 4、前端拿到后台内容并执行，执行调用全局函数，并将参数传入函数中执行；
+```
 
 ```javascript
 // 1、前端
@@ -370,6 +642,8 @@ app.get('/', function(req, res) {
 })
 app.listen(3000)
 ```
+
+[JSONP 封装]([https://github.com/LinDaiDai/niubility-coding-js/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/%E8%B7%A8%E5%9F%9F/JSONP%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0.md](https://github.com/LinDaiDai/niubility-coding-js/blob/master/计算机网络/跨域/JSONP原理及实现.md))
 
 
 
@@ -463,9 +737,24 @@ Set-Cookie: rsv_i=f9a0SIItKqzv7kqgAAgphbGyRts3RwTg%2FLyU3Y5Eh5LwyfOOrAsvdezbay0Q
 
 
 
+#### 6-x、浏览器解析渲染流程
+
+<img src="/Image/Chromium/17.png" style="zoom:50%;" />
+
+- 渲染进程将 HTML 内容转换为能够读懂的 **<u>DOM 树</u>**；
+- 渲染引擎将 CSS 样式表转化为浏览器可理解的 styleSheets，计算出 DOM 节点的样式；
+- 创建 **<u>布局树</u>**，并计算元素的布局信息；
+- 对布局树进行分层，并生成 **<u>分层树</u>**；
+- 为每个图层生成 **<u>绘制列表</u>**，并将其提交到 **<u>合成线程</u>**，合成线程将图层分图块，并栅格化将图块转换成位图；
+- 合成线程发送绘制图块命令给浏览器进程，浏览器进程根据指令生成页面，并显示到显示器上；
+
+
+
+
+
 #### 6-2、解析相关
 
-完成网络请求，若响应头中  `Content-Type` 值是 `text/html`，则进入浏览器解析与渲染工作，解析部分主要分为以下几个步骤:
+完成网络请求，若响应头中  `Content-Type` 值是 `text/html`，则**<u>进入浏览器解析与渲染工作</u>**，解析部分主要分为以下几个步骤:
 
 - **<u>构建 DOM 树</u>**
 - **<u>样式计算</u>**
@@ -475,7 +764,9 @@ Set-Cookie: rsv_i=f9a0SIItKqzv7kqgAAgphbGyRts3RwTg%2FLyU3Y5Eh5LwyfOOrAsvdezbay0Q
 
 ##### 6-2-1、构建 DOM 树
 
-由于浏览器无法直接理解 **<u>HTML字符串</u>**，因此需要先将这系列的字节流，转换为一种有意义的、且方便操作的数据结构——**<u>DOM树</u>**；其本质上是一个以 `document` 为根节点的多叉树；
+由于浏览器无法直接理解 **<u>HTML字符串</u>**，因此需要先将 HTML 的原始字节数据，转换为文件指定编码的字符，然后浏览器会根据 HTML 规范来将字符串转换成各种令牌标签，最终解析成一个树状的对象数据结构——**<u>DOM树</u>**；其本质上是一个以 `document` 为根节点的多叉树；
+
+
 
 ##### 6-2-1-1、HTML 文法本质
 
@@ -513,6 +804,8 @@ Aa -> B
 **<u>注意：上面的叙述想表达的是规范的 HTML 语法是符合上下文无关文法的，但真实场景和实际解析中，考虑到不标准语法的行为，所以是非上下文无关文法；</u>**
 
 **<u>注意：即理论与实际不符，表示 HTML 不能使用常规语言解析器(常规编程语言一般为上下文无关)完成 HTML Parse；</u>**
+
+
 
 ##### 6-2-1-2、解析算法
 
@@ -610,11 +903,35 @@ if (t->isCloseTag(brTag) && m_document->inCompatMode()) {
 
 
 
+##### 6-2-1-2-4、流程总结
+
+<img src="/Image/Chromium/18.png" style="zoom:50%;" align="left"/>
+
+- **转码(Bytes -> Characters)**
+  - 读取接收到的 HTML 二进制数据，按指定编码格式将字节转换为 HTML 字符串；
+- **Tokens 化(Characters -> Tokens)**
+  -  解析 HTML，将 HTML 字符串转换为结构清晰的 Tokens，每个 Token 都有特殊的含义同时有自己的一套规则；
+- **构建 Nodes(Tokens -> Nodes)**
+  - 每个 Node 都添加特定的属性(或属性访问器)，通过指针能够确定 Node 的父、子、兄弟关系和所属 treeScope
+  - 比如：iframe 的 treeScope 与外层页面的 treeScope 不同；
+- **构建 DOM 树(Nodes -> DOM Tree)**
+  - 最重要的工作是建立起每个结点的父子兄弟关系；
+
+
+
+
+
 ##### 6-2-2、样式计算
 
-CSS 样式来源有三种：link 标签引用、style 标签样式、元素的内嵌 style 属性；
+即渲染引擎将 CSS 样式表转化为浏览器可以理解的 styleSheets，计算出 DOM 节点的样式；
+
+<img src="/Image/Chromium/19.png" style="zoom:50%;" align="left"/>
+
+上图即将所有值转换为渲染引擎容易理解、标准化的计算值，此过程为 **<u>属性值标准化</u>**，处理完成后再处理样式的 **<u>继承和层叠</u>**，整一过程亦称 CSSOM 构建过程；
 
 ##### 6-2-2-1、格式化样式表
+
+CSS 样式来源有三种：link 标签引用、style 标签样式、元素的内嵌 style 属性；
 
 浏览器是无法直接识别 CSS 样式文本，因此渲染引擎收到 CSS 文本后第一件事情就是将其转化为一个结构化的对象 **<u>styleSheets</u>**；在浏览器控制台能够通过`document.styleSheets `来查看这个最终结构，结构包含了以上 3 种 CSS来源，为后面的样式操作提供基础；
 
@@ -632,13 +949,17 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
 - 层叠规则：<u>CSS 最大特点在于它的层叠性，也即最终样式取决于各个属性共同作用的效果</u>；
 - 注意：在计算完样式之后，所有样式值会被挂在到 `window.getComputedStyle` 当中，故可通过 JS 来获取计算后的样式；
 
+
+
 ##### 6-2-3、生成布局树
 
-有了前面的 **<u>DOM 树</u>** 和 **<u>DOM 样式</u>** 后，便通过浏览器的布局系统 <u>确定元素位置</u>，也就是生成一棵 **<u>布局树(Layout Tree)</u>**；
+布局过程即：利用前面的 **<u>DOM 树</u>** 和 **<u>DOM 样式</u>** ，排除 `script、meta` 等功能化、非视觉节点，排除 `display: none` 的节点，并通过浏览器的布局系统 <u>计算元素位置信息</u>、<u>确定元素位置</u>，构建一棵只包含可见元素的 **<u>布局树(Layout Tree)</u>**；
+
+<img src="/Image/Chromium/20.png" style="zoom:50%;" align=""/>
 
 - 遍历生成的 **<u>DOM 树</u>** 节点，并将它们添加到 **<u>布局树</u>** 中；
 - 计算 **<u>布局树</u>** 节点的坐标位置；
-- 注意：**<u>布局树</u>**  包含可见元素， `head`标签和设置`display: none`的元素，将不会被放入其中；
+- 注意：**<u>布局树</u>**  包含可见元素，设置`display: none`的元素和 `head` 等功能标签，将不会被放入其中；
 - 注意：现在 Chrome 团队已经做了大量重构，已经没有生成 **<u>渲染树(Render Tree)</u>** 的过程(布局树的信息已非常完善，完全拥有 Render Tree 的功能)；
 - 补充：[从Chrome源码看浏览器如何layout布局](https://www.rrfed.com/2017/02/26/chrome-layout/)。
 
@@ -657,22 +978,34 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
 
 
 
-##### 6-3-1、建图层树(Layer Tree)
+##### 6-3-1、建图层树/分层树(Layer Tree)
 
-解析阶段得到 DOM节点、样式、位置信息，但还不足以开始绘制页面，因还需考虑某些复杂的场景，比如3D动画变换效果、元素含层叠上下文时的显示与隐藏；所以，在浏览器在构建完 **<u>布局树</u>** 后(解析阶段最后一步)，还会对特定节点进行分层，构建一棵 **<u>图层树(Layer Tree)</u>**；通过显示隐式合成构建。一般情况下，节点的图层会默认属于父节点的图层(**亦称合成层**)，某些条件会触发将 **<u>多个合成层</u>** 提升为 **<u>单独合成层</u>**，可分两种情况讨论：**显式合成**、**隐式合成**
+​	解析阶段得到 DOM节点、样式、位置信息，但还不足以开始绘制页面，因还需考虑页面中的复杂效果与场景，比如复杂 3D 动画变换效果、页面滚动、元素含层叠上下文时的显示与隐藏、使用 z-indexing 做 z 轴排序等；而为更加方便地实现这些效果，在浏览器在构建完 **<u>布局树</u>** 后(解析阶段最后一步)，渲染引擎还需为特定的节点生成专用图层，构建一棵 **<u>图层树(Layer Tree)</u>**；
+
+<img src="/Image/Chromium/21.png" style="zoom:50%;" />
+
+​	图层树通过显示隐式合成构建，一般情况下，节点的图层会默认属于父节点的图层(**亦称合成层**)，某些条件会触发将 **<u>多个合成层</u>** 提升为 **<u>单独合成层</u>**，可分两种情况讨论：**显式合成**、**隐式合成**
 
 ##### 6-3-1-1、显式合成
 
-- 拥有 <u>层叠上下文</u> 的节点：层叠上下文也基本上是由一些特定的 CSS属性创建的，一般有以下情况:
-  - HTML根元素本身就具有层叠上下文。
-  - 普通元素设置 **position 不为 static** 且 **设置了z-index属性**，会产生层叠上下文；
-  - 元素的 **opacity** 值不是 1；
-  - 元素的 **transform** 值不是 none；
-  - 元素的 **filter** 值不是 none；
+- 拥有 <u>层叠上下文</u> 属性的元素会单独提升为单独一层：层叠上下文是 HTML 元素的三维概念，这些 HTML 元素在一条假想的、相对于面向视窗或用户的 z 轴上延伸，HTML 元素依据其自身属性，按照优先级顺序占用层叠上下文空间；
+  - **根元素(HTML)** 本身就具有层叠上下文；
+  - 元素的 **filter** 值不为 none；
+  - 元素的 **clip-path** 值不为 none；
+  - 元素的 **transform** 值不为 none；
+  - 元素的 **perspective** 值不为 none；
+  - 元素的 **mix-blend-mode** 值不为 normal；
+  - 元素的 **z-index** 值不为 auto，且为 flex 子项；
+  - 元素的 **z-index** 值不为 auto，且为 grid 子项；
+  - 元素的 **z-index** 值不为 auto，且为绝对/相对定位元素；
+  - 元素的 **mask**、**mask-image**、**mask-border** 不为 none；
   - 元素的 **isolation** 值是 isolate；
-  - **will-change **指定的属性值为上面任意一个；
+  - 元素的 **-webkit-overflow-scrolling** 值是 touch；
+  - 元素的 **contain** 值是 layout、paint、strict、content；
+  - 元素的 **opacity** 值是小于 1；(the specification for opacity)
+  - 元素的 **will-change ** 值是指定的任意属性；([详看](https://dev.opera.com/articles/css-will-change-property/) )
 
-- 需要 <u>剪裁</u> 的地方：
+- 需要 <u>剪裁</u> 的地方也会被创建为图层：
   - 比如某个翠存放巨量文字的 100 * 100 像素大小的 DIV，超出的文字部分就需要被剪裁；若出现滚动条，则滚动条会被单独提升为一个图层；
 
 ##### 6-3-1-2、隐式合成
@@ -692,15 +1025,17 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
 
 ##### 6-3-3、生成图块并栅格化(生成位图)
 
-实际上在渲染进程中，绘制操作由专门的线程—**<u>合成线程</u>** 来完成；
+实际上在渲染进程中，绘制操作由专门的线程—**<u>合成线程</u>** 来完成：
 
 - 首先，当绘制列表准备好后，**<u>渲染进程的主线程</u>** 会给 **<u>合成线程</u>** 发送 `commit` 消息，将 **<u>绘制列表</u>** 提交给 **<u>合成线程</u>**；
 - 然后，为避免：<u>在有限视口内一次性绘制所有页面</u> 而造成的性能浪费，**<u>合成线程</u>** 需要先将图层 **分块**；
   - 注意：分块大小规格一般为 256 * 256 或 512 * 512 ，以加速页面首屏展示；
   - 注意：图块数据要进入 GPU 内存，而将数据从浏览器内存上传到 GPU 内存的操作较慢(即使绘制一部分图块也可能会耗费大量时间)，为解决此问题，Chrome 采用如下策略：首次合成图块时只采用一个 <u>低分辨率的图片</u> ，故首屏展示时只是展示此图片，继续进行合成操作，当正常图块内容绘制完毕后，才将当前低分辨率的图块内容替换；此亦 Chrome 底层优化首屏加载速度的一个手段；
-- 然后，**<u>合成线程</u>** 会选择视口附近的 **图块**，把它交给**栅格化线程池**生成位图；
+- 然后，**<u>合成线程</u>** 会选择视口附近的 **图块**，优先将其交给 **<u>栅格化线程池</u>** 来生成位图；
   - 注意：渲染进程中专门维护一个 **<u>栅格化线程池</u>**，负责将 **图块** 转换为 **位图数据**；
   - 注意：生成位图的过程实际上都会使用 GPU 进行加速，生成的位图最后发送给 **<u>合成线程</u>**；
+
+
 
 ##### 6-3-4、显示器显示内容
 
@@ -710,6 +1045,10 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
 
 <img src="/Image/Chromium/10.png" style="zoom:50%;" />
 
+
+
+
+
 #### 6-4、重排/回流、重绘、合成
 
 回顾渲染流水线：
@@ -718,26 +1057,35 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
 
 ##### 6-4-1、重排/回流
 
+DOM 修改导致元素尺寸或位置发生变化时，浏览器需要重新计算渲染树，触发重排/回流；
+
 - 触发条件：对 DOM 结构的修改引发 DOM 几何尺寸变化时，会导致 **<u>重排(reflow)</u>**；
   - DOM 元素的几何属性变化，常见的比如：`width`、`height`、`padding`、`margin`、`left`、`top`、`border` 等；
   - 使 DOM 节点发生 `增减` 或 `移动`；
-  - 读写 `offset `族、`scroll `族、`client` 族属性时，浏览器为了获取这些值，需要进行回流操作；
+  - 读写 `offset ` 族、`scroll  `族、`client` 族属性时，浏览器为获取这些值，需要进行回流操作；
   - 调用   `window.getComputedStyle` 方法；
-
+  - 注意：部分浏览器缓存一个 flush 队列，存放触发回流与重绘的任务，等队列任务足够量、或达到一定时间间隔、或“不得已”时，再将任务一次性全部出队；而当访问一些即使属性时，浏览器会为获得此时此刻的、最准确的属性值，而提前将 flush 队列的任务出队，降低性能；
+  
 - 回流过程：依照上面的渲染流水线，触发重排/回流时，若 DOM 结构发生改变，则重新渲染 DOM 树，然后将后续流程(包括主线程之外的任务)全部走一遍；
-- <img src="/Image/Chromium/13.png" style="zoom:50%;" align="left"/>
-  - 注意：相当于将解析和合成的过程重新又走了一篇，开销巨大；
+
+<img src="/Image/Chromium/13.png" style="zoom:50%;" align="left"/>
+
+- 注意：相当于将解析和合成的过程重新又走了一篇，开销巨大；
 
 
 
 ##### 6-4-2、重绘
 
+DOM 修改导致样式发生变化，但无影响其几何属性，触发重绘，而不触发回流；而由于 DOM 位置信息无需更新，省去布局过程，性能上优于回流；
+
 - 触发条件：当 DOM 的修改导致样式变化，且没有影响几何属性时，会导致 **<u>重绘(repaint)</u>**；
 
 - 重绘过程：由于没有导致 DOM 几何属性变化，故元素的位置信息无需更新，从而省去布局过程：
-- <img src="/Image/Chromium/14.png" style="zoom:50%;" align="left"/>
-  - 注意：重排跳过了 <u>生成布局树</u> 和 <u>建图层树</u> 阶段，直接生成绘制列表，然后继续进行分块、生成位图等后面一系列操作；
-  - 注意：重绘不一定导致回流，但回流一定发生了重绘。
+
+<img src="/Image/Chromium/14.png" style="zoom:50%;" align="left"/>
+
+- 注意：重排跳过了 <u>生成布局树</u> 和 <u>建图层树</u> 阶段，直接生成绘制列表，然后继续进行分块、生成位图等后面一系列操作；
+- 注意：重绘不一定导致回流，但回流一定发生了重绘。
 
 
 
@@ -745,16 +1093,49 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
 
 直接合成，比如利用 CSS3 的 `transform`、`opacity`、`filter` 等属性可实现合成效果，即  **<u>GPU加速</u>**；
 
-- GPU加速原因：在合成的情况下，会直接跳过布局和绘制流程，直接进入`非主线程`处理的部分，即直接交给 **<u>合成线程</u>** 处理：
-  - 能够充分发挥 GPU 优势：**<u>合成线程</u>** 生成位图的过程中会调用线程池，并在其中使用 GPU 进行加速生成，而 GPU 是擅长处理位图数据；
+- GPU 加速原因：在合成的情况下，会直接跳过布局和绘制流程，直接进入`非主线程`处理的部分，即直接交给 **<u>合成线程</u>** 处理：
+  - 充分发挥 GPU 优势：**<u>合成线程</u>** 生成位图的过程中会调用线程池，并在其中使用 GPU 进行加速生成，而 GPU 是擅长处理位图数据；
   - 没有占用主线程资源：即使主线程卡住，但效果依然能够流畅地展示；
-
-- 实践意义
-  - 避免频繁使用 style，而采用修改 `class` 方式；
-  - 使用 `createDocumentFragment` 进行批量 DOM 操作；
-  - 对于 resize、scroll 等进行防抖/节流处理；
-  - 添加 will-change: tranform：让渲染引擎为节点单独实现一个图层；在变换发生时，仅利用 **<u>合成线程</u>** 去处理这些变换而不牵扯主线程，提高渲染效率；
-    - 注意：值不限制 tranform，任何可以实现合成效果的 CSS 属性均能使用`will-change`来声明；[使用例子](https://juejin.im/post/5da52531518825094e373372)；
+- GPU 使用注意：GPU 渲染字体会导致字体模糊，过多 GPU 处理会导致内存问题；
 
 
+
+##### 6-4-4、实践意义
+
+- 避免频繁使用 style，而采用修改 `class` 方式；
+- transform 和 opacity 效果，不会触发 layout 和 paint
+- 使用 `resize`、`scroll`  时进行防抖和节流处理，减少回流次数；
+- 使用 `visibility` 替换 `display: none`，前者只引起重绘，后者则触发回流；
+- 使用 `createDocumentFragment` 进行批量 DOM 操作，修改完毕后，再放入文档流；
+- 将节点提升为合成层，即使用 `will-change`，见 6-4-3、合成；
+- 复杂动画效果/动画元素，可使用绝对定位让其脱离文档流；以减少频繁地触发回流重绘；
+- 避免触发同步布局事件；比如获取 offset/scroll/client 族属性值时，可使用变量将查询结果缓存，避免多次查询；
+
+- 添加 `will-change: tranform`：让渲染引擎为节点单独实现一图层；在变换发生时，仅利用 **<u>合成线程</u>** 去处理这些变换而不牵扯主线程，提高渲染效率；
+  
+  - 注意：值并非限制 tranform，任何可实现合成效果的 CSS 属性均可使用 `will-change` 来声明；[使用例子](https://juejin.im/post/5da52531518825094e373372)；
+  
+  - ```css
+    #divId {
+      will-change: transform;
+    }
+    ```
+
+
+
+
+
+### X、打开页面需要启动的进程-简略
+
+浏览器从关闭状态进行启动，然后新开 1 个页面至少需要 1 个网络进程、1 个浏览器进程、1 个 GPU 进程以及 1 个渲染进程，共 4 个进程；
+
+后续再新开标签页，浏览器、网络进程、GPU进程是共享的，不会重新启动，若 2 个页面属于同一站点的话，并且从a页面中打开的b页面，则他们也会共用一个渲染进程，否则新开一个渲染进程；
+
+最新的 Chrome 浏览器包括：1 个浏览器（Browser）主进程、1 个 GPU 进程、1 个网络（NetWork）进程、多个渲染进程和多个插件进程：
+
+- 浏览器进程：主要负责界面显示、用户交互、子进程管理，同时提供存储等功能；
+- 渲染进程：核心任务是将 HTML、CSS 和 JavaScript 转换为用户可以与之交互的网页，排版引擎 Blink 和 JavaScript 引擎 V8 都是运行在该进程中，默认情况下，Chrome 会为每个 Tab 标签创建一个渲染进程。出于安全考虑，渲染进程都是运行在沙箱模式下；
+- GPU 进程：其实，Chrome 刚开始发布的时候是没有 GPU 进程的。而 GPU 的使用初衷是为了实现 3D CSS 的效果，只是随后网页、Chrome 的 UI 界面都选择采用 GPU 来绘制，这使得 GPU 成为浏览器普遍的需求。最后，Chrome 在其多进程架构上也引入了 GPU 进程；
+- 网络进程：主要负责页面的网络资源加载，之前是作为一个模块运行在浏览器进程里面的，直至最近才独立出来，成为一个单独的进程；
+- 插件进程：主要是负责插件的运行，因插件易崩溃，所以需要通过插件进程来隔离，以保证插件进程崩溃不会对浏览器和页面造成影响；
 
