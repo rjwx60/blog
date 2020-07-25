@@ -56,6 +56,8 @@ Cache-Control 还有诸多属性值来对缓存作更细粒度的操作：
 
 即若强缓存失效，即资源缓存超时，浏览器在请求头中携带相应的 <u>缓存tag</u> 来向服务器发请求，服务器根据此 tag，来告知浏览器是否继续使用缓存；缓存 Tag 有两种，无分优劣， **Last-Modified**、 **ETag**
 
+<img src="/Image/Chromium/22.png" style="zoom:50%;" align="left"/>
+
 ##### 2-2-1、Last-Modified
 
 响应报文字段，表示资源最后修改时间；使用机制如下：
@@ -94,6 +96,7 @@ Cache-Control 还有诸多属性值来对缓存作更细粒度的操作：
 - Memory Cache
 - Disk Cache
 - Push Cache
+- 网络请求
 
 
 
@@ -118,7 +121,7 @@ Cache-Control 还有诸多属性值来对缓存作更细粒度的操作：
 - 存取效率快，但缓存持续时间短，会随着进程释放而释放(一旦关闭 Tab 页即被释放，未关闭但, 排在前排缓存失效)；
 - 从其中读取缓存时，浏览器会忽视 `Cache-Control`中的一些 `max-age、no-cache` 等头部配置, 除非设置  `no-store` 头部配置；
 - 几乎所有的请求资源都能进入 <u>Memory Cache</u>，主要分为 <u>preloader</u> 、<u>preload</u> ：
-  - preloader：用于 <u>当浏览器打开网页时，能一边解析执行 js/css，一边请求下一资源</u>，被请求来的资源就会被放入 `Memory Cache` 中，供后续解析执行操作使用；
+  - preloader：用于 <u>当浏览器打开网页时，能一边解析执行 js/css，一边请求下一资源</u>，被请求的资源就会被放入 `Memory Cache` 中，供后续解析执行操作使用；
   - preload：能显式指定预加载的资源，比如： `<link rel="preload">`
 
 
@@ -132,7 +135,7 @@ Cache-Control 还有诸多属性值来对缓存作更细粒度的操作：
 - 注意：强缓存、协商缓存也是属于 `Disk Cache`，它们最终都存储在硬盘里；
 - 区别：Memory Cache 与 Disk Cache 存储位置选择的策略如下：
   - 较大的 JS、CSS 文件会直接存入磁盘，反之内存；
-  - 内存使用率比较高时，文件优先放入磁盘；
+  - 当系统内存使用率比较高时，文件优先放入磁盘；
 
 
 
@@ -160,7 +163,7 @@ Push Cache 是指 HTTP2 在 server push 阶段存在的缓存，是浏览器缓�
 ##### 2-4-1、实际应用
 
 - 频繁变动的资源使用：`Cache-Control: no-cache`；
-  - 注意：上述字段，使得浏览器每次都请求服务器，然后配合 `ETag` 或 `Last-Modified` 来验证资源是否有效；
+  - 注意：使得浏览器每次都请求服务器，然后配合 `ETag` 或 `Last-Modified` 来验证资源是否有效；虽不能节省请求数量，但能显著减少响应数据大小；
 - 不频繁变动的资源使用：`Cache-Control: max-age=31536000`，一年的总秒数…
   - 注意：为解决更新问题，可在文件名添加 `hash`、版本号等动态字段，以实现更改 <u>引用URL</u> 目的(实现更新内容-重新请求资源)；
 
@@ -193,7 +196,7 @@ Push Cache 是指 HTTP2 在 server push 阶段存在的缓存，是浏览器缓�
     - 若资源更新，返回资源和  200 状态码；
     - 否则，返回 304 状态码，告诉浏览器直接从缓存获取资源；
 
-<img src="/Image/Chromium/16.png" style="zoom:50%;" align="left" />
+<img src="/Image/Chromium/16.png" style="zoom:40%;" align="left" />
 
 
 
@@ -676,6 +679,18 @@ Nginx 相当于是一个跳板机，域名是 `client.com`，客户端首先访�
 
 
 
+#### 4-X、跨标签通讯
+
+不同标签页间的通讯，本质原理就是去运用一些可以 <u>共享的中间介质</u>，常用以下方法:
+
+- 通过父页面 `window.open()`和子页面 `postMessage`；
+  - 异步下，通过 `window.open('about: blank')` 和 `tab.location.href = '*'；`
+- 设置同域下共享的 `localStorage `与监听  `window.onstorage`；
+  - 重复写入相同的值无法触发；
+  - 会受到浏览器隐身模式等的限制；
+- 设置共享 `cookie ` 与不断轮询脏检查( `setInterval `)；
+- 借助服务端或者中间层实现；
+
 
 
 ### 五、浏览器应用
@@ -684,9 +699,48 @@ Nginx 相当于是一个跳板机，域名是 `client.com`，客户端首先访�
 
 #### 5-2、图片懒加载
 
+#### 5-3、WebWorker
+
+现代浏览器为 JS 创造的 **多线程环境**；可新建并将部分任务分配到`worker`线程并行运行，两个线程可 **独立运行，互不干扰**，可通过自带的 **消息机制** 相互通信；
+
+- 同源限制
+- 无法使用 `document` / `window` / `alert` / `confirm`
+- 无法加载本地资源
+
+```js
+// 创建 worker
+const worker = new Worker('work.js');
+
+// 向 worker 线程推送消息
+worker.postMessage('Hello World');
+
+// 监听 worker 线程发送过来的消息
+worker.onmessage = function (event) {
+  console.log('Received message ' + event.data);
+}
+```
+
+
 
 
 ### 六、输入URL到展示过程
+
+- DNS 解析；
+- TCP 三次握手；
+- 分析 URL，设置请求报文(头，主体)，发送请求；
+- 服务器响应；
+- 浏览器解析与渲染；
+  - HTML parser --> DOM Tree
+    - 标记化算法，进行元素状态的标记；
+    - DOM 树构建；
+  - CSS parser --> Style Tree
+    - 解析 CSS 代码，生成样式树；
+  - attachment --> Render Tree
+    - 结合 DOM 树 与 style 树，生成渲染树；
+  - Layout：布局
+  - GPU painting: 像素绘制页面
+
+
 
 #### 6-1、网络相关
 
@@ -737,7 +791,7 @@ Set-Cookie: rsv_i=f9a0SIItKqzv7kqgAAgphbGyRts3RwTg%2FLyU3Y5Eh5LwyfOOrAsvdezbay0Q
 
 
 
-#### 6-x、浏览器解析渲染流程
+#### 6-X、浏览器解析渲染流程
 
 <img src="/Image/Chromium/17.png" style="zoom:50%;" />
 
@@ -759,6 +813,20 @@ Set-Cookie: rsv_i=f9a0SIItKqzv7kqgAAgphbGyRts3RwTg%2FLyU3Y5Eh5LwyfOOrAsvdezbay0Q
 - **<u>构建 DOM 树</u>**
 - **<u>样式计算</u>**
 - <u>**生成布局树(Layout Tree)**</u>
+
+
+
+**<u>注意：下述内容极为简略，只作为回忆说明：</u>**
+
+- DOM 树：字节数据—>字符串—>Token—>Node—>DOM
+  - 网络01 <u>字节数据</u>—>
+  - <u>HTML字符串</u>—>
+  - 通过词法分析转换为 <u>标记(标记化—tokenization)(标记还是字符串，是构成代码的最小单位)</u>—>
+  - 转换为 Node，并根据不同 Node 之前的联系构建为一颗 DOM 树；
+- CSSOM 树(同步进行)：字节数据—>字符串—>Token—>Node—>CSSOM
+  - 格式化、标准化、并根据继承与层叠规则计算节点具体样式；
+- 生成渲染树(旧式)
+- 布局显示(旧式)
 
 
 
@@ -1049,21 +1117,37 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
 
 
 
-#### 6-4、重排/回流、重绘、合成
+#### 6-4、重排、重绘、合成
 
 回顾渲染流水线：
 
 <img src="/Image/Chromium/12.png" style="zoom:50%;" align="left"/>
+
+- 重绘是：当节点需要更改外观而不会影响布局的，比如改变 `color` 就叫称为重绘；
+- 回流是：布局或几何属性需要改变就称为回流；
+
+
 
 ##### 6-4-1、重排/回流
 
 DOM 修改导致元素尺寸或位置发生变化时，浏览器需要重新计算渲染树，触发重排/回流；
 
 - 触发条件：对 DOM 结构的修改引发 DOM 几何尺寸变化时，会导致 **<u>重排(reflow)</u>**；
+  - 页面初次渲染；
+  - 元素字体大小变化；
+  - 浏览器窗口大小改变；
+  - 激活 CSS 伪类；比如 :hover；
   - DOM 元素的几何属性变化，常见的比如：`width`、`height`、`padding`、`margin`、`left`、`top`、`border` 等；
+  - 元素尺寸、位置、内容发生改变；
   - 使 DOM 节点发生 `增减` 或 `移动`；
   - 读写 `offset ` 族、`scroll  `族、`client` 族属性时，浏览器为获取这些值，需要进行回流操作；
-  - 调用   `window.getComputedStyle` 方法；
+  - 查询某些属性或调用某些方法
+    - clientWidth、clientHeight、clientTop、clientLeft
+    - offsetWidth、offsetHeight、offsetTop、offsetLeft
+    - scrollWidth、scrollHeight、scrollTop、scrollLeft
+    - getComputedStyle()
+    - getBoundingClientRect()
+    - scrollTo()
   - 注意：部分浏览器缓存一个 flush 队列，存放触发回流与重绘的任务，等队列任务足够量、或达到一定时间间隔、或“不得已”时，再将任务一次性全部出队；而当访问一些即使属性时，浏览器会为获得此时此刻的、最准确的属性值，而提前将 flush 队列的任务出队，降低性能；
   
 - 回流过程：依照上面的渲染流水线，触发重排/回流时，若 DOM 结构发生改变，则重新渲染 DOM 树，然后将后续流程(包括主线程之外的任务)全部走一遍；
@@ -1100,26 +1184,105 @@ DOM 修改导致样式发生变化，但无影响其几何属性，触发重绘�
 
 
 
-##### 6-4-4、实践意义
+##### 6-4-4、注意事项
 
-- 避免频繁使用 style，而采用修改 `class` 方式；
-- transform 和 opacity 效果，不会触发 layout 和 paint
-- 使用 `resize`、`scroll`  时进行防抖和节流处理，减少回流次数；
+**回流必定触发重绘，重绘不一定触发回流；重绘的开销较小，回流的代价较高**；改变父节点里的子节点很可能会导致父节点的一系列回流；
+
+##### 6-4-4-1、最佳实践
+
+CSS：
+
+- CSS 选择符 <u>从右往左</u> 匹配查找，避免节点层级过多；
 - 使用 `visibility` 替换 `display: none`，前者只引起重绘，后者则触发回流；
-- 使用 `createDocumentFragment` 进行批量 DOM 操作，修改完毕后，再放入文档流；
-- 将节点提升为合成层，即使用 `will-change`，见 6-4-3、合成；
-- 复杂动画效果/动画元素，可使用绝对定位让其脱离文档流；以减少频繁地触发回流重绘；
-- 避免触发同步布局事件；比如获取 offset/scroll/client 族属性值时，可使用变量将查询结果缓存，避免多次查询；
+- 避免使用 `table` 布局，可能很小的一个小改动会造成整个 `table` 的重新布局；
+
+- 使用 `transform` 替代 `top`，`transform` 和 `opacity` 效果，不会触发 `layout` 和 `repaint;`
+- 动画效果/动画元素，可使用绝对定位使其脱离文档流；减少频繁地触发回流重绘；比如将动画效果应用到 `position`  属性为 `absolute` 或 `fixed` 元素上；
+
+JavaScript：
+
+- 避免频繁操作样式，可汇总后统一 <u>一次修改</u>；
+- 避免频繁使用 `style`，而采用修改 `class` 方式；
+- 极限优化时，修改样式可将其`display: none`后修改；
+- 使用 `resize`、`scroll`  时进行防抖和节流处理，减少回流次数；
+- 减少 `dom `的增删次数，可使用 <u>字符串</u> 或者 `documentFragment` 一次性插入；
+  - 比如：使用 `createDocumentFragment` 进行批量 DOM 操作，修改完毕后，再放入文档流；
+- 避免多次触发上面提到的那些会触发回流的方法，可使用变量将查询结果缓存，避免多次查询；
+- 动画实现的速度的选择，动画速度越快，回流次数越多，也可选择使用 `requestAnimationFrame;`
+
+- 将频繁重绘或者回流的节点提升为合成层，图层能够阻止该节点的渲染行为影响别的节点；比如对于 `video` 标签来说，浏览器会自动将该节点变为图层；
+
+  - 设置节点为图层的方式有很多，我们可以通过以下几个常用属性可以生成新图层：
+  - `will-change`
+  - `video`、`iframe` 标签
 
 - 添加 `will-change: tranform`：让渲染引擎为节点单独实现一图层；在变换发生时，仅利用 **<u>合成线程</u>** 去处理这些变换而不牵扯主线程，提高渲染效率；
-  
+
   - 注意：值并非限制 tranform，任何可实现合成效果的 CSS 属性均可使用 `will-change` 来声明；[使用例子](https://juejin.im/post/5da52531518825094e373372)；
-  
+
   - ```css
     #divId {
       will-change: transform;
     }
     ```
+
+
+
+##### 6-4-4-2、优化检测
+
+当发生 `DOMContentLoaded` 事件后，就会生成渲染树，生成渲染树就可以进行渲染了，这一过程更大程度上和硬件有关系：
+
+<img src="/Image/Chromium/23.png" style="zoom:50%;" />
+
+
+
+##### 6-4-5、与EventLoop关系
+
+- 首先，当 Eventloop 执行完 Microtasks 后，会判断 `document` 是否需要更新，因为浏览器是 60Hz 的刷新率，每 16.6ms 才会更新一次；
+- 然后，判断是否有 `resize` 或者 `scroll` 事件，有则触发，所以 `resize` 和 `scroll` 事件也是至少 16ms 才会触发一次，并且自带节流功能；
+- 然后，判断是否触发了 media query；
+- 然后，更新动画并且发送事件；
+- 然后，判断是否有全屏操作事件；
+- 然后，执行 `requestAnimationFrame` 回调；
+- 然后，执行 `IntersectionObserver` 回调，该方法用于判断元素是否可见，可用于懒加载，但兼容性不好；
+- 最后，更新界面；
+- 注意：以上是一帧中可能会做的事情；若在一帧中有空闲时间，就会去执行 `requestIdleCallback` 回调；[详看](https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model)
+
+
+
+#### 6-X、实际问题
+
+##### 6-X-1、DOM 操作性能问题
+
+原因：因为 DOM 是属于渲染引擎中的东西，而 JS 又是 JS 引擎中的东西；通过 JS 操作 DOM 时，涉及到两个线程间的通信，势必会带来一些性能上的损耗。操作 DOM 次数一多，也就等同于一直在进行线程间的通信，且操作 DOM 可能还会带来重绘回流的情况，所以也就导致了性能上的问题；
+
+改进：
+
+- `requestAnimationFrame`  方式去循环的插入 DOM；
+- 虚拟滚动 (virtualized scroller)：只渲染可视区域内的内容，非可见区域的完全不渲染，当用户在滚动的时就实时去替换渲染的内容  [react-virtualized](https://github.com/bvaughn/react-virtualized)；
+
+
+
+##### 6-X-2、渲染阻塞问题
+
+- 首先，渲染的前提是生成渲染树，故 HTML 和 CSS 势必会阻塞渲染；
+  - 优化：若想渲染快，可降低初始所需的渲染的文件 大小，并且扁平层级，优化选择器；
+- 然后，当浏览器在解析到  `script ` 标签时，会暂停构建 DOM，完成后才会从暂停的地方重新开始；
+  - 优化：若想首屏渲染快，一般而言不应在首屏时就加载 JS 文件，而将 `script` 标签放在 `body` 标签底部；
+  - 优化：若想首屏渲染快，亦可给 `script` 标签添加 `defer` 或者 `async` 属性：
+    - `defer` 属性表示该 JS 文件会并行下载，但会放到 HTML 解析完成后顺序执行，此时的 `script` 标签可放在任意位置；
+    - 对于没有任何依赖的 JS 文件可以加上 `async` 属性，表示 JS 文件下载和解析不会阻塞渲染；
+
+
+
+##### 6-X-3、关键渲染路径问题
+
+不考虑缓存和优化网络协议，只考虑可以通过哪些方式来最快的渲染页面：
+
+- 从文件大小：前略；
+- 从 `script` 标签使用：前略；
+- 从 CSS、HTML 的代码书写：前略；
+- 从需要下载的内容是否需要在首屏使用：前略；
 
 
 
@@ -1138,4 +1301,25 @@ DOM 修改导致样式发生变化，但无影响其几何属性，触发重绘�
 - GPU 进程：其实，Chrome 刚开始发布的时候是没有 GPU 进程的。而 GPU 的使用初衷是为了实现 3D CSS 的效果，只是随后网页、Chrome 的 UI 界面都选择采用 GPU 来绘制，这使得 GPU 成为浏览器普遍的需求。最后，Chrome 在其多进程架构上也引入了 GPU 进程；
 - 网络进程：主要负责页面的网络资源加载，之前是作为一个模块运行在浏览器进程里面的，直至最近才独立出来，成为一个单独的进程；
 - 插件进程：主要是负责插件的运行，因插件易崩溃，所以需要通过插件进程来隔离，以保证插件进程崩溃不会对浏览器和页面造成影响；
+
+
+
+### Y、浏览器架构
+
+- 用户界面
+- 主进程
+- 内核
+  - 渲染引擎
+  - JS 引擎
+    - 执行栈
+  - 事件触发线程
+    - 消息队列
+      - 微任务
+      - 宏任务
+  - 网络异步线程
+  - 定时器线程
+
+https://juejin.im/post/5e11cd225188253a73288212
+
+https://juejin.im/post/5e572a34518825490f722b9e#heading-2
 

@@ -6,11 +6,11 @@ typora-root-url: ../Source
 
 ### 零、问题区
 
-##### 0-1、知道 websocket 与 http 区别，协议层面的连接实现、心跳机制、安全防范等
+##### 0-1、websocket 区别
 
-- 靠记忆
+与 http 区别，协议层面的连接实现、心跳机制、安全防范等
 
-##### 0-2、知道 websocket ⽤法，包括但不限于：鉴权，房间分配，⼼跳机制，重连⽅案等
+##### 0-2、websocket ⽤法
 
 ##### 0-2-1、鉴权
 
@@ -241,17 +241,23 @@ HTTP 不支持持久连接，下述模式建立的长连接是长连接(伪)，<
 
 <img src="/Image/NetWork/websocket/4.png" style="zoom:50%;" align="left"/>
 
+
+
 ### 四、实现
 
 #### 		4-1、新建连接
 
-##### 4-1-1、会话建立的第一步，即完成 websocket 握手
+##### 4-1-1、完成 websocket 握手
 
-**<u>而握手本质是由 HTTP1.1 协议升级所得</u>**，握手 URI 格式如下图所示，注意：除子协议、扩展协议、CORS跨域三字段外均为必选项：
+会话建立的第一步，即完成 websocket 握手，**<u>而握手本质是由 HTTP1.1 协议升级所得</u>**，握手 URI 格式如下图所示：
 
-<img src="/Image/NetWork/websocket/5.png" style="zoom:50%;" align="left"/>
+- 注意：除子协议、扩展协议、CORS跨域三字段外均为必选项：
 
-##### 4-1-2、建立 websocket 连接时候所需消息有如下内容：
+<img src="/Image/NetWork/websocket/5.png" style="zoom:40%;" align="left"/>
+
+##### 4-1-2、建立 websocket 连接
+
+建立 websocket 连接时候所需消息有如下内容：
 
 - 首先，客户端利用 HTTP 发送报文，报文含构建 websocket 连接客户所需告知服务端的消息
 
@@ -288,7 +294,9 @@ HTTP 不支持持久连接，下述模式建立的长连接是长连接(伪)，<
 
 <img src="/Image/NetWork/websocket/6.png" style="zoom:50%;" align="left"/>
 
-##### 4-1-3、使用 HTTP 建立 websocket 握手示例：
+##### 4-1-3、示例
+
+使用 HTTP 建立 websocket 握手示例：
 
 <img src="/Image/NetWork/websocket/7.png" style="zoom:50%;" align="left"/>
 
