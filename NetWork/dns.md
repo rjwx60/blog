@@ -58,7 +58,7 @@ DNS服务器一般分三种，根DNS服务器，顶级DNS服务器，权威DNS�
 
 
 
-#### 1-4、查询过程—[How DNS query works](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc775637(v=ws.10)?redirectedfrom=MSDN)
+#### 1-4、解析流程—[How DNS query works](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc775637(v=ws.10)?redirectedfrom=MSDN)
 
 1、首先：浏览器中输入域名 `www.baidu.com` ，然后浏览器搜索  **<u>自身 DNS 缓存</u>** (时效1min可存1000条，可通过地址栏输入 `chrome://net-internals/#dns` 查看)，若无则该请求会传递到 DNS 客户端服务，以使用计算机本地缓存的信息进行解析， **<u>本地解析器缓存</u>** 可从2个可能的来源获得名称信息：(查看本机 DNS 缓存方式详看：[stackoverflow](https://stackoverflow.com/questions/38867905/how-to-view-dns-cache-in-osx) )
 

@@ -449,7 +449,7 @@ res.write("helloworld");
 
 
 
-##### 2-3-6、Transfer-Encoding: chunked
+##### 2-3-6、Transfer-Encoding：chunked
 
 用于表示分块传输数据，**<u>发送不定长包体</u>**，设置此字段后会自动产生 2 个效果:
 

@@ -124,13 +124,13 @@ UDP 具有 <u>面向无连接</u>、<u>不可靠性</u>、<u>高效</u> 的特�
 
 
 
-##### 2-3-3、TCP头部字段(Segment报文段)
+##### 2-3-3、TCP 头部字段
 
 <img src="/Image/NetWork/tcp/9.png" style="zoom:50%;" align=""/>
 
 
 
-##### 2-3-3-1、Source Port(源端口)、Destination Port(目的端口) 
+##### 2-3-3-1、Source Port、Destination Port 
 
 用于定义 TCP 连接，通过 TCP 四元组唯一标识一个连接：源地址、源端口、目的地址、目的端口；
 
@@ -139,7 +139,7 @@ UDP 具有 <u>面向无连接</u>、<u>不可靠性</u>、<u>高效</u> 的特�
 - 注意：并非都得通过四元组标识连接，还可使用 QUIC 协议标识；
 - <img src="/Image/NetWork/tcp/11.png" style="zoom:50%;" align="left"/>
 
-##### 2-3-3-2、Seq(序列号)、Ack(确认号)
+##### 2-3-3-2、Seq、Ack
 
 SequenceNumber(序列号)、AcknowledgmentNumber(确认号)：用以唯一标识 TCP 报文，类似物流系统的订单号，ACK 还用于确认报文，以实现数据可达性；
 
@@ -148,25 +148,25 @@ SequenceNumber(序列号)、AcknowledgmentNumber(确认号)：用以唯一标识
   - 用以保证数据包按正确的顺序组装；
 - Ack：表示下一个期望接收的序列号，同时表示 **<u>小于ACK</u>**的所有字节已全部收到；
 
-##### 2-3-3-3、ISN(初始序列号)
+##### 2-3-3-3、ISN
 
 ISN-Initial Sequence Number(初始序列号)，<u>因 TCP 报文段在经过网络路由后会存在延迟抵达或排序混乱情况，故需要 ISN，而注意：三次握手核心目的之一就是交换双方 ISN，交换后才可得知对方发送信息的初始位置；</u>
 
 - 注意：ISN 的构建使用半随机方法构建(基于时钟+偏移量+加密散列函数+每隔 4 ms 加1)，以确保不同连接间唯一性，防止重叠，避免不同连接间的相互影响，也为了避免连接被攻击者预测、伪造报文；
 
-##### 2-3-3-4、Checksum(校验和)
+##### 2-3-3-4、Checksum
 
-- Checksum：占 2 字节16 位，防止传输过程中数据包损坏，若此值校验错误，TCP 会直接丢弃并等待重传；
+- Checksum(校验和)：占 2 字节16 位，防止传输过程中数据包损坏，若此值校验错误，TCP 会直接丢弃并等待重传；
 - 注意：TCP Header 的校验和会对 TCP 数据、Header、和部分 IP 头部字段进行校验，此举是违反分层原则；
 - 补充：Pseudo-Header 是一虚拟的数据结构，其中的信息是从数据报所在IP分组头的分组头中提取，既不向下传送也不向上递交，而仅仅是为计算校验和。这样的校验和，既校验了 TCP&UDP 用户数据的源端口号和目的端口号以及 TCP&UDP 用户数据报的数据部分，又检验了 IP 数据报的源 IP 地址和目的地址；Pseudo-Header 保证 TCP&UDP 数据单元到达正确的目的地址。因此，Pseudo-Header 中包含 IP 地址并且作为计算校验和需要考虑的一部分；最终目的端根据伪报头和数据单元计算校验和以验证通信数据在传输过程中没有改变而且到达了正确的目的地址；
 
 <img src="/Image/NetWork/tcp/181.png" style="zoom:50%;" align="center"/>
 
-##### 2-3-3-5、Window(窗口大小)
+##### 2-3-3-5、Window
 
 - Window：占 2 字节16 位，但实际中不够用，故 TCP 引入窗口缩放的选项(Options类)，作为窗口缩放的比例因子，此值范围在 0 ~ 14，比例因子可将窗口值扩大为原来的 2 ^ n 次方；
 
-##### 2-3-3-6、TCP Flags(标志位)
+##### 2-3-3-6、TCP Flags
 
 <img src="/Image/NetWork/tcp/182.png" style="zoom:50%;" align="center"/>
 
@@ -187,11 +187,11 @@ ISN-Initial Sequence Number(初始序列号)，<u>因 TCP 报文段在经过网�
 
   
 
-##### 2-3-3-7、UrgentPointer(紧急指针)
+##### 2-3-3-7、Urgent Pointer
 
-若设置 URG 位，则此域将被检查作为额外指令，告诉 CPU 从数据包的某个位置开始读取数据；
+紧急指针，若设置 URG 位，则此域将被检查作为额外指令，告诉 CPU 从数据包的某个位置开始读取数据；
 
-##### 2-3-3-8、TCP头部字段(Segment报文段)——TCP Options
+##### 2-3-3-8、TCP Options
 
 
 
@@ -683,9 +683,12 @@ RTO = max(srtt + max(G, 4(rttvar)), 1000);
 此时发送方：
 
 - 要么采用积极悲观 ***<u>Go-Back-N</u>*** 策略重传报文所有报文(5678)，但可能浪费带宽；
-- 要么采用保守乐观 **<u>*Selective repeat ARQ (亦称 Selective Reject (SREJ))*</u>** 策略只重传报文5，但大量丢包时效率低下；详见：https://tools.ietf.org/html/rfc3366#page-8；
+- 要么采用保守乐观 **<u>*Selective repeat ARQ (亦称 Selective Reject (SREJ))*</u>** 策略只重传报文5，但大量丢包时效率低下；
+- 详见：https://tools.ietf.org/html/rfc3366#page-8；
 
-​    解决：引入选择性确认 SACK，以更有效重传丢失报文段；比如下述 SACK 表明报文3未收到，报文 4 已收到，此时 server 可单纯发送 3 即可，避免陷入上述两策略问题；
+​    解决：引入选择性确认 SACK，以更有效重传丢失报文段；
+
+比如：下述 SACK 表明报文3未收到，报文 4 已收到，此时 server 可单纯发送 3 即可，避免陷入上述两策略问题；
 
 <img src="/Image/NetWork/tcp/78.png" style="zoom:70%;"  />
 
@@ -717,7 +720,7 @@ RTO = max(srtt + max(G, 4(rttvar)), 1000);
 
 
 
-#### 5-2、延时确认(延时ACK)与 Nagle 算法
+#### 5-2、延时确认与 Nagle 算法
 
 
 
@@ -1121,9 +1124,9 @@ cwnd += SMSS*SMSS/cwnd(若cwnd>ssthresh)拥塞避免
 
 <img src="/Image/NetWork/tcp/129.png" style="zoom:50%;"/>
 
-##### 6-3-2-2、BBR (TCP Bottleneck Bandwidth and Round-trip propagation time) 基本
+##### 6-3-2-2、BBR 基本
 
-BBR  由 Google 于 2016 年发布，Linux 4.9 内核引入，QUIC 使用；但注意 QUIC 需要客户端支持，BBR 则无需终端支持，因其采用不同策略面对路由器上缓存队列产生的拥塞；
+BBR(TCP Bottleneck Bandwidth and Round-trip propagation time)  由 Google 于 2016 年发布，Linux 4.9 内核引入，QUIC 使用；但注意 QUIC 需要客户端支持，BBR 则无需终端支持，因其采用不同策略面对路由器上缓存队列产生的拥塞；
 
 <img src="/Image/NetWork/tcp/130.png" style="zoom:50%;"/>
 
@@ -1137,11 +1140,11 @@ BBR 在 Youtube 上的应用结果：吞吐量提升、RTT 时延减少、重新
 
 
 
-##### 6-3-2-3、BBR (TCP Bottleneck Bandwidth and Round-trip propagation time) 原理
+##### 6-3-2-3、BBR 原理
 
 <img src="/Image/NetWork/tcp/134.png" style="zoom:50%;"/>
 
-##### 6-3-2-3-1、最佳控制点的寻找：
+##### 6-3-2-3-1、最佳控制点的寻找
 
 - RTT 中含有排队噪声 (ACK 延迟确认、网络设备排队等)，若能将 RTT 的排队噪声去除，剩下的即为 RTprop；RTprop：从发送数据到接收数据整个链路时间；
 - 若反复、多次测量 RTT，并取噪声最小值，则近似得出 RTprop；
