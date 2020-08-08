@@ -1,16 +1,16 @@
 #### [14. Longest Common Prefix](https://leetcode-cn.com/problems/longest-common-prefix/)
 
+
+
+### 一、内容
+
 Write a function to find the longest common prefix string amongst an array of strings.
 
 If there is no common prefix, return an empty string "".
 
 编写一个函数来查找字符串数组中的最长公共前缀。如果不存在公共前缀，返回空字符串 `""`。
 
-
-
-
-
-#### Example：
+#### 1-1、Example
 
 ```
 Input: ["flower","flow","flight"]
@@ -19,23 +19,35 @@ Output: "fl"
 Input: ["dog","racecar","car"]
 Output: ""
 Explanation: There is no common prefix among the input strings.
-
-来源：力扣（LeetCode）
-链接：https://leetcode-cn.com/problems/longest-common-prefix
-著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 ```
 
-
-
-#### Note:
+#### 1-2、Note
 
 All given inputs are in lowercase letters `a-z`.
 
+#### 1-3、标签
+
+String、TrieTree
 
 
-#### Code1：2020-07-12
 
-```javascript
+### 二、思路与解答
+
+#### 2-1、思路
+
+
+
+#### 2-2、题解
+
+##### 2-2-1、官解
+
+https://leetcode-cn.com/problems/longest-common-prefix/solution/
+
+
+
+##### 2-2-2、自实现
+
+```js
 /**
  * @param {string[]} strs
  * @return {string}
@@ -75,28 +87,19 @@ var longestCommonPrefix = function(strs, result = '') {
 };
 // 执行用时： 80 ms , 在所有 JavaScript 提交中击败了 50.22% 的用户 
 // 内存消耗： 38 MB , 在所有 JavaScript 提交中击败了 6.06% 的用户
-
-// 思路: 
-// 1、用 map 存储首字母，相同首字母的做合集
-// 2、根据首字母合集的长度做排序，此后仅判断首个元素即可
-// 3、因需取最小值(最长公共前缀取决于最短相同前缀的字符串)，所以后续递归的最终条件是 slice(0,1) 后元素不存在空洞元素
-// 4、此外还需注意 strArr.length > 1 的情况，此时表示 sort 得到 2+ 结果，没有最长公共(最长==唯一)
 ```
 
+思路: 
+1、用 map 存储首字母，相同首字母的做合集
+2、根据首字母合集的长度做排序，此后仅判断首个元素即可
+3、因需取最小值(最长公共前缀取决于最短相同前缀的字符串)，所以后续递归的最终条件是 slice(0,1) 后元素不存在空洞元素
+4、此外还需注意 strArr.length > 1 的情况，此时表示 sort 得到 2+ 结果，没有最长公共(最长==唯一)
 
 
-#### More：
 
-##### More1：
+##### 2-2-3、综合实现
 
-作者：leaveeel
-链接：https://leetcode-cn.com/problems/longest-common-prefix/solution/js-fang-fa-by-leaveeel/
-
-```javascript
-/**
- * @param {string[]} strs
- * @return {string}
- */
+```js
 var longestCommonPrefix = function(strs) {
     strs.sort()//按编码排序
     if (strs.length === 0) return ''//空数组返回''
@@ -111,24 +114,16 @@ var longestCommonPrefix = function(strs) {
         }
     }
 };
-// 思路:
-// 首先利用sort的排序方法将数组按照编码排序，只需要校验array[0]和array[array.length-1]的值。
-// 然后判断是否存在包含关系即array[0]包含于array[array.length-1]
-// 最后对首尾两个值进行字符串匹配，得到公共前缀
+// 作者：leaveeel
+// 链接：https://leetcode-cn.com/problems/longest-common-prefix/solution/js-fang-fa-by-leaveeel/
 ```
 
+思路:
+首先，利用sort的排序方法将数组按照编码排序，只需要校验array[0]和array[array.length-1]的值；
+然后，判断是否存在包含关系即array[0]包含于array[array.length-1]；
+最后，对首尾两个值进行字符串匹配，得到公共前缀；
 
-
-##### More2：
-
-作者：caoyq0521
-链接：https://leetcode-cn.com/problems/longest-common-prefix/solution/zui-chang-gong-gong-qian-zhui-by-caoyq0521/
-
-```javascript
-/**
- * @param {string[]} strs
- * @return {string}
- */
+```js
 var longestCommonPrefix = function(strs) {
     if(!strs.length) return '';
     let [a, ...b] = strs;
@@ -140,22 +135,16 @@ var longestCommonPrefix = function(strs) {
     }
     return result;
 };
-// 思路:
-// 取出数组的第一个字符串依次和剩余的字符串去比较。
+// 作者：caoyq0521
+// 链接：https://leetcode-cn.com/problems/longest-common-prefix/solution/zui-chang-gong-gong-qian-zhui-by-caoyq0521/
 ```
 
+思路:
+取出数组的第一个字符串依次和剩余的字符串去比较；
 
 
-##### More3：
-
-作者：shetia
-链接：https://leetcode-cn.com/problems/longest-common-prefix/solution/zhong-suo-zhou-zhi-zhe-shi-dao-yue-du-ti-by-shetia/
 
 ```javascript
-/**
- * @param {string[]} strs
- * @return {string}
- */
 var longestCommonPrefix = function(strs) {
   let str = strs[0]
   if(!str) return ''
@@ -170,34 +159,27 @@ var longestCommonPrefix = function(strs) {
   }
   return res
 };
-// 思路:
-// 要求的是: 最长公共前缀, 第一次看还以为是找最长公共子串
+
+// 作者：shetia
+// 链接：https://leetcode-cn.com/problems/longest-common-prefix/solution/zhong-suo-zhou-zhi-zhe-shi-dao-yue-du-ti-by-shetia/
 ```
 
+思路:
+题目要求的是：最长公共前缀, 第一次看还以为是找最长公共子串
 
 
-##### More4：
 
 https://leetcode-cn.com/problems/longest-common-prefix/solution/tu-jie-leetcodezui-chang-gong-gong-qian-zhui-lcp-b/
 
 
 
-##### MoreX：
-
-更多解法：
-
-https://leetcode-cn.com/problems/longest-common-prefix/solution/
 
 
+### 三、Top
 
-#### Top：
+#### 3-1、44ms
 
-```javascript
-// top1: 44ms
-/**
- * @param {string[]} strs
- * @return {string}
- */
+```js
 var longestCommonPrefix = function(strs) {
     if(strs.length==0) return "";
     if(strs.length==1) return strs[0];
@@ -221,9 +203,13 @@ var longestCommonPrefix = function(strs) {
     }
     return str;
 };
-// 感悟:
+```
 
-// top2: 48ms
+
+
+#### 3-2、48ms
+
+```js
 var longestCommonPrefix = function(strs) {
     if (strs === null || strs.length === 0) return "";
     if(strs.length === 1) return strs[0]
@@ -239,13 +225,13 @@ var longestCommonPrefix = function(strs) {
     }
     return strs[min]
 };
-// 感悟:
+```
 
-// top3: 52ms
-/**
- * @param {string[]} strs
- * @return {string}
- */
+
+
+#### 3-3、52ms
+
+```js
 var longestCommonPrefix = function(strs) {
     if(strs == '') return ''
     let newStrs = strs.sort((x, y) => x.length -y.length)
@@ -261,19 +247,15 @@ var longestCommonPrefix = function(strs) {
     }
     return res
 };
-
-// top4:
 ```
 
 
 
-#### Think：
+### 四、拓展
 
-- Code1 条件太多了，能看得出一步一步推导出来的，但过程繁琐，没有 Top 的简洁
+#### 4-1、xxx
 
-
-
-#### Expand：
+#### 4-2、xxx
 
 
 
