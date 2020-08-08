@@ -261,7 +261,7 @@ ISN-Initial Sequence Number(初始序列号)，<u>因 TCP 报文段在经过网�
 
 ##### 3-1-3、握手流程与状态变迁
 
-​	握手涉及的 5 种状态：`CLOSED、LISTEN(服务器常驻状)、SYN-SENT、SYN-RECEIVED、ESTABLISHED(握手后)`，而理解状态变迁对在复杂网络环境中定位问题很有帮助；
+握手涉及 5 种状态：`CLOSED、LISTEN(服务器常驻状)、SYN-SENT、SYN-RECEIVED、ESTABLISHED(握手后)`，理解状态变迁对在复杂网络环境中定位问题很有帮助；
 
 <img src="/Image/NetWork/tcp/21.png" style="zoom:50%;" align="center"/>
 
@@ -281,7 +281,21 @@ ISN-Initial Sequence Number(初始序列号)，<u>因 TCP 报文段在经过网�
   - 注意：Passive Open 被动打开，Active Open 主动打开；
   - 注意：凡需要对端确认的一定要消耗 TCP 报文序列号，即发送 SYN 需要消耗序列号，而 ACK 不用；
   - 注意：TCB：TransmissionContril Block：保存连接使用的源端口、目的端口、目的IP、序号、应答序号、对/己方窗口大小、TCP状态、TCP输入输出队列、应用层输出队列、TCP重传相关变量等；
-  - 注意：图1 中的服务端 TCB 建立在 LISTEN之前，是因为被动监听的句柄也要建立 TCB，其不表达一具体连接，但必须存在才能维护建链过程的相关信息；
+  - 注意：图1 中的服务端 TCB 建立在 LISTEN之前，是因被动监听的句柄也要建立 TCB，其不表达一具体连接，但必须存在才能维护建链过程的相关信息；
+
+补充：
+
+- 客户端主动发起 SYN
+- 服务端收到并返回 SYN 以及 ACK 客户端的 SYN
+- 客户端收到服务端的 SYN 和 ACK 后，发送 ACK 的 ACK 给服务端，服务端收到后连接建立
+
+```
+Client -> SYN -> Server
+Server -> SYN/ACK -> Client
+Client -> ACK -> Server
+```
+
+
 
 ##### 3-1-3-1、同时连接
 
@@ -450,13 +464,9 @@ net.ipv4.tcp_synack_retries
 - 首先，双方均处于 ***ESTABLISHED*** 状态，然后客户端想关闭连接，发送 FIN 报文，并改为 **FIN-WAIT-1**态；
 
   - 注意：此时客户端进入 `half-close(半关闭)`状态，只能接收而无法再向服务端发送消息；
-
 - 然后，服务端接收后，回送 ACK，并由 **<u>*ESTABLISHED*</u>** 进入**<u>*CLOSED-WAIT*</u>** 状态；
-
 - 然后，客户端收到服务端确认，并由 **FIN-WAIT-1** 进入 **FIN-WAIT-2** 态；
-
 - 随后，服务器向客户端发送 FIN 报文，并由  **<u>*CLOSED-WAIT*</u>** 进入 **<u>*LAST-ACK*</u>** 态；
-
 - 然后，客户端收到服务端 FIN，由 **FIN-WAIT-2**  进入 **TIME-WAIT** 态，并回送 ACK；
 
   - 注意：此时客户端可发送报文；
@@ -473,16 +483,32 @@ net.ipv4.tcp_synack_retries
 
     - 1 个 MSL 确保四次挥手中主动关闭方最后的 ACK 报文最终能达到对端；
     - 1 个 MSL 确保对端没有收到 ACK 重传的 FIN 报文可以到达；
-
 - 注意：并非仅客户端关闭连接，服务端亦可主动关闭连接，比如短连接；如此可快速释放资源，此外当服务端发现请求有误，或处理过程出错，也会发送错误信息后主动关闭；
-
 - 注意：主动发起关闭方会经历 2MSL 时期，此时端口被占用，对要同时处理大量TCP连接的服务器是负担；
-
 - 注意：客户端复用 time_wait 端口风险较服务端小，因为前者概率小且 TCP 四元组作为客户端有 65535 种可能，且自身知道打开了 reuse 功能可控，而后者遇到同IP同端口客户端事件是不可控的，故需做处理；
-
 - 注意：若时机恰好，中间的 FIN 与 ACK 是可以合并发送的；
-
 - 注意：若出现数据包混乱，TCP 会直接发送 RST 重置报文；
+
+
+
+补充：
+
+- 客户端发送 FIN 给服务端
+- 服务端收到后发送 ACK 给客户端
+- 服务端发送 FIN 给客户端
+- 客户端收到后，发送 ACK 的 ACK 给服务端，服务端关闭，客户端等待 2MSL 后关闭
+
+```
+Client -> FIN -> Server
+Server -> ACK -> Client
+Server -> FIN -> Client
+Client -> ACK -> Server -> CLOSED
+Client -> 2MSL 的时间 -> CLOSED
+```
+
+
+
+
 
 
 ##### 3-2-2-1、同时挥手

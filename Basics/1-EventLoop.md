@@ -314,112 +314,6 @@ typora-root-url: ../Source
 
 
 
-### 三、示例A-浏览器相关
-
-#### 3-1、示例1
-
-<img src="/Image/Basics/EventLoop/A-1.tiff" style="zoom:50%;" align="left"/>
-
-解释：node环境：跑完微任务 跑所有宏任务 再次跑所有微任务
-
-注意：process.nextTick 的概念和 then 不太一样，前者是加入到执行栈底部，故与其他表现并不一致；
-
-```javascript
-// 1 7 6 8 2 4 9 11 3 10 5 12
-```
-
-解释：浏览器环境：需先用 Promise.resolve().then(()=>{ 替换 process.nextTick；
-
-```javascript
-//  1 7 6 8 2 4 3 5 9 11 10 12
-```
-
-
-
-#### 3-2、示例2
-
-<img src="/Image/Basics/EventLoop/A-21.png" style="zoom:50%;" align="left"/>
-
-<img src="/Image/Basics/EventLoop/A-22.png" style="zoom:50%;" align="left"/>
-
-解释：先宏任务script，再微任务then，再异步宏任务setTimeout
-
-
-
-#### 3-3、示例3
-
-<img src="/Image/Basics/EventLoop/A-3.png" style="zoom:50%;" align="left"/>
-
-解释：先同步宏任务124，再微任务then-53，再异步宏任务6
-
-
-
-#### 3-4、示例4
-
-<img src="/Image/Basics/EventLoop/A-4.png" style="zoom:50%;" align="left"/>
-
-解释：Promise new 时会立即执行其中代码，而 then 是微任务，故会在本次任务执行完时执行， setTimeout 是宏任务，会在下次任务执行的时候执行；
-
-
-
-#### 3-5、示例5
-
-<img src="/Image/Basics/EventLoop/A-51.png" style="zoom:50%;" align="left"/>
-
-<img src="/Image/Basics/EventLoop/A-52.png" style="zoom:50%;" align="left"/>
-
-解释：相当于两个 onClick 事件函数展开，但因为冒泡原因，所以先执行 inner，后执行 outer???，宏观script，到微任务then和mutationObserver，最后到宏任务setTimeout
-
-
-
-#### 3-6、示例6
-
-<img src="/Image/Basics/EventLoop/A-61.png" style="zoom:50%;" align="left"/>
-
-解释：先宏任务135后微任务4再宏任务2；
-
-<img src="/Image/Basics/EventLoop/A-62.png" style="zoom:50%;" align="left"/>
-
-解释：先宏任务“马上、代码”，后微任务“then”再宏任务“定时器”；
-
-<img src="/Image/Basics/EventLoop/A-63.tiff" style="zoom:50%;" align="left"/>
-
-解释：先宏任务235，再微任务4，再宏任务1；
-
-
-
-#### 3-7、示例7
-
-<img src="/Image/Basics/EventLoop/A-7.png" style="zoom:50%;" align="left"/>
-
-
-
-#### 3-8、示例8
-
-<img src="/Image/Basics/EventLoop/A-81.png" style="zoom:50%;" align="left"/>
-
-<img src="/Image/Basics/EventLoop/A-82.png" style="zoom:50%;" align="left"/>
-
-<img src="/Image/Basics/EventLoop/A-83.png" style="zoom:50%;" align="left"/>
-
-
-
-#### 3-9、示例9
-
-<img src="/Image/Basics/EventLoop/A-91.png" style="zoom:50%;" align="left"/>
-
-<img src="/Image/Basics/EventLoop/A-92.png" style="zoom:50%;" align="left"/>
-
-<img src="/Image/Basics/EventLoop/A-93.png" style="zoom:50%;" align="left"/>
-
-<img src="/Image/Basics/EventLoop/A-94.png" style="zoom:50%;" align="left"/>
-
-
-
-#### 3-10、示例10
-
-详看：[这里](https://www.cnblogs.com/lpggo/p/8127604.html)
-
 
 
 
@@ -432,74 +326,6 @@ typora-root-url: ../Source
 
 ### 四、示例B-Node相关
 
-#### 4-1、示例1：浏览器端与Node端区别：浏览器端：
-
-<img src="/Image/Basics/EventLoop/200.png" style="zoom:50%;" align="left"/>
-
-解释：浏览器没有 process.nexTick，故用promiseThen代替，但性质不一样(见下方)：
-
-首先，执行外围宏任务110，发现新的宏任务setTimeoutA，加塞队列，后执行微任务then输出58；
-
-然后，执行微任务时又发现新的宏任务setTimeoutB，加载宏任务队列中，还发现新的微任务，加载到微任务列表中，故随后输出79；
-
-随后，执行下一个宏任务setTimeoutA输出2；
-
-然后，执行微任务输出34；
-
-最后，再执行下一个setTimeoutB输出6；
-
-
-
-
-
-#### 4-1、示例1：浏览器端与Node端区别：Node端：
-
-<img src="/Image/Basics/EventLoop/201.png" style="zoom:50%;" align="left"/>
-
-
-
-
-
-#### 4-2、示例2：nextTick 探讨
-
-<img src="/Image/Basics/EventLoop/202.png" style="zoom:50%;" align="left"/>
-
-解释：先宏任务1、10，再来 nextTick8、9，然后微任务 then-5、7，然后宏任务 setTimeout2、6，再来微任务 then-3+nextTick-4
-
-原因：process.nextTick 的概念和 then 不太一样：process.nextTick 是加入到执行栈底部，所以和其他的表现并不一致；
-
-
-
-
-
-#### 4-3、示例3：
-
-<img src="/Image/Basics/EventLoop/203.png" style="zoom:50%;" align="left"/>
-
-解释：
-
-宏任务—17、nextTick栈底—6、微任务—8、宏任务—249.11(同为setTimeout同一阶段同一处理)、nextTick栈底—3.10、微任务—5.12
-
-
-
-#### 4-3-1、示例3-1：类似示例3，只是加大了setTimeout等待时间
-
-<img src="/Image/Basics/EventLoop/204.png" style="zoom:50%;" align="left"/>
-
-<img src="/Image/Basics/EventLoop/205.png" style="zoom:50%;" align="left"/>
-
-
-
-
-
-#### 4-4、示例4：
-
-<img src="/Image/Basics/EventLoop/206.png" style="zoom:50%;" align="left"/>
-
-25341
-
-
-
 #### 4-4-1、示例4补充+疑问
 
 <img src="/Image/Basics/EventLoop/207.png" style="zoom:50%;" align="left"/>
@@ -510,41 +336,25 @@ typora-root-url: ../Source
 
 
 
-#### 4-4-2、
-
-<img src="/Image/Basics/EventLoop/209.png" style="zoom:50%;" align="left"/>
-
-注意：分析嵌套Promise关键是理清微任务有哪些，执行顺序还是宏微宏微，若无宏任务，则连续的微任务，但执行顺序是以加入队列的先后执行的，上图中一轮，promise1后只有then微任务，进入then执行，输出then11和promise2，随后发现2个微任务，一个是里面的then，一个是外面的then，然后执行…
-
-<img src="/Image/Basics/EventLoop/210.png" style="zoom:50%;" align="left"/>
-
-<img src="/Image/Basics/EventLoop/211.png" style="zoom:50%;" align="left"/>
 
 
 
 
 
-#### 4-4-3、
-
-<img src="/Image/Basics/EventLoop/212.png" style="zoom:50%;" align="left"/>
-
-注意：若内里return ，则回归正统的链式调用，由上往下执行，promise1、then11、promise2、then21、then23、then12
-
-
-
-#### 4-4-4、
-
-<img src="/Image/Basics/EventLoop/213.png" style="zoom:50%;" align="left"/>
 
 <img src="/Image/Basics/EventLoop/214.png" style="zoom:50%;" align="left"/>
+
+
+
+
 
 注意：若有多个Promise，执行效果同5-2，只是多了些代码，大体还是宏微宏微结构；
 
 
 
-#### 4-4-5、
 
-<img src="/Image/Basics/EventLoop/215.png" style="zoom:50%;" align="left"/>
+
+
 
 注意：async类型题目，将async后的内容纳入 promise.then 即可
 
@@ -554,10 +364,7 @@ typora-root-url: ../Source
 
 
 
-#### 4-4-6、
 
-<img src="/Image/Basics/EventLoop/217.png" style="zoom:50%;" align="left"/>
-
-注意：nextTick 发生在宏任务之后，微任务之前，setImmediate为宏任务，将其与setTimeout并列即可
 
 <img src="/Image/Basics/EventLoop/218.png" style="zoom:50%;" align="left"/>
+
