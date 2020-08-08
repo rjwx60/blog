@@ -2,7 +2,7 @@
 
 
 
-### 一、内容
+### 一、Content
 
 Write a function to find the longest common prefix string amongst an array of strings.
 
@@ -25,7 +25,7 @@ Explanation: There is no common prefix among the input strings.
 
 All given inputs are in lowercase letters `a-z`.
 
-#### 1-3、标签
+#### 1-3、Tag
 
 String、TrieTree
 
