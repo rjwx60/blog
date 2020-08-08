@@ -10,6 +10,8 @@ If there is no common prefix, return an empty string "".
 
 编写一个函数来查找字符串数组中的最长公共前缀。如果不存在公共前缀，返回空字符串 `""`。
 
+
+
 #### 1-1、Example
 
 ```
@@ -21,9 +23,13 @@ Output: ""
 Explanation: There is no common prefix among the input strings.
 ```
 
+
+
 #### 1-2、Note
 
 All given inputs are in lowercase letters `a-z`.
+
+
 
 #### 1-3、Tag
 
