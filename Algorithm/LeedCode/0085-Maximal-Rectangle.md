@@ -33,9 +33,13 @@ Stack
 
 #### 2-1、思路
 
+单调递增栈
+
 #### 2-2、题解
 
 ##### 2-2-1、官解
+
+https://leetcode-cn.com/problems/maximal-rectangle/solution/
 
 ##### 2-2-2、自实现
 
