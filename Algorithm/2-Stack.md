@@ -364,7 +364,10 @@ function min()
 
 
 
-##### 2-1-5、 [栈的压入弹出序列](http://www.conardli.top/docs/dataStructure/栈和队列/栈的压入弹出序列.html#栈的压入、弹出序列)
+##### 2-1-5、[栈的压入弹出序列](http://www.conardli.top/docs/dataStructure/栈和队列/栈的压入弹出序列.html#栈的压入、弹出序列)
 
 ##### 2-1-6、[接雨水](https://leetcode-cn.com/problems/trapping-rain-water/)
 
+##### 2-1-7、棒球比赛—详见0682题
+
+##### 2-1-8、最大矩形—详见00题
