@@ -697,6 +697,124 @@ Nginx 相当于是一个跳板机，域名是 `client.com`，客户端首先访�
 
 #### 5-1、防抖与节流
 
+防抖与节流函数是一种最常用的 **高频触发优化方式**，能对性能有较大的帮助。
+
+##### 5-1-1、防抖 (debounce)
+
+防抖，即短时间内大量触发同一事件，只会执行一次函数，将多次高频操作优化为只在最后一次执行；
+
+原理：为设置一个定时器，约定在xx毫秒后再触发事件处理，每次触发事件都会重新设置计时器，直到xx毫秒内无第二次操作；
+
+场景：搜索框/滚动条的监听事件处理、只需再输入完成后做一次输入校验即可；
+
+若不做防抖，每输入一个字/滚动屏幕，都会触发事件处理，造成性能浪费
+
+```js
+// 实现1
+function debounce(func, wait) {
+    let timeout = null
+    return function() {
+        let context = this
+        let args = arguments
+        if (timeout) clearTimeout(timeout)
+        timeout = setTimeout(() => {
+            func.apply(context, args)
+        }, wait)
+    }
+}
+
+// 实现2
+function debounce(fn, wait, immediate) {
+    let timer = null
+    return function() {
+        let args = arguments
+        let context = this
+
+        if (immediate && !timer) {
+            fn.apply(context, args)
+        }
+
+        if (timer) clearTimeout(timer)
+        timer = setTimeout(() => {
+            fn.apply(context, args)
+        }, wait)
+    }
+}
+```
+
+
+
+##### 5-1-2、节流 (throttle)
+
+防抖是延迟执行，而节流是间隔执行；
+
+节流，即每隔一段时间就执行一次；每隔一段时间后执行一次，也就是降低频率，将高频操作优化成低频操作；
+
+原理：设置一个定时器，约定xx毫秒后执行事件，若时间到了，则执行函数并重置定时器；
+
+场景：滚动条事件 或者 resize 事件，通常每隔 100~500 ms执行一次即可；
+
+区别：防抖每次触发事件都重置定时器，而节流在定时器到时间后再清空定时器；
+
+```js
+// 实现1
+function throttle(func, wait) {
+    let timeout = null
+    return function() {
+        let context = this
+        let args = arguments
+        if (!timeout) {
+            timeout = setTimeout(() => {
+                timeout = null
+                func.apply(context, args)
+            }, wait)
+        }
+
+    }
+}
+
+// 实现2
+// 使用两个时间戳 prev 旧时间戳和 now 新时间戳，每次触发事件都判断二者的时间差，如果到达规定时间，执行函数并重置旧时间戳
+function throttle(func, wait) {
+    var prev = 0;
+    return function() {
+        let now = Date.now();
+        let context = this;
+        let args = arguments;
+        if (now - prev > wait) {
+            func.apply(context, args);
+            prev = now;
+        }
+    }
+}
+
+
+// 实现3
+function throttle(fn, wait, immediate) {
+    let timer = null
+    let callNow = immediate
+    
+    return function() {
+        let context = this,
+            args = arguments
+
+        if (callNow) {
+            fn.apply(context, args)
+            callNow = false
+        }
+
+        if (!timer) {
+            timer = setTimeout(() => {
+                fn.apply(context, args)
+                timer = null
+            }, wait)
+        }
+    }
+}
+```
+
+
+
 #### 5-2、图片懒加载
 
 #### 5-3、WebWorker
@@ -1282,6 +1400,13 @@ JavaScript：
   - 优化：若想首屏渲染快，亦可给 `script` 标签添加 `defer` 或者 `async` 属性：
     - `defer` 属性表示该 JS 文件会并行下载，但会放到 HTML 解析完成后顺序执行，此时的 `script` 标签可放在任意位置；
     - 对于没有任何依赖的 JS 文件可以加上 `async` 属性，表示 JS 文件下载和解析不会阻塞渲染；
+
+##### 6-X-2-1、script 引入方式
+
+- HTML 静态引入 `<script>` 
+- JS 动态插入 `<script>`
+- `<script defer>`：延迟加载，元素解析完成后执行；
+- `<script async>`：异步加载，但执行时会阻塞元素渲染；
 
 
 
