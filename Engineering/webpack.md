@@ -6,6 +6,8 @@ typora-root-url: ../Source
 
 ### 一、基本介绍
 
+webpack 是一个现代 JavaScript 应用程序的静态模块打包器(module bundler)。当 webpack 处理应用程序时，它会递归地构建一个依赖关系图(dependency graph)，其中包含应用程序需要的每个模块，然后将所有这些模块打包成一个或多个 bundle。
+
 
 
 
@@ -1205,9 +1207,156 @@ parse 调用 acorn 对JS进行语法解析，acorn 就是一个JS的 parser
 
 
 
-
-
 #### 7-2、构建自实现
+
+##### 7-2-1、自实现1
+
+此实现为探究 webpack 实现原理的简易版；
+
+webpack 是一个现代 JavaScript 应用程序的静态模块打包器(module bundler)。当 webpack 处理应用程序时，它会递归地构建一个依赖关系图(dependency graph)，其中包含应用程序需要的每个模块，然后将所有这些模块打包成一个或多个 bundle。
+
+```js
+// 场景: 编写一个 bundler.js, 将其中的 ES6 代码转换为 ES5 代码，并将这些文件打包，生成一段能在浏览器正确运行起来的代码
+// word.js
+export const word = 'hello'
+
+// message.js
+import {word} from './word.js';
+const message = `say ${word}`
+export default message;
+
+// index.js
+import message from './message.js'
+console.log(message)
+
+// 1、利用 babel 完成代码转换, 并生成单个文件的依赖
+// 2、生成依赖图谱
+// 3、生成最后打包代码
+```
+
+- 转换代码、 生成依赖
+
+转换需利用 @babel/parser 生成 AST，然后利用 @babel/traverse 进行 AST 遍历，记录依赖关系，最后通过 @babel/core 和 @babel/preset-env 进行代码转换
+
+```js
+// 先安装好相应的包
+npm install @babel/parser @babel/traverse @babel/core @babel/preset-env -D
+// 导入包
+const fs = require('fs')
+const path = require('path')
+const parser = require('@babel/parser')
+const traverse = require('@babel/traverse').default
+const babel = require('@babel/core')
+
+function stepOne(filename){
+    // 读入文件
+    const content =  fs.readFileSync(filename, 'utf-8')
+    const ast = parser.parse(content, {
+        sourceType: 'module'// babel官方规定必须加这个参数，不然无法识别ES Module
+    })
+    const dependencies = {}
+    // 遍历 AST 抽象语法树
+    traverse(ast, {
+        // 获取通过 import 引入的模块
+        ImportDeclaration({node}){
+            const dirname = path.dirname(filename)
+            const newFile = './' + path.join(dirname, node.source.value)
+            // 保存所依赖的模块
+            dependencies[node.source.value] = newFile
+        }
+    })
+    // 通过 @babel/core 和 @babel/preset-env 进行代码的转换
+    const {code} = babel.transformFromAst(ast, null, {
+        presets: ["@babel/preset-env"]
+    })
+    return{
+        filename,// 该文件名
+        dependencies,// 该文件所依赖的模块集合(键值对存储)
+        code// 转换后的代码
+    }
+}
+```
+
+- 生成依赖图谱
+
+```js
+// entry 为入口文件
+function stepTwo(entry){
+    const entryModule = stepOne(entry)
+    // 此数组是核心
+    const graphArray = [entryModule]
+    for(let i = 0; i < graphArray.length; i++){
+        const item = graphArray[i];
+        const {dependencies} = item;//  拿到文件所依赖的模块集合(键值对存储)
+        for(let j in dependencies){
+            graphArray.push(
+                stepOne(dependencies[j])
+            )// 关键，目的是将入口模块及其所有相关的模块放入数组
+        }
+    }
+    // 接下来生成图谱
+    const graph = {}
+    graphArray.forEach(item => {
+        graph[item.filename] = {
+            dependencies: item.dependencies,
+            code: item.code
+        }
+    })
+    return graph
+}
+
+// 测试一下
+console.log(stepTwo('./src/index.js'))
+// 结果如下
+{ 
+    './src/index.js':
+   { dependencies: { './message.js': './src\\message.js' },
+     code:
+      '"use strict";\n\nvar _message = _interopRequireDefault(require("./message.js"));\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }\n\nconsole.log(_message["default"]);' 
+   },
+  './src\\message.js':
+   { dependencies: { './word.js': './src\\word.js' },
+     code:
+      '"use strict";\n\nObject.defineProperty(exports, "__esModule", {\n  value: true\n});\nexports["default"] = void 0;\n\nvar _word = require("./word.js");\n\nvar message = "say ".concat(_word.word);\nvar _default = message;\nexports["default"] = _default;' },
+  './src\\word.js':
+   { dependencies: {},
+     code:
+      '"use strict";\n\nObject.defineProperty(exports, "__esModule", {\n  value: true\n});\nexports.word = void 0;\nvar word = \'hello\';\nexports.word = word;' 
+   } 
+}
+```
+
+- 生成代码字符串
+
+```js
+// 下面是生成代码字符串的操作
+function step3(entry){
+    // 要先把对象转换为字符串，不然在下面的模板字符串中会默认调取对象的 toString 方法，参数变成 [Object object], 显然不行
+    const graph = JSON.stringify(stepTwo(entry))
+    return `
+        (function(graph) {
+            // require 函数本质是执行一个模块的代码，然后将相应变量挂载到 exports 对象上
+            function require(module) {
+                // localRequire 的本质是拿到依赖包的 exports 变量
+                function localRequire(relativePath) {
+                    return require(graph[module].dependencies[relativePath]);
+                }
+                var exports = {};
+                (function(require, exports, code) {
+                    eval(code);
+                })(localRequire, exports, graph[module].code);
+                return exports;// 函数返回指向局部变量，形成闭包，exports 变量在函数执行后不会被摧毁
+            }
+            require('${entry}')
+        })(${graph})`
+}
+
+// 最终测试
+const code = step3('./src/index.js')
+console.log(code)
+```
+
+<img src="/Image/Engineering/77.png" style="zoom:60%;" align="left"/>
 
 
 
