@@ -10,6 +10,10 @@ webpack 是一个现代 JavaScript 应用程序的静态模块打包器(module b
 
 
 
+webpack 是 JS 的 **模块打包工具** (module bundler)，通过分析模块间的依赖，最终将所有模块打包成一份或者多份代码包 (bundler)，供 HTML 直接引用。实质上，Webpack 仅仅提供了 **打包功能** 和一套 **文件处理机制**，然后通过生态中的各种 Loader 和 Plugin 对代码进行预编译和打包；因此 Webpack 具有高度的可拓展性，能更好的发挥社区生态的力量。
+
+
+
 
 
 ### 二、基础用法
@@ -77,11 +81,11 @@ output 用于指定编译结果输出位置(磁盘)；
 配置：Loaders 需单独安装，<u>且需在配置文件中的 modules 关键字下进行配置</u>:
 
 ```js
-module: {
-	rules: [
+module：{
+	rules：[
 		{
-			test: /\.txt$/,
-			use: 'raw-loader'
+			test：/\.txt$/,
+			use：'raw-loader'
 		}
 	]
 }
@@ -125,7 +129,7 @@ plugin 用于增强 webpack 功能，常用于打包输出的 JS 文件优化、
 版权提示插件；
 
 ```js
-plugins: [
+plugins：[
 	new webpack.BannerPlugin('版权所有，翻版必究')
 ]
 ```
@@ -140,7 +144,7 @@ plugins: [
 
 ```js
 new HtmlWebpackPlugin({
-	template: __dirname + "/app/index.tmpl.html"
+	template：__dirname + "/app/index.tmpl.html"
 })
 ```
 
@@ -173,18 +177,18 @@ Mode 的内置函数功能与选项：production(默认)、development、none；
 
 ```js
 // webpack.config.js
-module: {
-	rules: [
+module：{
+	rules：[
 		{
-			test: /\.js$/,
-			use: 'babel-loader'
+			test：/\.js$/,
+			use：'babel-loader'
 		}
 	]
 }
 
 // .babelrc
 {
-  "presets": [
+  "presets"：[
     "@babel/preset-env",
     "@babel/preset-react"
   ]
@@ -201,17 +205,17 @@ module: {
 - style-loader：将所有计算后的样式，通过 `<style>` 标签插入 `head` 中，二者组合能将样式表，嵌入 webpack 打包后的 JS 文件中；
 
 ```js
-module: {
-	rules: [
+module：{
+	rules：[
 		{
-			test: /\.css$/,
-			use: [
+			test：/\.css$/,
+			use：[
 				'style-loader', 'css-loader'
 			]
 		},
 		{
-			test: /\.less$/,
-			use: [
+			test：/\.less$/,
+			use：[
 				'style-loader', 'css-loader', 'less-loader'
 			]
 		}
@@ -230,19 +234,19 @@ Webpack 对 CSS 模块化有很好支持，只需在 CSS loader 中配置，随�
 - 注意：若出现CSS 重复压缩问题，请看[问题九](https://blog.csdn.net/sinat_17775997/article/details/61924901)
 
 ```js
-module: {
-	rules: [
+module：{
+	rules：[
 		{
-			test: /\.css$/,
-			use: [
+			test：/\.css$/,
+			use：[
 				'style-loader',
 				{
-					loader: "css-loader",
-					options: {
+					loader："css-loader",
+					options：{
             // 启用 css module
-						module: true,
+						module：true,
             // 指定 css 类名格式
-						localIdentName: '[name]__[local]--[hash:base64:5]'
+						localIdentName：'[name]__[local]--[hash:base64:5]'
 					}
 				}
 			]
@@ -251,11 +255,11 @@ module: {
 }
 
 // 1、局部作用域
-module: {
-	rules: [
+module：{
+	rules：[
 		{
-			test: /\.css$/, 
-      loader: "style-loader!css-loader?modules" 
+			test：/\.css$/, 
+      loader："style-loader!css-loader?modules" 
       // 查询参数 modules，表示打开 CSS Modules 功能
 		}
 	]
@@ -265,16 +269,16 @@ module: {
 // CSS Modules 允许使用 :global(.className) 语法，声明一个全局规则, 凡是这样声明的 class，都不会被编译成哈希字符串;
 // CSS Modules 还提供一种显式的局部作用域语法 :local(.className)，等同于 .className
 :global(.title) {
-	color: green;
+	color：green;
 }
 
 // 3、定制哈希类名
 // css-loader 默认的哈希算法是 [hash:base64]; 会将 .title 编译成 ._3zyde4l1yATCOkgn-DBWEL 这样的字符串
-module: {
-   rules: [
+module：{
+   rules：[
     {
-       test: /\.css$/,
-       loader: "style-loader!css-loader?modules&localIdentName=[path][name]---[local]---[hash:base64:5]"
+       test：/\.css$/,
+       loader："style-loader!css-loader?modules&localIdentName=[path][name]---[local]---[hash:base64:5]"
        // demo03-components-App---title—GpMto
     },
    ]
@@ -283,31 +287,31 @@ module: {
 // 4、Class 组合
 // CSS Modules 中，一个选择器可继承另一个选择器的规则，这称为"组合-composition"
 .className {
- background-color: blue;
+ background-color：blue;
 }
 
 .title {
- composes: className;
- color: red;
+ composes：className;
+ color：red;
 }
 // 编译后结果
 // <h1 class="_2DHwuiHWMnKTOYG45T0x34 _10B-buq6_BEOTOl9urIjf8">
 ._2DHwuiHWMnKTOYG45T0x34 {
-   color: red;
+   color：red;
 }
 ._10B-buq6_BEOTOl9urIjf8 {
-   background-color: blue;
+   background-color：blue;
 }
 
 // 5、与其他模块的 Class 组合
 // another.css
 .className {
-   background-color: blue;
+   background-color：blue;
 }
 // app.css
 .title {
-   composes: className from './another.css';
-   color: red;
+   composes：className from './another.css';
+   color：red;
 }
 
 // 6、输入变量使用
@@ -315,36 +319,36 @@ module: {
 // 把 postcss-loader 加入 webpack.config.js
 var values = require("postcss-modules-values");
 module.exports = {
-  entry: __dirname + "/index.js",
-  output: {
-    publicPath: "/",
-    filename: "./bundle.js",
+  entry：__dirname + "/index.js",
+  output：{
+    publicPath："/",
+    filename："./bundle.js",
   },
-  module: {
-    loaders: [
+  module：{
+    loaders：[
       {
-        test: /\.jsx?$/,
-        exclude: /node_modules/,
-        loader: "babel",
-        query: {
-          presets: ["es2015", "stage-0", "react"],
+        test：/\.jsx?$/,
+        exclude：/node_modules/,
+        loader："babel",
+        query：{
+          presets：["es2015", "stage-0", "react"],
         },
       },
       {
-        test: /\.css$/,
-        loader: "style-loader!css-loader?modules!postcss-loader",
+        test：/\.css$/,
+        loader："style-loader!css-loader?modules!postcss-loader",
       },
     ],
   },
-  postcss: [values],
+  postcss：[values],
 };
 // 接着，在 colors.css 里面定义变量：
-@value blue: #0c77f8;
-@value red: #ff0000;
-@value green: #aaf200;
+@value blue：#0c77f8;
+@value red：#ff0000;
+@value green：#aaf200;
 
 // App.css 可以引用这些变量：
-@value colors: "./colors.css";
+@value colors："./colors.css";
 @value blue, red, green from colors;
 ```
 
@@ -362,27 +366,27 @@ module.exports = {
   - 注意：一般情况下，link 中 css 也会被处理，若无处理，可参考：[问题八](https://blog.csdn.net/sinat_17775997/article/details/61924901)
 
 ```js
-module: {
-	rules: [
+module：{
+	rules：[
 		{
-			test: '/\.(png|svg|jpg|gif)$/',
-			use: [
+			test：'/\.(png|svg|jpg|gif)$/',
+			use：[
 				'file-loader'
 			]
 		},
 		{
-			test: '/\.(woff|woff2|eot|ttf|otf)$/',
-			use: [
+			test：'/\.(woff|woff2|eot|ttf|otf)$/',
+			use：[
 				'file-loader'
 			]
 		},
 		{
-			test: '/\.(png|svg|jpg|gif)$/',
-			use: [
+			test：'/\.(png|svg|jpg|gif)$/',
+			use：[
 				{
-					loader: 'url-loader',
-					options: {
-						limit: 10240
+					loader：'url-loader',
+					options：{
+						limit：10240
 					}
 				}
 			]
@@ -402,22 +406,22 @@ module: {
 文件监听开启监听方式如下：
 
 - 方式1：启动 webpack 时，带上 `--watch` 参数，或在 npm script 中的 watch 增加 --watch 后缀；
-- 方式2：配置 webpack.config.js 时，设置 watch: true；
+- 方式2：配置 webpack.config.js 时，设置 watch：true；
 
 - 注意：开启 ignored 可提高监听性能；
 
 ```js
 module.export = {
   // 默认 false 不开启
-	watch: true,
+	watch：true,
   // 开启后设置 options 才有意义
-	watchOptions: {
+	watchOptions：{
     // 默认为空，不监听的文件或文件夹，支持正则
-		ignored: /node_modules/,
+		ignored：/node_modules/,
     // 监听到变化后会等待 300ms 再去执行，默认 300
-		aggregateTimeout: 300,
+		aggregateTimeout：300,
     // 判断文件是否发生变化是通过不停询问系统指定文件是否发生变化实现的，默认每秒询问 1000 次
-		poll: 1000
+		poll：1000
 	}
 }
 ```
@@ -438,9 +442,9 @@ module.export = {
 
 - ```json
   // package.json
-  "scripts": {
-  	"build": "webpack",
-  	"dev": "webpack-dev-server --open"
+  "scripts"：{
+  	"build"："webpack",
+  	"dev"："webpack-dev-server --open"
   }
   ```
 
@@ -457,16 +461,16 @@ module.export = {
 // webpack.config.js
 module.export = {
 	// ...
-	plugin: [
+	plugin：[
 		new webpack.HotModuleReplacementPlugin()
 	],
-	devServer: {
+	devServer：{
     // 本地服务器所加载的页面所在的目录
-		contentBase: './dist',
+		contentBase：'./dist',
     // 不跳转
-    historyApiFallback: true,
+    historyApiFallback：true,
     // 实时刷新
-    inline: true
+    inline：true
 	}
 }
 ```
@@ -542,14 +546,14 @@ module.export = {
 // webpack.config.js
 module.export = {
 	// ...
-	output: {
-		filename: '[name][chunkhash:8].js',
-    path: __dirname + '/dist'
+	output：{
+		filename：'[name][chunkhash:8].js',
+    path：__dirname + '/dist'
 	},
   // ...
-  output: {
-    filename: '[name]_[chunkhash:8].js',
-    path: path.join(__dirname, 'dist')
+  output：{
+    filename：'[name]_[chunkhash:8].js',
+    path：path.join(__dirname, 'dist')
 	}
 }
 ```
@@ -562,9 +566,9 @@ module.export = {
 // webpack.config.js
 module.export = {
 	// ...
-	output: {
-		filename: '[name][hash].js',
-    path: __dirname + '/dist'
+	output：{
+		filename：'[name][hash].js',
+    path：__dirname + '/dist'
 	}
 }
 ```
@@ -576,16 +580,16 @@ module.export = {
 - 方式A：使用 [hash] 设置 file-loader 的 name
 
 - ```js
-  module: {
+  module：{
     // ...
-  	rules: [
+  	rules：[
   		{
-  			test: '/\.(png|svg|jpg|gif)$/',
-  			use: [
+  			test：'/\.(png|svg|jpg|gif)$/',
+  			use：[
   				{
-            loader: 'file-loader',
-            options: {
-              name: 'img/[name]_[hash:8].[ext]'
+            loader：'file-loader',
+            options：{
+              name：'img/[name]_[hash:8].[ext]'
             }
           }
   			]
@@ -597,12 +601,12 @@ module.export = {
 - 方式B：url-loader，小于阀值转码，大于命名打包，此外可处理 svg、eot、ttf 等文件，[参考](https://juejin.im/post/5a068c2b5188255851322b8c#heading-13)
 
 - ```js
-  module: {
+  module：{
     // ...
-  	rules: [
+  	rules：[
   		{
-  			test: '/\.(png|svg|jpg|gif)$/',
-  			loader: 'url?limit=8192&name=images/[hash:8].[name].[ext]'
+  			test：'/\.(png|svg|jpg|gif)$/',
+  			loader：'url?limit=8192&name=images/[hash:8].[name].[ext]'
   		}
   	]
   }
@@ -621,11 +625,11 @@ module.export = {
 ```js
 module.export = {
   // ... 
-  module: {
-  	rules: [
+  module：{
+  	rules：[
       {
-        test: /\.css$/,
-        use: [
+        test：/\.css$/,
+        use：[
           // 删除与之冲突的 style-loader，并替换为插件提供的loader
           // 'style-loader', 
           MiniCssExtractPlugin.loader,
@@ -633,8 +637,8 @@ module.export = {
         ]
       },
       {
-        test: /\.less$/,
-        use: [
+        test：/\.less$/,
+        use：[
           // 删除与之冲突的 style-loader，并替换为插件提供的loader
           // 'style-loader', 
           MiniCssExtractPlugin.loader,
@@ -644,9 +648,9 @@ module.export = {
       }
 		]
   },
-	plugins: [
+	plugins：[
 		new MiniCssExtractPlugin({
-			filename: '[name]_[contenthash:8].css'
+			filename：'[name]_[contenthash:8].css'
 		})
 	]
 }
@@ -671,10 +675,10 @@ module.export = {
 // webpack.config.js
 module.export = {
   // ...
-	plugins: [
+	plugins：[
     new OptimizeCSSAssetsPlugin({
-      assetNameRegExp: /\.css$/g,
-      cssProcessor: require('cssnano')
+      assetNameRegExp：/\.css$/g,
+      cssProcessor：require('cssnano')
     })
 	]
 }
@@ -692,33 +696,33 @@ module.export = {
 // webpack.config.js
 module.export = {
   // ...
-	plugins: [
+	plugins：[
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src/search.html'),
-      filename: 'search.html',
-      chunks: ['search'],
-      inject: true,
-      minify: {
-        html5: true,
-        collapseWhitespace: true,
-        preserveLineBreaks: false,
-        minifyCSS: true,
-        minifyJS: true,
-        removeComments: false
+      template：path.join(__dirname, 'src/search.html'),
+      filename：'search.html',
+      chunks：['search'],
+      inject：true,
+      minify：{
+        html5：true,
+        collapseWhitespace：true,
+        preserveLineBreaks：false,
+        minifyCSS：true,
+        minifyJS：true,
+        removeComments：false
       }
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src/index.html'),
-      filename: 'index.html',
-      chunks: ['index'],
-      inject: true,
-      minify: {
-        html5: true,
-        collapseWhitespace: true,
-        preserveLineBreaks: false,
-        minifyCSS: true,
-        minifyJS: true,
-        removeComments: false
+      template：path.join(__dirname, 'src/index.html'),
+      filename：'index.html',
+      chunks：['index'],
+      inject：true,
+      minify：{
+        html5：true,
+        collapseWhitespace：true,
+        preserveLineBreaks：false,
+        minifyCSS：true,
+        minifyJS：true,
+        removeComments：false
       }
     }),
     // ... 复数 ...
@@ -738,10 +742,10 @@ module.export = {
 // webpack.config.js
 module.export = {
   // ...
-	plugins: [
+	plugins：[
     new webpack.optimize.UglifyJsPlugin({
-      compress: {
-         warnings: false
+      compress：{
+         warnings：false
       }
   	})
 	]
@@ -770,7 +774,6 @@ module.export = {
 
 传统问题：
 
-- 注意：详情请看 《M-模块化》此处只作简要回顾：
 - 问题1：各个脚本间存在隐式依赖关系，若某一依赖项丢失/顺序错误，程序则无法正常运行；
 - 问题2：若依赖项被包含但并无使用，浪费资源，打包体积变大；
 - 问题3：无法判断 CSS or Js 作用域；
@@ -790,16 +793,19 @@ module.export = {
 
 ##### 7-1-1-1、核心概念
 
-- Entry - 入口
-  - Webpack 执行构建第一步：将从 Entry 开始；
-- Module - 模块
-  - Webpack 中一切皆模块，一个模块对应一个文件。Webpack 会从配置的 Entry 开始递归找出所有依赖的模块；
-- Loader - 模块转换器
-  - 用于把模块原内容按照需求，转换成可供 WebPack 处理的新内容(Webpack仅能处理 Js 文件)；
-- Plugin - 扩展插件
-  - Webpack 构建流程中，某些特定时机会触发相应事件，plugin 可监听事件发生，在特定时机做相关处理；
-- Chunk - 代码块
-  - Chunk 分别由多个模块组合而成，用于代码合并与分割；
+- **<u>*Entry*</u>**：入口文件，Webpack 会从该文件开始进行分析与编译；
+
+- **<u>*Output*</u>**：出口路径，打包后创建 bundler 的文件路径以及文件名；
+
+- **<u>*Module*</u>**：模块，Webpack 中一切皆模块，一模块对应一文件；从配置 Entry 开始递归找出所有依赖模块，并根据配置的 Loader 进行加载和打包；
+
+- **<u>*Loader*</u>**：模块转换器，用于把模块原内容按照需求，转成可供 WebPack 处理的内容(Webpack仅能处理 Js 文件)
+
+- **<u>*Plugin*</u>** - 扩展插件，可通过 Webpack 相应的事件钩子，介入到打包过程中的任意环节，从而对代码按需修改
+
+- **<u>*Chunk*</u>**：代码块，由多个模块组合而成，用于代码合并与分割，以便按需加载，提高性能
+
+  
 
 ##### 7-1-1-2、核心基本
 
@@ -817,8 +823,8 @@ module.export = {
     - 先加载 option 中定义的插件，再加载内建插件；
     - emit 过程，负责输出文件；
   - **<u>compilation</u>**：webpack 编译任务的真正执行者，自身会处理如下流程：
-    - addEntry: 调用方法将 entry 转化为 Dependency 并转化为 module；
-    - seal: 实现 modules ==> chunks ==> assets， 过程中会调度 plugin 执行优化，包括给出 hash；
+    - addEntry：调用方法将 entry 转化为 Dependency 并转化为 module；
+    - seal：实现 modules ==> chunks ==> assets， 过程中会调度 plugin 执行优化，包括给出 hash；
   - **<u>parse</u>**：解析 JS 文件，并遍历、自身会这么做:
     - 调用 acorn 生成 AST；
     - 遍历 ast，其中每个语句都会触发插件，例如 parse.applyPluginBailResult('call commonjs:require:xxx', xxx, xx)；
@@ -837,13 +843,15 @@ webpack 本质是一种事件流机制，工作流程是：将各个插件串联
 - 比如：Tapable 实例：核心、负责编译的 `Compiler`；
 - 比如：Tapable 实例：负责创建 `bundles` 的 `Compilation`；
 
+
+
 ##### 7-1-1-3-1、Tapable 1.0-
 
 [Tapable 1.0-](https://segmentfault.com/a/1190000008060440：)，如同 Node 中 `EventEmitter`，提供对事件的注册和触发，提供以下等功能/接口：
 
 - 供外部注册插件：`plugin(name:string, handler:function)`
 
-- 供外部注册事件：`apply(…pluginInstances: (AnyPlugin|function)[])` (解释1中提及的 apply就是这个)
+- 供外部注册事件：`apply(…pluginInstances：(AnyPlugin|function)[])` (解释1中提及的 apply就是这个)
 
 - 控制事件触发的：`applyPlugins*(name:string, …)`，包括 `applyPluginsAsync、applyPluginsParallel` 等方法实现对事件触发的控制，比如：
 
@@ -859,10 +867,24 @@ webpack 本质是一种事件流机制，工作流程是：将各个插件串联
 Tapable 1.0+ 版本发生巨变：
 
 - 1.0- 中通过 plugin 注册插件、apply 注册事件、applyPlugins* 触发事件；
+
 - 1.0+ 中通过 暴露很多事件钩子，可用于为插件创建钩子函数：
-- <img src="/Image/Engineering/27.png" style="zoom:50%;" align="left"/>
 
+- ```js
+  const {
+  	SyncHook,
+  	SyncBailHook,
+  	SyncWaterfallHook,
+  	SyncLoopHook,
+  	AsyncParallelHook,
+  	AsyncParallelBailHook,
+  	AsyncSeriesHook,
+  	AsyncSeriesBailHook,
+  	AsyncSeriesWaterfallHook
+   } = require("tapable");
+  ```
 
+- <img src="/Image/Engineering/27.png" style="zoom:40%;" align="left" />
 
 - 插件注册数量
 - 插件注册的类型（sync, async, promise）
@@ -872,7 +894,251 @@ Tapable 1.0+ 版本发生巨变：
 
 
 
-Tapable 1.0+ [基本用法](https://juejin.im/post/5aa3d2056fb9a028c36868aa#heading-2)，而由下图知：
+##### 7-1-1-3-2-1、Tapable 使用方法
+
+- 首先，new Hook 新建钩子
+
+  - tapable 暴露出的都是类方法，new 一个类方法获得所需钩子；
+
+  - class 接受数组参数 options，非必传，类方法会根据传参，接受同样数量的参数；
+
+  - ```js
+    const hook1 = new SyncHook(["arg1", "arg2", "arg3"]);
+    ```
+
+- 然后，使用 `tap/tapAsync/tapPromise` 绑定钩子
+
+  - tabpack 提供了 `同步` & `异步` 绑定钩子的方法，且它们均有 `绑定事件` 和 `执行事件` 对应的方法；
+  - <img src="/Image/Engineering/413.png" style="zoom:60%;" align="left" />
+
+- 然后，`call/callAsync` 执行绑定事件
+
+- 最后，如下所示：
+
+  - ```js
+    const hook1 = new SyncHook(["arg1", "arg2", "arg3"]);
+    
+    // 绑定事件到 webapck 事件流
+    hook1.tap('hook1', (arg1, arg2, arg3) => console.log(arg1, arg2, arg3)) // 1,2,3
+    
+    // 执行绑定的事件
+    hook1.call(1,2,3)
+    ```
+
+  - <img src="/Image/Engineering/414.png" style="zoom:60%;" align="left" />
+
+**<u>Tapable 具体使用示例：</u>**
+
+定义 Car 方法，内部 hooks 上新建钩子，分别是下述钩子，并使用钩子对应的 `绑定和执行方法`，`calculateRoutes` 使用 `tapPromise` 可返回一`promise`对象
+
+- 同步钩子：`accelerate`、break (accelerate接受一个参数)
+- 异步钩子：`calculateRoutes`；
+
+```js
+// 1、引入 tapable
+const {
+    SyncHook,
+    AsyncParallelHook
+} = require('tapable');
+
+// 创建类
+class Car {
+    constructor() {
+        this.hooks = {
+            accelerate: new SyncHook(["newSpeed"]),
+            break: new SyncHook(),
+            calculateRoutes: new AsyncParallelHook(["source", "target", "routesList"])
+        };
+    }
+}
+const myCar = new Car();
+
+// 2、绑定同步钩子 SyncHook.tap
+myCar.hooks.break.tap("WarningLampPlugin", () => console.log('WarningLampPlugin'));
+
+// 2、绑定同步钩子 并传参 SyncHook.tap
+myCar.hooks.accelerate.tap("LoggerPlugin", newSpeed => console.log(`Accelerating to ${newSpeed}`));
+
+// 2、绑定一个异步 Promise 钩子 AsyncParallelHook.tapPromise
+myCar.hooks.calculateRoutes.tapPromise("calculateRoutes tapPromise", (source, target, routesList, callback) => {
+    // return a promise
+    return new Promise((resolve,reject)=>{
+        setTimeout(()=>{
+            console.log(`tapPromise to ${source}${target}${routesList}`)
+            resolve();
+        },1000)
+    })
+});
+
+// 执行同步钩子
+myCar.hooks.break.call();
+myCar.hooks.accelerate.call('hello');
+console.time('cost');
+
+// 执行异步钩子
+myCar.hooks.calculateRoutes.promise('i', 'love', 'tapable').then(() => {
+    console.timeEnd('cost');
+}, err => {
+    console.error(err);
+    console.timeEnd('cost');
+})
+```
+
+```shell
+WarningLampPlugin
+Accelerating to hello
+tapPromise to ilovetapable
+cost: 1003.898ms
+```
+
+```js
+// calculateRoutes 也可使用 tapAsync 绑定钩子，注意：此时用 callback 结束异步回调 AsyncParallelHook.tapAsync
+myCar.hooks.calculateRoutes.tapAsync("calculateRoutes tapAsync", (source, target, routesList, callback) => {
+    // return a promise
+    setTimeout(() => {
+        console.log(`tapAsync to ${source}${target}${routesList}`)
+        callback();
+    }, 2000)
+});
+
+// AsyncParallelHook.callAsync
+myCar.hooks.calculateRoutes.callAsync('i', 'like', 'tapable', err => {
+    console.timeEnd('cost');
+    if(err) console.log(err)
+})
+```
+
+```shell
+WarningLampPlugin
+Accelerating to hello
+tapAsync to iliketapable
+cost: 2007.850ms
+```
+
+
+
+**<u>Tapable 于 webpack/webpack 插件关联：</u>**
+
+将上述示例文件分拆为两份：Compiler.js、Myplugin.js
+
+**<u>1、Compiler.js</u>**
+
+- 将 Class Car 类名改成 webpack 的核心 `Compiler`
+- 接受 options 里传入的 plugins
+- 将 Compiler 作为参数传给 plugin
+- 执行 run 函数，在编译的每个阶段，都触发执行相对应的钩子函数；
+
+**<u>2、MyPlugin.js</u>**
+
+- 引入Compiler
+- 定义一个自己的插件；
+- apply 方法接受 compiler 参数；
+  - webpack 插件是一具有 `apply` 方法的 JS 对象；
+  - apply 属性会被 webpack compiler 调用，且 compiler 对象可在整个编译生命周期访问；
+- 给 compiler 上的钩子绑定方法；
+- 仿照 webpack 规则，向 plugins  属性传入 new 实例；
+
+**<u>3、总结</u>**
+
+Compiler 的每个阶段，出发 tapable 相关钩子，plugin  "tap" 到后执行相关操作
+
+```js
+// Compiler
+const {
+    SyncHook,
+    AsyncParallelHook
+} = require('tapable');
+
+class Compiler {
+    constructor(options) {
+        this.hooks = {
+            accelerate: new SyncHook(["newSpeed"]),
+            break: new SyncHook(),
+            calculateRoutes: new AsyncParallelHook(["source", "target", "routesList"])
+        };
+        let plugins = options.plugins;
+        if (plugins && plugins.length > 0) {
+            plugins.forEach(plugin => plugin.apply(this));
+        }
+    }
+    run(){
+        console.time('cost');
+        this.accelerate('hello')
+        this.break()
+        this.calculateRoutes('i', 'like', 'tapable')
+    }
+    accelerate(param){
+        this.hooks.accelerate.call(param);
+    }
+    break(){
+        this.hooks.break.call();
+    }
+    calculateRoutes(){
+        const args = Array.from(arguments)
+        this.hooks.calculateRoutes.callAsync(...args, err => {
+            console.timeEnd('cost');
+            if (err) console.log(err)
+        });
+    }
+}
+
+module.exports = Compiler
+```
+
+```js
+// Plugin.js
+const Compiler = require('./Compiler')
+
+class MyPlugin{
+    constructor() {
+    }
+  	// 接受 compiler 参数
+    apply(conpiler){
+      	// 给 compiler 上的钩子绑定方法
+        conpiler.hooks.break.tap("WarningLampPlugin", () => console.log('WarningLampPlugin'));
+        conpiler.hooks.accelerate.tap("LoggerPlugin", newSpeed => console.log(`Accelerating to ${newSpeed}`));
+        conpiler.hooks.calculateRoutes.tapAsync("calculateRoutes tapAsync", (source, target, routesList, callback) => {
+            setTimeout(() => {
+                console.log(`tapAsync to ${source}${target}${routesList}`)
+                callback();
+            }, 2000)
+        });
+    }
+}
+
+
+
+// 此处模拟于 webpack.config.js 的 plugins 配置
+// 向 plugins 属性传入 new 实例
+const myPlugin = new MyPlugin();
+
+const options = {
+    plugins: [myPlugin]
+}
+let compiler = new Compiler(options)
+compiler.run()
+```
+
+```shell
+Accelerating to hello
+WarningLampPlugin
+tapAsync to iliketapable
+cost: 2015.866ms
+```
+
+
+
+**<u>Tapable 其他方法，可根据自己的开发需求，选择适合的同步/异步钩子</u>**
+
+<img src="/Image/Engineering/415.png" style="zoom:50%;" align="left"/>
+
+
+
+
+
+##### 7-1-1-3-2-2、Tapable 源码分析
+
+Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#heading-2)，而由下图知：
 
 - 钩子均继承于 Hook；
 
@@ -1047,27 +1313,27 @@ Tapable 1.0+ [基本用法](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 每次递归都需要经历 **String->AST->String** 的流程、经过 loader 还需要处理一些字符串或者执行一些JS脚本；介于node.js单线程的壁垒，webpack构建慢一直成为它饱受诟病的原因，而为提示编译速度，可通过 happypack 打破 node.js 单线程的壁垒，其利用了node 原生的 cluster 模块去开辟多进程执行构建，但此多进程构建已被集成在 webpack4 本身上，还利用了增量编译，大幅度提升构建效率；
 
 ```js
-// @file: webpack.config.js
+// @file：webpack.config.js
 const HappyPack = require('happypack');
 const os = require('os');
 // 开辟一个线程池
 // 拿到系统 CPU 的最大核数，让 happypack 将编译工作灌满所有 CPU 核
-const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length });
+const happyThreadPool = HappyPack.ThreadPool({ size：os.cpus().length });
 
 module.exports = {
   // ...
-  plugins: [
+  plugins：[
     // 使用
     new HappyPack({
-      id: 'js',
-      threadPool: happyThreadPool,
-      loaders: [ 'babel-loader' ]
+      id：'js',
+      threadPool：happyThreadPool,
+      loaders：[ 'babel-loader' ]
     }),
 
     new HappyPack({
-      id: 'styles',
-      threadPool: happyThreadPool,
-      loaders: [ 'style-loader', 'css-loader', 'less-loader' ]
+      id：'styles',
+      threadPool：happyThreadPool,
+      loaders：[ 'style-loader', 'css-loader', 'less-loader' ]
     })
   ]
 };
@@ -1207,6 +1473,349 @@ parse 调用 acorn 对JS进行语法解析，acorn 就是一个JS的 parser
 
 
 
+
+
+##### 7-1-7、构建流程F
+
+##### 7-1-7-1、综合解释F-1
+
+1. 读取配置文件，按命令 **<u>初始化</u>** 配置参数，创建 Compiler 对象；
+2. 调用插件的 apply 方法 **<u>挂载插件</u>** 监听，然后从入口文件开始执行编译；
+3. 根据文件类型调用相应 Loader，对模块进行 **<u>编译</u>**，并在合适时机触发相应事件，调用 Plugin 执行，最后再根据模块 **<u>依赖查找</u>** 到所依赖模块，递归执行此步
+4. 将编译后的所有代码包装成一个个代码块 (Chuck)， 并按依赖和配置确定 **<u>输出内容</u>**。这个步骤，仍然可以通过 Plugin 进行文件的修改;
+5. 最后，根据 Output 把文件内容一一写入到指定的文件夹中，完成整个过程；
+
+```js
+(function(modules) {
+	// 模拟 require 函数，从内存中加载模块；
+	function __webpack_require__(moduleId) {
+		// 缓存模块
+		if (installedModules[moduleId]) {
+			return installedModules[moduleId].exports;
+		}
+		
+		var module = installedModules[moduleId] = {
+			i：moduleId,
+			l：false,
+			exports：{}
+		};
+		
+		// 执行代码；
+		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+		
+		// Flag：标记是否加载完成；
+		module.l = true;
+		
+		return module.exports;
+	}
+	
+	// ...
+	
+	// 开始执行加载入口文件；
+	return __webpack_require__(__webpack_require__.s = "./src/index.js");
+ })({
+ 	"./src/index.js"：function (module, __webpack_exports__, __webpack_require__) {
+		// 使用 eval 执行编译后的代码；
+		// 继续递归引用模块内部依赖；
+		// 实际情况并不是使用模板字符串，这里是为了代码的可读性；
+		eval(`
+			__webpack_require__.r(__webpack_exports__);
+			//
+			var _test__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("test", ./src/test.js");
+		`);
+	},
+	"./src/test.js"：function (module, __webpack_exports__, __webpack_require__) {
+		// ...
+	},
+ })
+```
+
+- **模块机制**：webpack 自己实现了一套模拟模块的机制，将其包裹于业务代码的外部，从而提供了一套模块机制；
+- **文件编译**：webpack 规定了一套编译规则，通过 Loader 和 Plugin，以管道的形式对文件字符串进行处理；
+
+
+
+
+
+##### 7-1-8、构建流程G
+
+<img src="/Image/Engineering/420.png" style="zoom:70%;" align="left"/>
+
+##### 7-1-8-1、入口
+
+webpack入口，对应图中：**<u>*webpack.config.js+shell options*</u>**
+
+从配置文件 package.json 和 Shell 语句中读取与合并参数，得出最终的参数；
+
+- 每次在命令行输入 webpack 后，操作系统都会去调用 `./node_modules/.bin/webpack` 这个 shell 脚本；
+- 脚本会去调用 `./node_modules/webpack/bin/webpack.js`  并追加输入参数，如 -p , -w ；
+
+##### 7-1-8-2、参数解析
+
+用 yargs 参数解析，对应图中 **<u>*optimist*</u>**；[源码](https://github.com/webpack/webpack-cli/blob/master/bin/cli.js#L210)
+
+```js
+// 用 yargs 参数解析
+yargs.parse(process.argv.slice(2), (err, argv, output) => {})
+```
+
+##### 7-1-8-3、初始化
+
+webpack 初始化，对应图中 **<u>*new webpack()*</u>**
+
+- 构建 compiler 对象 [源码](https://github.com/webpack/webpack-cli/blob/master/bin/cli.js#L417)
+
+  - ```js
+    let compiler = new Webpack(options)
+    ```
+
+- 注册 NOdeEnvironmentPlugin 插件 [源码](https://github.com/webpack/webpack/blob/master/lib/webpack.js#L41)
+
+  - ```js
+    new NodeEnvironmentPlugin().apply(compiler);
+    ```
+
+- 挂载 options 中的基础插件，调用 `WebpackOptionsApply` 库初始化基础插件 [源码](https://github.com/webpack/webpack/blob/master/lib/webpack.js#L53)
+
+  - ```js
+    if (options.plugins && Array.isArray(options.plugins)) {
+    	for (const plugin of options.plugins) {
+    		if (typeof plugin === "function") {
+    			plugin.apply(compiler);
+    		} else {
+    			plugin.apply(compiler);
+    		}
+    	}
+    }
+    compiler.hooks.environment.call();
+    compiler.hooks.afterEnvironment.call();
+    compiler.options = new WebpackOptionsApply().process(options, compiler);
+    ```
+
+##### 7-1-8-4、编译
+
+run 开始编译，分下述两种情况 [源码](https://github.com/webpack/webpack-cli/blob/master/bin/cli.js#L495)，对应图中 **<u>*run()*</u>**
+
+- Watching：监听文件变化
+
+- run：执行编译
+
+```js
+if (firstOptions.watch || options.watch) {
+	const watchOptions = firstOptions.watchOptions || firstOptions.watch || options.watch || {};
+	if (watchOptions.stdin) {
+		process.stdin.on("end", function(_) {
+			process.exit(); // eslint-disable-line
+		});
+		process.stdin.resume();
+	}
+	compiler.watch(watchOptions, compilerCallback);
+	if (outputOptions.infoVerbosity !== "none") console.log("\nwebpack is watching the files…\n");
+} else compiler.run(compilerCallback);
+```
+
+##### 7-1-8-5、触发 compiler
+
+在 run() 方法中，触发了 compiler，对应图中 ***<u>compile()</u>***
+
+- 注意：在 run 的过程中，已触发了些钩子：**<u>*beforeRun->run->beforeCompile->compile->make->seal*</u>** ，所以编写插件时，就可将自定义方法挂挂载到相应钩子上，钩子按照编译顺序被执行；
+- 注意：run 时执行了 this.compile，而 this.compile() 中创建了关键的 `compilation` 对象；
+- 注意：<u>**`Compilation ` 对象负责整个编译过程，是十分重要的对象，编译生产资源变换文件都靠它**</u>，其包含每个构建环节所对应的方法，且对象内部保留了对compiler 的引用；当 Webpack 以开发模式运行时，每当检测到文件变化，一次新的 Compilation 将被创建；[源码](https://github.com/webpack/webpack/blob/master/lib/Compiler.js#L265)
+
+```js
+this.hooks.beforeRun.callAsync(this, err => {
+    ...
+	this.hooks.run.callAsync(this, err => {
+        ...
+		this.readRecords(err => {
+            ...
+			this.compile(onCompiled);
+		});
+	});
+});
+
+...
+
+compile(callback) {
+	const params = this.newCompilationParams();
+	this.hooks.beforeCompile.callAsync(params, err => {
+		...
+		this.hooks.compile.call(params);
+    // 关键对象 compilation 构建
+		const compilation = this.newCompilation(params);
+		this.hooks.make.callAsync(compilation, err => {
+            ...
+			compilation.finish();
+			compilation.seal(err => {
+                ...
+				this.hooks.afterCompile.callAsync(compilation, err 
+				    ...
+					return callback(null, compilation);
+				});
+			});
+		});
+	});
+}
+```
+
+##### 7-1-8-6、addEntry
+
+compile中触发 `make` 事件并调用 `addEntry`，对应图中 ***<u>addEntry()</u>***
+
+webpack 的 make 钩子中，利用 tapAsync 注册了一个 `DllEntryPlugin`，即将入口模块通过调用 compilation；
+
+即 Compiler.compile() 方法做了几件事，其中包括：
+
+- 触发 make 事件，make 的相关钩子注册了 `DllEntryPlugin`，故 `DllEntryPlugin.js` 被执行；
+- 调用 addEntry 方法，此法将所有的入口模块添加到编译构建队列中，开启编译流程；
+
+[DllEntryPlugin.js](https://github.com/webpack/webpack/blob/master/lib/DllEntryPlugin.js#L33)
+
+```js
+compiler.hooks.make.tapAsync("DllEntryPlugin", (compilation, callback) => {
+	compilation.addEntry(
+		this.context,
+		new DllEntryDependency(
+			this.entries.map((e, idx) => {
+				const dep = new SingleEntryDependency(e);
+				dep.loc = {
+					name: this.name,
+					index: idx
+				};
+				return dep;
+			}),
+			this.name
+		),
+		this.name,
+		callback
+	);
+});
+```
+
+DllEntryPlugin 实例来源：
+
+之前 WebpackOptionsApply.process() 初始化插件时，执行了 `compiler.hooks.entryOption.call(options.context, options.entry)`;
+
+```js
+// WebpackOptionsApply.js
+class WebpackOptionsApply extends OptionsApply {
+	process(options, compiler) {
+	    ...
+	    compiler.hooks.entryOption.call(options.context, options.entry);
+	}
+}
+
+```
+
+上述 [process](https://github.com/webpack/webpack/blob/master/lib/WebpackOptionsApply.js#L79)、[entryOption](https://github.com/webpack/webpack/blob/master/lib/WebpackOptionsApply.js#L307) 方法，而 entryOption 事件触发了 [DllPlugin](https://github.com/webpack/webpack/blob/master/lib/DllPlugin.js#L26) 执行：
+
+```js
+compiler.hooks.entryOption.tap("DllPlugin", (context, entry) => {
+	const itemToPlugin = (item, name) => {
+		if (Array.isArray(item)) {
+      // DllEntryPlugin 实例构建
+			return new DllEntryPlugin(context, item, name);
+		}
+		throw new Error("DllPlugin: supply an Array as entry");
+	};
+	if (typeof entry === "object" && !Array.isArray(entry)) {
+		Object.keys(entry).forEach(name => {
+			itemToPlugin(entry[name], name).apply(compiler);
+		});
+	} else {
+		itemToPlugin(entry, "main").apply(compiler);
+	}
+	return true;
+});
+```
+
+其实 addEntry 方法，存在很多入口，SingleEntryPlugin 也注册了 compiler.hooks.make.tapAsync 钩子 
+
+##### 7-1-8-7、构建模块
+
+回到 addEntry，compilation.addEntry 中执行 `_addModuleChain()`方法，而方法主要做了两件事： 
+
+- 根据模块类型，获取相应模块工厂并创建模块；
+  - 通过 `*ModuleFactory.create` 方法创建模块，有 `NormalModule , MultiModule , ContextModule , DelegatedModule` 等
+- 构建模块；
+  - 对模块使用的 loader 进行加载；并调用 acorn 解析经 loader 处理后的源文件生成抽象语法树 AST，遍历 AST，构建该模块所依赖的模块；
+
+对应图中 **<u>*addModuleChain、addModuleDependencies、buildModule*</u>**  [addEntry addModuleChain源码](https://github.com/webpack/webpack/blob/master/lib/Compilation.js#L1072)
+
+```js
+addEntry(context, entry, name, callback) {
+	const slot = {
+		name: name,
+		request: entry.request,
+		module: null
+	};
+	this._preparedEntrypoints.push(slot);
+	this._addModuleChain(
+		context,
+		entry,
+		module => {
+			this.entries.push(module);
+		},
+		(err, module) => {
+			if (err) {
+				return callback(err);
+			}
+
+			if (module) {
+				slot.module = module;
+			} else {
+				const idx = this._preparedEntrypoints.indexOf(slot);
+				this._preparedEntrypoints.splice(idx, 1);
+			}
+			return callback(null, module);
+		}
+	);
+}
+```
+
+##### 7-1-8-8、封装结果 
+
+封装构建结果，即 seal，webpack 会监听 seal 事件，并调用各插件对构建后的结果进行封装，并逐次对每个 module 和 chunk 进行整理，生成编译后的源码，合并，拆分，生成 hash ；**<u>注意：此步是在开发时进行代码优化和功能添加的关键环节</u>**；
+
+最后通过模板(`MainTemplate、ChunkTemplate`) 将 chunk 生成 `_webpack_requie()` 的格式；对应图中 **<u>*seal*</u>**
+
+```js
+template.getRenderMainfest.render()
+```
+
+##### 7-1-8-9、输出资源
+
+即 emit，将 Assets 输出到 output 的 path 中；
+
+##### 7-1-8-10、流程总结
+
+webpack 是一个插件合集，由 tapable 控制各插件在 webpack 事件流上运行，主要依赖 compilation 对象的编译模块和封装；
+
+webpack 的入口文件其实就实例了 Compiler 并调用了 run 方法开启了编译，webpack 的主要编译都按下面钩子调用顺序执行：
+
+- Compiler:beforeRun—清除缓存
+- Compiler:run—注册缓存数据钩子
+- Compiler:beforeCompile
+- Compiler:compile 开始编译
+- Compiler:make—从入口分析依赖以及间接依赖模块，创建模块对象
+- Compilation:buildModule—模块构建
+- Compiler:normalModuleFactory—构建
+- Compilation:seal—构建结果封装， 不可再更改
+- Compiler:afterCompile—完成构建，缓存数据
+- Compiler:emit—输出到 dist 目录
+
+Compilation 对象包含了当前的模块资源、编译生成资源、变化的文件等；
+
+Compilation 对象也提供了很多事件回调供插件做扩展；
+
+Compilation 对象中比较重要的部分是 assets，若需借助  webpack 帮助生成文件，就要在 assets 上添加对应的文件信息；
+
+compilation.getStats() 能得到生产文件以及 chunkhash 的一些信息等；
+
+
+
+
+
 #### 7-2、构建自实现
 
 ##### 7-2-1、自实现1
@@ -1216,7 +1825,7 @@ parse 调用 acorn 对JS进行语法解析，acorn 就是一个JS的 parser
 webpack 是一个现代 JavaScript 应用程序的静态模块打包器(module bundler)。当 webpack 处理应用程序时，它会递归地构建一个依赖关系图(dependency graph)，其中包含应用程序需要的每个模块，然后将所有这些模块打包成一个或多个 bundle。
 
 ```js
-// 场景: 编写一个 bundler.js, 将其中的 ES6 代码转换为 ES5 代码，并将这些文件打包，生成一段能在浏览器正确运行起来的代码
+// 场景：编写一个 bundler.js, 将其中的 ES6 代码转换为 ES5 代码，并将这些文件打包，生成一段能在浏览器正确运行起来的代码
 // word.js
 export const word = 'hello'
 
@@ -1252,7 +1861,7 @@ function stepOne(filename){
     // 读入文件
     const content =  fs.readFileSync(filename, 'utf-8')
     const ast = parser.parse(content, {
-        sourceType: 'module'// babel官方规定必须加这个参数，不然无法识别ES Module
+        sourceType：'module'// babel官方规定必须加这个参数，不然无法识别ES Module
     })
     const dependencies = {}
     // 遍历 AST 抽象语法树
@@ -1267,7 +1876,7 @@ function stepOne(filename){
     })
     // 通过 @babel/core 和 @babel/preset-env 进行代码的转换
     const {code} = babel.transformFromAst(ast, null, {
-        presets: ["@babel/preset-env"]
+        presets：["@babel/preset-env"]
     })
     return{
         filename,// 该文件名
@@ -1298,8 +1907,8 @@ function stepTwo(entry){
     const graph = {}
     graphArray.forEach(item => {
         graph[item.filename] = {
-            dependencies: item.dependencies,
-            code: item.code
+            dependencies：item.dependencies,
+            code：item.code
         }
     })
     return graph
@@ -1310,18 +1919,18 @@ console.log(stepTwo('./src/index.js'))
 // 结果如下
 { 
     './src/index.js':
-   { dependencies: { './message.js': './src\\message.js' },
+   { dependencies：{ './message.js'：'./src\\message.js' },
      code:
-      '"use strict";\n\nvar _message = _interopRequireDefault(require("./message.js"));\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }\n\nconsole.log(_message["default"]);' 
+      '"use strict";\n\nvar _message = _interopRequireDefault(require("./message.js"));\n\nfunction _interopRequireDefault(obj) { return obj && obj.__esModule ? obj ：{ "default"：obj }; }\n\nconsole.log(_message["default"]);' 
    },
   './src\\message.js':
-   { dependencies: { './word.js': './src\\word.js' },
+   { dependencies：{ './word.js'：'./src\\word.js' },
      code:
-      '"use strict";\n\nObject.defineProperty(exports, "__esModule", {\n  value: true\n});\nexports["default"] = void 0;\n\nvar _word = require("./word.js");\n\nvar message = "say ".concat(_word.word);\nvar _default = message;\nexports["default"] = _default;' },
+      '"use strict";\n\nObject.defineProperty(exports, "__esModule", {\n  value：true\n});\nexports["default"] = void 0;\n\nvar _word = require("./word.js");\n\nvar message = "say ".concat(_word.word);\nvar _default = message;\nexports["default"] = _default;' },
   './src\\word.js':
-   { dependencies: {},
+   { dependencies：{},
      code:
-      '"use strict";\n\nObject.defineProperty(exports, "__esModule", {\n  value: true\n});\nexports.word = void 0;\nvar word = \'hello\';\nexports.word = word;' 
+      '"use strict";\n\nObject.defineProperty(exports, "__esModule", {\n  value：true\n});\nexports.word = void 0;\nvar word = \'hello\';\nexports.word = word;' 
    } 
 }
 ```
@@ -1465,24 +2074,24 @@ console.log(code)
 const path = require('path')
 const webpack = require('webpack')
 module.exports = {
-    entry: './index.js',
-    output: {
-        filename: 'bundle.js',
-        path: path.join(__dirname, '/')
+    entry：'./index.js',
+    output：{
+        filename：'bundle.js',
+        path：path.join(__dirname, '/')
     },
-    devServer: {
-        hot: true
+    devServer：{
+        hot：true
     }
 }
 // 其中 webpack.config 没有配置 HotModuleReplacementPlugin；
-// 原因: 设置 devServer.hot 为 true，且在 package.json 文件中添加 webpack-dev-server --hot --open 脚本后
+// 原因：设置 devServer.hot 为 true，且在 package.json 文件中添加 webpack-dev-server --hot --open 脚本后
 // devServer 会告诉 webpack 自动引入 HotModuleReplacementPlugin 插件，而无需手动引入；
 ```
 
 - npm install 安装依赖，运行 npm start 启动了 devServer 服务，并访问 [http://127.0.0.1:8080](https://link.zhihu.com/?target=http%3A//127.0.0.1%3A8080/) 即可看到页面执行
 
 ```json
-"start": "webpack-dev-server --hot --open"
+"start"："webpack-dev-server --hot --open"
 ```
 
 ##### 7-3-2-1-2、HMR 流程演示
@@ -1573,10 +2182,10 @@ Server.prototype._sendStats = function (sockets, stats, force) {
 
 ```js
 // webpack-dev-server/client/index.js
-hash: function msgHash(hash) {
+hash：function msgHash(hash) {
     currentHash = hash;
 },
-ok: function msgOk() {
+ok：function msgOk() {
     // ...
     reloadApp();
 },
@@ -2012,11 +2621,621 @@ client 端 HMR 流程：
 
 
 
-
-
 ### 八、Loader & Plugin 编写
 
 #### 8-1、Loader
 
+##### 8-1-1、基本
+
+Webpack 基于 Node，故只能识别 JS 模块，无法加载其他类型文件，因此需要 **<u>对不同类型文件的 JS 转换器</u>**，也即 Loader ，Loader 本质是一个模块，作用是将源模块转换成通用模块，特性如下：
+
+- <u>链式传递</u>，按照配置时相反的顺序链式执行；
+- 基于 Node 环境，拥有 <u>较高权限</u>，比如文件的增删查改；
+- 可同步也可异步；
+
+```js
+// 最简单的 loader：对 Webpack 传入的字符串进行按需修改
+// html-loader/index.js
+module.exports = function(htmlSource) {
+	// 返回处理后的代码字符串
+	// 删除 html 文件中的所有注释
+	return htmlSource.replace(/<!--[\w\W]*?-->/g, '')
+}
+```
+
+实际 loader 通常需要将代码进行分析，构建 AST， 遍历进行定向修改后，再重新生成新的代码字符串；比如 Babel-loader 会执行以下步骤:
+
+- `babylon` 将 ES6/ES7 代码解析成 AST
+- `babel-traverse` 对 AST 进行遍历转译，得到新的 AST
+- 新 AST 通过 `babel-generator` 转换成 ES5
+
+与 plugin 区别：
+
+- loader：转换器，匹配需要处理的文件类型后，将 A 文件进行转译成为 B 文件；
+  - 比如：将 A.less 转换为 A.css，进行单纯的、文件转换过程；
+
+- plugin：扩展器，丰富 webpack 自身功能，针对的是 loader 结束后，webpack 打包的整个过程；
+  - 注意：plugin 并不直接操作文件，而是基于事件机制工作，监听 webpack 打包过程中事件，执行广泛任务；
+
+
+
+##### 8-1-2、常用 Loader
+
+- file-loader：加载文件资源，如字体/图片等，具有移动/复制/命名等功能；
+- url-loader：常用于加载图片，可将小图片直接转换为 Date Url，减少请求；
+- babel-loader：加载 JS / JSX 文件， 将 ES6 / ES7 代码转换成 ES5，抹平兼容性问题；
+- ts-loader：加载 TS / TSX 文件，编译 TypeScript；
+- style-loader：将 css 代码以 `<style>` 标签形式插入 html 中；
+- css-loader：分析 `@import` 和 `url()`，引用 css 文件与对应的资源；
+- postcss-loader：用于 css 的兼容性处理，还具有 添加前缀、单位转换 等功能；
+- less-loader / sass-loader：将 css 预处理器转为 css；
+
+
+
+##### 8-1-3、使用 Loader
+
+##### 8-1-3-1、配置 Loader
+
+```js
+// 1、附带 loader 地址
+let webpackConfig = {
+    //...
+    module: {
+        rules: [{
+            test: /\.js$/,
+            use: [{
+                // loader 的路径
+                loader: path.resolve(__dirname, 'loaders/a-loader.js'), 
+                options: {/* ... */}
+            }]
+        }]
+    }
+}
+
+// 2、通过配置 resolveLoader 免于路径输入
+// resolveLoader 用于告知 Webpack 如何寻找 Loader，默认只寻找 node_modules，寻找具有先后顺序
+let webpackConfig = {
+    //...
+    module: {
+        rules: [{
+            test: /\.js$/,
+            use: [{
+                //这里写 loader 名即可
+                loader: 'a-loader', 
+                options: {/* ... */}
+            }, {
+                loader: 'b-loader', 
+                options: {/* ... */}
+            }]
+        }]
+    },
+    resolveLoader: {
+        // 告诉 webpack 该去那个目录下找 loader 模块
+        modules: ['node_modules', path.resolve(__dirname, 'loaders'), './elseLoaders/']
+    }
+}
+
+// 3、通过 npm link 方式
+// 专用于开发和调试本地 Npm 模块，能做到在不发布模块的情况下，将本地的一个正在开发的模块的源码链接到项目的 node_modules 目录下，于是此项目便可直接使用本地的 Npm 模块；由于通过软链接方式实现，编辑了本地的 Npm 模块代码，在项目中也能使用到编辑后的代码，完成 Npm link 步骤如下:
+// 3-1、确保正在开发的本地 Npm 模块(即 loader 模块) 的 package.json 已配置好
+// 3-2、在本地 Npm 模块目录下执行 Npm link，使其注册到全局
+// 3-3、在项目根目录下执行 npm link loader-name，使 3-2 步中注册到全局的本地模块链接到项目的 node_modules 下
+// 注意: 3-3 中 loader-name 即本地模块在 package.json 中配置的模块名
+// 最后，即可像使用真正 loader 那样使用 本地 loader
+```
+
+##### 8-1-3-2、流程简介
+
+配置完成后，当 webpack 工作时，匹配到 rule 时，就会启用相应的 loader ，loader 最终会导出一个函数，函数接受的唯一参数是一<u>包含源文件内容的字符串-source</u>，然后函数对 source 进行处理，最后通过 `return` 返回单个值，或调用 `this.callback(err, values...)` 来返回多个值；此时若为异步 loader 可通过抛错来处理异常情况；Webpack 建议返回 1-2 个参数：转化后的 source( string 或 buffer)、可选参数 SourceMap 对象；
+
+```js
+{
+  test: /\.js/,
+  use: [
+    'bar-loader',
+    'mid-loader',
+    'foo-loader'
+  ]
+}
+```
+
+- loader 调用顺序：foo-loader -> mid-loader -> bar-loader；
+- foo-loader 最先拿到 source，处理后将其传递给 mid，mid 拿到 foo 处理过的 "source" ，再处理后返回给 bar，bar 处理完后再交给  webpack；
+- bar-loader 最终将返回值、source map(若有的话) 传给 webpack；
+
+
+
+##### 8-1-4、解析 Loader
+
+##### 8-1-4-1、分析 url-loader
+
+##### 8-1-4-2、分析 file-loader
+
+##### 8-1-4-3、分析 style-loader
+
+##### 8-1-4-4、分析 css-loader
+
+##### 8-1-4-5、分析 babel-loader
+
+##### 8-1-4-6、分析 vue-loader
+
+
+
+
+
+##### 8-1-5、编写 Loader
+
+##### 8-1-5-1、编写原则
+
+- **单一原则**：每个 Loader 只做一件事；
+- **链式调用**：单一原则的延伸，Webpack 会按顺序链式调用每个 Loader；
+- **统一原则**：应遵循 Webpack 制定的设计规则和结构(模块化)，输入与输出均为字符串，各个 Loader 完全独立(无状态)，即插即用；
+
+##### 8-1-5-2、编写技巧
+
+- Loader 参数获取
+  - webpack.config.js 的 loader 的 options 内容(参数)，可用 webpack 自带插件 loader-utils 获取
+  - <img src="/Image/Engineering/400.png" style="zoom:50%;" align="left"/>
+  - <img src="/Image/Engineering/401.png" style="zoom:50%;" align="left"/>
+
+- Loader 返回值方式：return & this.callback
+  - 使用后者形式导出代码而不是 return，因其可传入更多参数，更细粒度调节；
+  - 注意：SourceMap 生成耗时，一般只用于开发环境，故 webpack 为 loader 提供了 this.sourceMap API 告诉当前构建环境用户是否需要 SourceMap
+  - <img src="/Image/Engineering/403.png" style="zoom:50%;" align="left"/>
+  - <img src="/Image/Engineering/404.png" style="zoom:50%;" align="left"/>
+
+- Loader 异步方案：
+  - 可用 Promise + Async 方案，亦可用 Promise + 本地方案 thsi.async，图2
+  - <img src="/Image/Engineering/405.png" style="zoom:50%;" align="left"/>
+  - <img src="/Image/Engineering/406.png" style="zoom:50%;" align="left"/>
+  - <img src="/Image/Engineering/407.png" style="zoom:50%;" align="left"/>
+
+- Loader 缓存操作
+  - Webpack 默认缓存所有 Loader 处理结果，故能在需要被处理的文件或其依赖的文件没有发生变化时，不会重新调用对应的 Loader 去执行转换操作；
+  - 原因：某些情况下，某些转换操作需大量计算、十分耗时，若每次构建都重新执行重复的转换操作，构建将会变得非常缓慢；
+  - 注意：若不缓存处理结果，则可设置：在 loader 中添加 `this.cacheable(false)` 以关闭 webpack 对 loader 执行结果的默认缓存效果；
+  - <img src="/Image/Engineering/408.png" style="zoom:50%;" align="left"/>
+  - <img src="/Image/Engineering/409.png" style="zoom:50%;" align="left"/>
+
+- Loader 二进制数据处理
+  - webpack 传给 Loader 内容默认均为 UTF-8 格式编码的字符串；但某些场景需要处理二进制文件，比如 file-loader，此时需为 Loader 传入二进制数据；
+  - <img src="/Image/Engineering/410.png" style="zoom:50%;" align="left"/>
+
+- Loader 共享数据
+  - 在 loader 中添加 `pitch` 函数，此函数先于所有 loader 执行，且其第三参数为同一 rule下的所有 loader 所共享
+  - <img src="/Image/Engineering/411.png" style="zoom:50%;" align="left"/>
+  - <img src="/Image/Engineering/412.png" style="zoom:50%;" align="left"/>
+
+- Loader Options 校验
+
+  - 用于校验 options 的 JSON Schema 常量，从而校验 loader options
+
+  - ```js
+    import { getOptions } from 'loader-utils';
+    import { validateOptions } from 'schema-utils';
+    
+    const schema = {
+      type: object,
+      properties: {
+        test: {
+          type: string
+        }
+      }
+    }
+    
+    export default function(source) {
+      	// 获取
+        const options = getOptions(this);
+      	// 校验
+        validateOptions(schema, options, 'Example Loader');
+        // 在这里写转换 source 的逻辑 ...
+        return `export default ${ JSON.stringify(source) }`;
+    };
+    ```
+
+- Loader 外部依赖
+
+  - 通过 addDependency 声明外部资源(从文件系统中读取的资源)信息，用于在监控模式(watch mode)下验证可缓存的 loder 以及重新编译
+
+  - ```js
+    import path from 'path';
+    
+    export default function(source) {
+        var callback = this.async();
+        var headerPath = path.resolve('header.js');
+    		// 声明操作
+        this.addDependency(headerPath);
+    		// 异步 loader
+        fs.readFile(headerPath, 'utf-8', function(err, header) {
+            if(err) return callback(err);
+            // 这里的 callback 相当于异步版的 return
+            callback(null, header + "\n" + source);
+        });
+    };
+    ```
+
+- Loader 同伴依赖
+
+  -  若开发的 loader 只是简单包装另外一个包，则应在 package.json 中将此声明为同伴依赖(peerDependency)，以便指定具体版本；
+
+  - ```json
+    "peerDependencies": {
+      "node-sass": "^4.0.0"
+    }
+    ```
+
+- 其他技巧：比如 模块依赖、代码公用、绝对路径，更多的 API请看 [文1](https://juejin.im/post/6844903555673882632#heading-15)、[文2](https://segmentfault.com/a/1190000015088834#articleHeader10)
+
+
+
+##### 8-1-5-3、empty-loader
+
+
+
+##### 8-1-5-4、test-loader
+
+
+
+##### 8-1-5-5、html-minify-loader
+
+```js
+// webpack.config.js
+module: {
+  rules: [{
+    test: /\.html$/,
+    use: [
+      // 处理顺序 html-minify-loader => html-loader => webpack
+      // html-loader 为三方 loader, 负责解析 html 、转化为 JS 执行脚本
+      // html-minify-loader 为此例 loader, 负责压缩
+      'html-loader', 
+      {
+      	loader: 'html-minify-loader',
+      	options: {
+        	comments: false
+      	}
+    	}
+    ] 
+  }]
+},
+  resolveLoader: {
+    // 因为 html-loader 是开源 npm 包，所以这里要添加 'node_modules' 目录
+    modules: [path.join(__dirname, './src/loaders'), 'node_modules']
+  }
+
+```
+
+loader 也是一个 node 模块，它导出一个函数，该函数的参数是 require 的源模块，处理 source 后把返回值交给下一个 loader，基本模板如下
+
+```js
+// html-minify-loader
+module.exports = function (source) {
+    // 处理 source ...
+    return handledSource;
+}
+// 或
+module.exports = function (source) {
+    // 处理 source ...
+    this.callback(null, handledSource)
+    return handledSource;
+}
+// 注意: 若是处理顺序排在最后一个的 loader，则它的返回值将最终交给 webpack 的 require
+// 处理顺序排在最后的 loader
+module.exports = function (source) {
+    // 此 loader 的功能是把源模块转化为字符串交给 require 的调用方
+    return 'module.exports = ' + JSON.stringify(source);
+}
+```
+
+使用 `minimize` 这个库来完成核心的压缩功能
+
+```js
+// src/loaders/html-minify-loader.js
+var Minimize = require('minimize');
+var loaderUtils = require('loader-utils');
+
+module.exports = function(source) {
+  	// 采用异步方式，不会阻塞其他编译进度
+    var callback = this.async();
+    if (this.cacheable) {
+        this.cacheable();
+    }
+   	// 拿到 webpack.config.js 的 loader 配置
+    var opts = loaderUtils.getOptions(this) || {};
+    var minimize = new Minimize(opts);
+    minimize.parse(source, callback);
+};
+```
+
+
+
+
+
 #### 8-2、plugin
 
+##### 8-2-1、基本
+
+Webpack 就像工厂中的一条产品流水线，原材料经过 Loader 与 Plugin 的一道道处理，最后输出结果。
+
+- 通过链式调用，按顺序串起一个个 Loader；
+
+- 通过事件流机制，让 Plugin 可插入到整个生产过程中的每个步骤中；
+
+  - 在编译的整个生命周期中，Webpack 会触发许多事件钩子，Plugin 可监听这些事件，根据需求在相应的时间点对打包内容进行定向的修改；
+
+  - Webpack 事件流编程范式的核心是：基础类 <u>Tapable</u>，它是一种 <u>观察者模式</u> 的实现事件的订阅与广播，详看 **<u>*7-1-1-3*</u>**
+
+  - ```js
+    const { SyncHook } = require("tapable")
+    
+    const hook = new SyncHook(['arg'])
+    
+    // 订阅
+    hook.tap('event', (arg) => {
+    	// 'event-hook'
+    	console.log(arg)
+    })
+    
+    // 广播
+    hook.call('event-hook')
+    ```
+
+  - Webpack 中两个最重要的类 Compiler 与 Compilation 便是继承于 Tapable，也拥有这样的事件流机制；
+
+    - <u>*Compiler*</u>：可简单理解为 <u>*Webpack 实例*</u>，其包含当前 Webpack 中的所有配置信息，如 options， loaders, plugins 等信息，全局唯一，只在启动时完成初始化创建，随着生命周期逐一传递；
+
+    - <u>*Compilation*</u>：可称为 <u>编译实例</u>，当监听到文件发生改变时，Webpack 会创建一个新的 Compilation 对象，开始一次新编译，其包含当前输入资源，输出资源，变化文件等，同时通过它提供的 API，可监听每次编译过程中触发的事件钩子；
+    - <u>*两者区别*</u>：
+      - Compiler 全局唯一，且从启动生存到结束；
+      - Compilation 对应每次编译，每轮编译循环均会重新创建；
+
+
+
+##### 8-2-2、常用 Plugin
+
+- UglifyJsPlugin：压缩、混淆代码；
+- CommonsChunkPlugin：代码分割；
+- ProvidePlugin：自动加载模块；
+- html-webpack-plugin：加载 html 文件，并引入 css / js 文件；
+- extract-text-webpack-plugin / mini-css-extract-plugin：抽离样式，生成 css 文件；
+- DefinePlugin：定义全局变量；
+- optimize-css-assets-webpack-plugin：CSS 代码去重；
+- webpack-bundle-analyzer：代码分析；
+- compression-webpack-plugin：使用 gzip 压缩 js 和 css；
+- happypack：使用多进程，加速代码构建；
+- EnvironmentPlugin：定义环境变量；
+
+
+
+##### 8-2-3、使用 Plugin
+
+示例：最简单的 plugin：
+
+```js
+class Plugin{
+  	// 注册插件时，会调用 apply 方法
+  	// apply 方法接收 compiler 对象
+  	// 通过 compiler 上提供的 Api，可以对事件进行监听，执行相应的操作
+  	apply(compiler){
+  		// compilation 是监听每次编译循环
+  		// 每次文件变化，都会生成新的 compilation 对象并触发该事件
+    	compiler.plugin('compilation',function(compilation) {})
+  	}
+}
+```
+
+注册 Plugin：
+
+```js
+// webpack.config.js
+module.export = {
+	plugins:[
+		new Plugin(options),
+	]
+}
+```
+
+
+
+##### 8-2-4、解析 Plugin
+
+##### 8-2-5、编写 Plugin
+
+##### 8-2-5-1、前置知识
+
+**<u>*请看 Tapable、Webpack 构建流程 A 与 G*</u>**
+
+##### 8-2-5-2、编写原则
+
+webpack 官方教程 [Writing a Plugin](https://webpack.js.org/contribute/writing-a-plugin/)：一个 webpack plugin由以下几个步骤组成：
+
+- 一个 JS 类函数；
+- 在函数原型 (`prototype`)  中定义一个注入`compiler` 对象的 `apply` 方法；
+- `apply ` 函数中通过  `compiler` 插入指定的事件钩子，在钩子回调中拿到 compilation 对象；
+- 使用 `compilation` 对象操纵修改 webapack 内部实例数据；
+- 异步插件，数据处理完后使用 `callback` 回调；
+
+Plugin 常用对象如下： 
+
+<img src="/Image/Engineering/421.png" style="zoom:50%;" align="left"/>
+
+
+
+##### 8-2-5-3、coment-delete-plugin
+
+实现功能如下：去除代码文件前的注释符合
+
+<img src="/Image/Engineering/422.png" style="zoom:50%;" align="left"/>
+
+```js
+// 完整版
+class MyPlugin {
+    constructor(options) {
+        this.options = options
+        this.externalModules = {}
+    }
+
+    apply(compiler) {
+      	// 注释匹配规则
+        var reg = /("([^\\\"]*(\\.)?)*")|('([^\\\']*(\\.)?)*')|(\/{2,}.*?(\r|\n))|(\/\*(\n|.)*?\*\/)|(\/\*\*\*\*\*\*\/)/g
+        // 事件监听
+        compiler.hooks.emit.tap('CodeBeautify', (compilation)=> {
+          	// 遍历 compilation.assets 资源文件并获取 source
+            Object.keys(compilation.assets).forEach((data)=> {
+              	// 目标文本
+                let content = compilation.assets[data].source() 
+                // 正则匹配去除注释
+                content = content.replace(reg, function (word) { // 去除注释后的文本
+                    return /^\/{2,}/.test(word) || /^\/\*!/.test(word) || /^\/\*{3,}\//.test(word) ? "" : word;
+                });
+              	// 更新文本
+                compilation.assets[data] = {
+                    source(){
+                        return content
+                    },
+                    size(){
+                        return content.length
+                    }
+                }
+            })
+        })
+    }
+}
+module.exports = MyPlugin
+```
+
+- 第 1 步，使用 compiler 的 emit 钩子
+
+  - emit 事件：将编译好的代码发射到指定的 stream 中触发，此钩子执行时，可从回调函数返回的 compilation 对象上拿到编译好的 stream
+
+- 第 2 步，访问 compilation 对象
+
+  - 每一次编译都会拿到新的 compilation 对象，compilation 对象提供了一些钩子函数，来钩入到构建流程的很多步骤中；
+
+  - compilation 对象含有许多内部对象；
+
+  - <img src="/Image/Engineering/423.png" style="zoom:30%;" align="left"/>
+
+  - 需要关注的是 compilation 中的 assets：优化所有 chunk 资源(asset)，资源(asset)会以 key-value 形式被存储在 `compilation.assets`。
+
+  - ```js
+    assetsCompilation {
+      assets:
+       { 'js/index/main.js':
+          CachedSource {
+            _source: [Object],
+            _cachedSource: undefined,
+            _cachedSize: undefined,
+            _cachedMaps: {} } },
+      errors: [],
+      warnings: [],
+      children: [],
+      dependencyFactories:
+       ArrayMap {
+         keys:
+          [ [Object],
+            [Function: MultiEntryDependency],
+            [Function: SingleEntryDependency],
+            [Function: LoaderDependency],
+            [Object],
+            [Function: ContextElementDependency],
+         values:
+          [ NullFactory {},
+            [Object],
+            NullFactory {} ] },
+      dependencyTemplates:
+       ArrayMap {
+         keys:
+          [ [Object],
+            [Object],
+            [Object] ],
+         values:
+          [ ConstDependencyTemplate {},
+            RequireIncludeDependencyTemplate {},
+            NullDependencyTemplate {},
+            RequireEnsureDependencyTemplate {},
+            ModuleDependencyTemplateAsRequireId {},
+            AMDRequireDependencyTemplate {},
+            ModuleDependencyTemplateAsRequireId {},
+            AMDRequireArrayDependencyTemplate {},
+            ContextDependencyTemplateAsRequireCall {},
+            AMDRequireDependencyTemplate {},
+            LocalModuleDependencyTemplate {},
+            ModuleDependencyTemplateAsId {},
+            ContextDependencyTemplateAsRequireCall {},
+            ModuleDependencyTemplateAsId {},
+            ContextDependencyTemplateAsId {},
+            RequireResolveHeaderDependencyTemplate {},
+            RequireHeaderDependencyTemplate {} ] },
+      fileTimestamps: {},
+      contextTimestamps: {},
+      name: undefined,
+      _currentPluginApply: undefined,
+      fullHash: 'f4030c2aeb811dd6c345ea11a92f4f57',
+      hash: 'f4030c2aeb811dd6c345',
+      fileDependencies: [ '/Users/mac/web/src/js/index/main.js' ],
+      contextDependencies: [],
+      missingDependencies: [] }
+    ```
+
+- 第 3 步，遍历 assets；
+
+  - assets 数组对象中的 key 是资源名，在当前插件中，遍历 Object.key() 可获取：
+
+    - ```js
+      main.css
+      bundle.js
+      index.html
+      ```
+
+  - 调用 Object.source() 方法，得到资源的内容 
+
+    - ```js
+      compilation.assets[data].source() 
+      ```
+
+  - 使用正则去除注释
+
+    - ```js
+       Object.keys(compilation.assets).forEach((data)=> {
+          let content = compilation.assets[data].source() 
+          content = content.replace(reg, function (word) { 
+              return /^\/{2,}/.test(word) || /^\/\*!/.test(word) || /^\/\*{3,}\//.test(word) ? "" : word;
+          })
+      });
+      ```
+
+- 第 4 步，更新 compilation.assets[data] 对象；
+
+  - ```js
+    compilation.assets[data] = {
+        source(){
+            return content
+        },
+        size(){
+            return content.length
+        }
+    }
+    ```
+
+- 第 5 步，在 webpack 中引用插件
+
+  - ```js
+    const path  = require('path')
+    const MyPlugin = require('./plugins/MyPlugin')
+    
+    module.exports = {
+        entry:'./src/index.js',
+        output:{
+            path:path.resolve('dist'),
+            filename:'bundle.js'
+        },
+        plugins:[
+            ...
+            new MyPlugin()
+        ]
+    }
+    ```
+
+    
+
+  
