@@ -696,26 +696,45 @@ Nginx 相当于是一个跳板机，域名是 `client.com`，客户端首先访�
 
 #### 5-1、防抖与节流
 
-防抖与节流函数是一种最常用的 **高频触发优化方式**，能对性能有较大的帮助。
+防抖与节流函数是一种最常用的 **高频触发优化方式**，均为缓解函数频繁调用、在时间轴上控制函数的执行次数、控制事件触发频率；
+
+<img src="/Image/Chromium/333.png" style="zoom:50%;" align="left"/>
+
+
 
 ##### 5-1-1、防抖 (debounce)
 
-防抖，即短时间内大量触发同一事件，只会执行一次函数，将多次高频操作优化为只在最后一次执行；
+基本：等待一定时间再触发，概念衍生自机械开关和继电器的 "去弹跳"(debounce)；
+
+<u>防抖，即短时间内大量触发同一事件，只会执行一次函数，将多次高频操作优化为只在最后一次执行；</u>
 
 原理：为设置一个定时器，约定在xx毫秒后再触发事件处理，每次触发事件都会重新设置计时器，直到xx毫秒内无第二次操作；
 
-场景：搜索框/滚动条的监听事件处理、只需再输入完成后做一次输入校验即可；
+场景：输入验证过滤、表单提交、滚动条的监听事件处理、只需再输入完成后做一次输入校验即可；
 
-若不做防抖，每输入一个字/滚动屏幕，都会触发事件处理，造成性能浪费
+- 按钮提交场景：防止多次提交按钮，只执行最后提交的一次、表单验证
+- 后台验证场景：表单验证需要服务端配合，只执行一段连续的输入事件的最后一次，还有搜索联想词功能类似
+- 用户窗口缩放：resize事件(如窗口停止改变大小之后重新计算布局)等，没错，这里也可以用防抖
+- 搜索输入查询：用户在输入时，没有必要不停地调用去请求服务端接口，等用户停止输入的时候，再调用，设置一个合适的时间间隔，有效减轻服务端压力
+- 更多：[input 搜索防抖处理中文输入](https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/129) - <u>提示：利用 e.target.compositionstart-ed 事件</u>
 
 ```js
+// 思路：每次触发事件时都取消之前的延时调用方法；
+// 思路：将多个信号合并成一个信号；防抖意味着 N 秒内函数只会被执行一次，若 N 秒内再次被触发，则重新计算延迟时间；
+// 思路：持续触发不执行、不触发一段时间后再执行；
+
 // 实现1
 function debounce(func, wait) {
     let timeout = null
+    // 将 debounce 处理结果当做函数返回
     return function() {
+      	// 保留调用时的 this 上下文
         let context = this
+        // 保留调用时传入的参数
         let args = arguments
+        // 事件触发时清除先前旧的定时器
         if (timeout) clearTimeout(timeout)
+      	// 设立新定时器
         timeout = setTimeout(() => {
             func.apply(context, args)
         }, wait)
@@ -728,11 +747,9 @@ function debounce(fn, wait, immediate) {
     return function() {
         let args = arguments
         let context = this
-
         if (immediate && !timer) {
             fn.apply(context, args)
         }
-
         if (timer) clearTimeout(timer)
         timer = setTimeout(() => {
             fn.apply(context, args)
@@ -756,23 +773,34 @@ function debounce(func, wait) {
 window.onscroll = debounce(function() {
   console.log('debounce');
 }, 1000);
+// 使用2
+document.addEventListener('scroll', debounce(() => consol.log('debounce done'), 1000));
 ```
+
+<img src="/Image/Chromium/334.png" style="zoom:80%;" align="left"/>
 
 
 
 ##### 5-1-2、节流 (throttle)
 
-防抖是延迟执行，而节流是间隔执行；
+区别：防抖是延迟执行，而节流是间隔执行；防抖每次触发事件都重置定时器，而节流在定时器到时间后再清空定时器；
 
-节流，即每隔一段时间就执行一次；每隔一段时间后执行一次，也就是降低频率，将高频操作优化成低频操作；
+<u>节流，即每隔一段时间就执行一次；每隔一段时间后执行一次，也就是降低频率(稀释函数的执行频率)，将高频操作优化成低频操作；</u>
 
 原理：设置一个定时器，约定xx毫秒后执行事件，若时间到了，则执行函数并重置定时器；
 
-场景：滚动条事件 或者 resize 事件，通常每隔 100~500 ms执行一次即可；
+场景：滚动条事件、resize 事件，通常每隔 100~500 ms 执行一次即可；
 
-区别：防抖每次触发事件都重置定时器，而节流在定时器到时间后再清空定时器；
+- 拖拽场景：固定时间内只执行一次，防止超高频次触发位置变动
+- 缩放场景：监控浏览器resize
+- 动画场景：避免短时间内多次触发动画引起性能问题
+- 其他场景：按钮点击事件、拖拽事件、onScoll、计算鼠标移动的距离(mousemove)
 
 ```js
+// 思路：每次触发事件时都判断当前是否有等待执行的延时函数；
+// 思路：规定在单位时间内，只能触发一次函数，若这个单位时间内触发多次函数，只有一次生效；
+// 思路：持续触发并不会执行多次，到一定时间再去执行；
+
 // 实现1
 function throttle(func, wait) {
     let timeout = null
@@ -833,18 +861,57 @@ function throttle(fn, delay) {
   var prevTime = Date.now();
   return function() {
     var curTime = Date.now();
-    if (curTime - prevTime > delay) {
+    if (curTime - prevTime >= delay) {
       fn.apply(this, arguments);
       prevTime = curTime;
     }
   };
 }
+// 实现5
+function throttle(fn, delay = 500) {
+  let flag = true;
+  return function() {
+    if(!flag) return;
+    flag = false
+    setTimeout(() => {
+      fn.apply(this, arguments);
+      flag = true;
+    }, delay);
+  };
+}
+// ES6
+const throttle = (fn, delay = 500) => {
+  let flag = true;
+  return (...args) => {
+    if(!flag) return;
+    flag = false
+    setTimeout(() => {
+      fn.apply(this, args);
+      flag = true;
+    }, delay);
+  };
+}
+// 实现6
+
+
 // 使用
 var throtteScroll = throttle(function() {
   console.log('throtte');
 }, 1000);
 window.onscroll = throtteScroll;
 ```
+
+<img src="/Image/Chromium/335.png" style="zoom:50%;" align="left"/>
+
+<img src="/Image/Chromium/336.png" style="zoom:50%;" align="left"/>
+
+
+
+5-1-3、用 Throttle 来优化 Debbounce
+
+<img src="/Image/Chromium/337.png" style="zoom:50%;" align="left"/>
+
+
 
 
 
