@@ -672,7 +672,7 @@ chunk长度(16进制的数)
 
 ##### 2-3-7、Content-Type
 
-HTTP 有 2 种主要的表单提交方式，体现在 2 种不同的`Content-Type`取值：
+HTTP 有 2 种主要的表单提交方式，体现在 2 种不同的 `Content-Type` 取值：
 
 - application/x-www-form-urlencoded
 - multipart/form-data
