@@ -832,7 +832,7 @@ module.export = {
     - <img src="/Image/Engineering/23.png" style="zoom:20%;" align="left"/>
   - **<u>resolver</u>**
     - 用于将路径转化为绝对路径，有 normalResolver、contextResolver、loaderResolver 三种；
-    - contextResolver 用于解析 contextModule（形如require('a/' + b + '/c')这种）
+    - contextResolver 用于解析 contextModule(形如require('a/' + b + '/c')这种)
 
 
 
@@ -887,8 +887,8 @@ Tapable 1.0+ 版本发生巨变：
 - <img src="/Image/Engineering/27.png" style="zoom:40%;" align="left" />
 
 - 插件注册数量
-- 插件注册的类型（sync, async, promise）
-- 调用的方式（sync, async, promise）
+- 插件注册的类型(sync, async, promise)
+- 调用的方式(sync, async, promise)
 - 实例钩子的时候参数数量
 - 是否使用了interception
 
@@ -1206,59 +1206,53 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 
 <img src="/Image/Engineering/18.png" style="zoom:50%;" align="left"/>
 
-##### 7-1-3-1、**初始阶段**
+##### 7-1-3-1、初始阶段
 
-- **初始化参数：** **从配置文件 & Shell 语句中，** **读取与合并参数，得出最终参数** **、执行配置文件中的插件实例化语句 new Plugin()**
+- 初始化参数： 从配置文件 & Shell 语句中， 读取与合并参数，得出最终参数 、执行配置文件中的插件实例化语句 new Plugin()
+- 开始编译前： 使用前述参数，**<u>*实例化 Compiler 对象 ，加载所有配置插件*</u>**；
 
-- **开始编译前：** **使用前述参数，实例化 Co** **mpiler 对象** **，加载所有配置插件；**
-
-- - **Compiler 对象：负责文件监听 & 启动编译** **，其实例中包含了完整的 Webpack 配置，全局只有一个 Compiler 实例；**
-  - **加载配置插件** **：** **依次调用插件的 apply 方法，让插件可以监听后续的所有事件节点，同时为插件传入 compiler 实例引用** **，以方便其通过实例，调用 Webpack 提供的 API；**
-  - **事件 - environment：开始应用 Node.js 风格文件系统到 compiler 对象，以方便后续的文件寻找和读取；**
-  - **事件 - entry-option：读取配置 Entrys，为每个 Entry 实例化一对应的 EntryPlugin，为后面该 Entry 的递归解析工作做准备；**
-  - **事件 - after-plugins：调用完所有内置的和配置的插件的 apply 方法；**
-  - **事件 - after-resolvers：根据配置初始化完 resolver，resolver 负责在文件系统中寻找指定路径的文件；**
+  - 补充：Compiler 对象：负责文件监听 & 启动编译 ，其实例中包含了完整的 Webpack 配置，全局只有一个 Compiler 实例；
+  - 补充：加载配置插件：依次调用插件的 apply 方法，让插件可监听后续所有事件节点，同时为插件传入 compiler 实例引用 ，以方便其通过实例，调用 Webpack 提供的 API；
+  - 事件 - environment：开始应用 Node.js 风格文件系统到 compiler 对象，以方便后续的文件寻找和读取；
+  - 事件 - entry-option：读取配置 Entrys，为每个 Entry 实例化一对应的 EntryPlugin，为后面该 Entry 的递归解析工作做准备；
+  - 事件 - after-plugins：调用完所有内置的和配置的插件的 apply 方法；
+  - 事件 - after-resolvers：根据配置初始化完 resolver，resolver 负责在文件系统中寻找指定路径的文件；
 
 ##### 7-1-3-2、编译阶段
 
-- **开始编译** **：** **执行 Compiler 对象 run 方法，开始执行编译；**
+- 开始编译 ： 执行 Compiler 对象 run 方法，开始执行编译；
 
-- **确定入口：** **从配置文件中的 entry，找出所有入口文件；**
+- 确定入口： 从配置文件中的 entry，找出所有入口文件；
+- 编译文件： **<u>*根据入口文件文件类型 & 配置 Loader，对文件进行编译，编译完后，再找出该文件依赖的文件，递归编译和解析直至所有依赖完成本步骤*</u>**；
+- 完成编译： **<u>*经过上述步骤，使用 Loader 翻译完所有模块，得到每个模块被翻译后的最终内容，及之间的依赖关系*</u>**；
 
-- **编译文件：** **根据入口文件文件类型 & 配置 Loader，对文件进行编译，编译完后，再找出该文件依赖的文件，递归编译和解析直至所有依赖完成本步骤；**
+  - run & watch-run：均为启动编译，区别在于后者为监听模式下，启动的编译，其可判断哪些文件发生变化，来重新启动一次新的编译；
+  - 事件 - compile：发生在确定入口前，通知插件即将编译，传入 compiler 对象 (奇怪，初始化就已经传入了吧)；
 
-- **完成编译：** **经过上述步骤，使用 Loader 翻译完所有模块，得到每个模块被翻译后的最终内容，及之间的依赖关系；**
+  - 事件 - compilation：每检测到文件变化，新 Compilation 对象将被创建(含当前模块资源、编译生成资源、变化文件等，并提供事件回调供插件扩展) ；
 
-- - **run & watch-run：均为启动编译，区别在于后者为监听模式下，启动的编译，其可判断哪些文件发生变化，来重新启动一次新的编译；**
+  - 事件 - make： 上述的 Compilation 创建完毕，执行上述“编译文件”步骤：
 
-  - **事件 - compile：发生在确定入口前，通知插件即将编译，传入 compiler 对象 (奇怪，初始化就已经传入了吧)；**
+    - 根据入口文件的文件类型 & 配置的 Loader，对文件进行编译，编译完后，再找出该文件依赖的文件，递归编译和解析直至所有依赖完成本步骤；
+      - 事件 - build-module：使用对应的 Loader 去转换一个模块；
+      - 事件 - normal-module-loader：前述转换完后，使用 acorn 解析转换后的内容，输出对应AST，以方便 Webpack 后面对代码的分析；
+      - 事件 - program：从配置入口模块开始，分析其 AST，当遇到 require 等导入语句时，便将其加入依赖模块列表，并对新找出依赖模块递归分析，直至理清所有模块依赖关系；
+      - 事件 - seal：所有模块及其依赖的模块，均通过 Loader 转换完成后，根据依赖关系开始生成 Chunk；
 
-  - **事件 - compilation：** **每当检测到文件变化，新的 Compilation 对象将被创建，其包含当前模块资源、编译生成资源、变化文件等、还提供很多事件回调供插件做扩展** **；**
+  - 事件 - after-compile：一次 Compilation 执行完成；
 
-  - **事件 - make：** **上述的 Compilation 创建完毕，执行上述“编译文件”步骤：**
-
-  - - **根据入口文件的文件类型 & 配置的 Loader，对文件进行编译，编译完后，再找出该文件依赖的文件，递归编译和解析直至所有依赖完成本步骤；**
-
-    - - **事件 - build-module：使用对应的 Loader 去转换一个模块；**
-      - **事件 - normal-module-loader：前述转换完后，使用 acorn 解析转换后的内容，输出对应AST，以方便 Webpack 后面对代码的分析；**
-      - **事件 - program：从配置入口模块开始，分析其 AST，当遇到 require 等导入语句时，便将其加入依赖模块列表，并对新找出依赖模块递归分析，直至理清所有模块依赖关系；**
-      - **事件 - seal：所有模块及其依赖的模块，均通过 Loader 转换完成后，根据依赖关系开始生成 Chunk；**
-
-  - **事件 - after-compile：一次 Compilation 执行完成；**
-
-  - **事件 - invalid：文件不存在或编译错误等异常时触发，但不会导致 Webpack 退出；**
+  - 事件 - invalid：文件不存在或编译错误等异常时触发，但不会导致 Webpack 退出；
 
 ##### 7-1-3-3、输出阶段
 
-- **输出资源：** **根据入口 & 模块间的依赖关系，组装成数个包含多个模块的 Chunk，再将每个 Chunk 根据其对应类型，使用对应模板，转换成单独文件，并加入输出列表** **(可修改的最后机会)；**
+- 输出资源： **<u>*根据入口 & 模块间的依赖关系，组装成数个包含多个模块的 Chunk，再将每个 Chunk 根据其对应类型，使用对应模板，转换成单独文件，并加入输出列表 (可修改的最后机会)*</u>**；
+- 输出完成： **<u>*根据插件，确定输出内容，根据配置文件，确定输出路径 & 文件名，将内容写入文件系统*</u>**；
 
-- **输出完成：** **根据插件，确定输出内容，根据配置文件，确定输出路径 & 文件名，将内容写入文件系统；**
-
-- - **事件 - should-emit：所有需输出文件已生成好，询问插件确定输出的文件；**
-  - **事件 - emit：确定输出文件后，执行文件输出，可在此获取和修改输出内容；**
-  - **事件 - after-emit：文件输出完毕；**
-  - **事件 - done：成功完成一次完成编译 & 输出流程；**
-  - **事件** **-failed** **：若编译** **&** **输出流程中，遇到异常导致** **Webpack** **退出时，就会直接跳转到本步骤，插件可在本事件中获取到具体的错误原因；**
+  - 事件 - should-emit：所有需输出文件已生成好，询问插件确定输出的文件；
+  - 事件 - emit：确定输出文件后，执行文件输出，可在此获取和修改输出内容；
+  - 事件 - after-emit：文件输出完毕；
+  - 事件 - done：成功完成一次完成编译 & 输出流程；
+  - 事件 -failed ：若编译 & 输出流程中，遇到异常导致 Webpack 退出时，就会直接跳转到本步骤，插件可在本事件中获取到具体的错误原因；
 
 
 
@@ -1268,15 +1262,9 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 
 <img src="/Image/Engineering/19.png" style="zoom:50%;" align="left"/>
 
-- `__webpack_require__` 函数，可在浏览器中执行的加载函数；
 
-作用：用以模拟 Node 中的 require 语句，做了缓存优化，不会二次执行加载；
 
-因为：浏览器无法像 Node 快速加载多个模块文件，而须通过网络请求异步加载文件；
 
-所以：原本多个独立模块文件，被合并到一个单独 bundle.js 文件，且若模块数量很多，加载时间会越长，将所有模块都存放在数组中，便于执行一次网络加载；
-
-<img src="/Image/Engineering/20.png" style="zoom:50%;" align="left"/>
 
 
 
@@ -1287,10 +1275,15 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 - 首先，读取你在命令行传入的配置，及项目里的 `webpack.config.js` 文件，初始化本次构建的配置参数，并且执行配置文件中的插件实例化语句；
   - 生成 `Compiler` 传入 `plugin` 的 `apply` 方法，为 `webpack` 事件流挂上自定义钩子；
 - 然后，`entryOption` 阶段，`webpack` 开始读取配置 `Entries`，递归遍历所有的入口文件；
-- 然后，`compilation` 过程，依次进入其中每一个入口文件(`entry`)，使用用户配置好的 `loader` 对文件内容进行编译（`buildModule`）
-  - 此阶段，可从传入事件回调的 `compilation` 上拿到 `module` 的 `resource`（资源路径）、`loaders`（经过的 `loaders`）等信息；
-- 然后，再将编译好的文件内容使用 `acorn` 解析生成  AST 静态语法树（`normalModuleLoader`），分析文件依赖关系，并逐个拉取依赖模块并重复上述过程；
+- 然后，`compilation` 过程，依次进入其中每一个入口文件(`entry`)，使用用户配置好的 `loader` 对文件内容进行编译(`buildModule`)
+  - 此阶段，可从传入事件回调的 `compilation` 上拿到 `module` 的 `resource`(资源路径)、`loaders`(经过的 `loaders`)等信息；
+- 然后，再将编译好的文件内容使用 `acorn` 解析生成  AST 静态语法树(`normalModuleLoader`)，分析文件依赖关系，并逐个拉取依赖模块并重复上述过程；
 - 然后，将所有模块中的 `require` 语法替换成 `__webpack_require__` 来模拟模块化操作；
+  - 注意：`__webpack_require__` 函数，可在浏览器中执行的加载函数；
+    - 作用：用以模拟 Node 中的 require 语句，做了缓存优化，不会二次执行加载；
+    - 因为：浏览器无法像 Node 快速加载多个模块文件，而须通过网络请求异步加载文件；
+    - 所以：原多个独立模块文件，被合并到一单独 bundle.js 文件，且模块数量很多加载时间会越长，将所有模块都存放在数组中，便于执行一次网络加载；
+    - <img src="/Image/Engineering/20.png" style="zoom:50%;" align="left"/>
 - 最后，`emit` 阶段，所有文件的编译及转化都已经完成，包含了最终输出的资源；
   - 此阶段可在传入事件回调的 `compilation.assets` 上拿到所需数据，其中包括即将输出的资源、代码块 `Chunk` 等信息；
 
@@ -1816,6 +1809,31 @@ compilation.getStats() 能得到生产文件以及 chunkhash 的一些信息等�
 
 
 
+##### 7-1-9、构建流程H
+
+<img src="/Image/Engineering/502.png" style="zoom:50%;" align="left"/>
+
+`webpack` 的运行流程是一个串行的过程，从启动到结束会依次执行以下流程：首先会从配置文件和 `Shell` 语句中读取与合并参数，并初始化需要使用的插件和配置插件等执行环境所需要的参数；初始化完成后会调用`Compiler`的`run`来真正启动`webpack`编译构建过程，`webpack`的构建流程包括`compile`、`make`、`build`、`seal`、`emit`阶段，执行完这些阶段就完成了构建过程；
+
+初始化
+
+- entry-options 启动：从配置文件和 `Shell` 语句中读取与合并参数，得出最终的参数。
+
+- compiler 与 run 实例化：用上一步得到的参数初始化 `Compiler` 对象，加载所有配置的插件，执行对象的 `run` 方法开始执行编译
+
+编译构建
+
+- entry 确定入口：根据配置中的 `entry` 找出所有的入口文件
+- make 编译模块：从入口文件出发，调用所有配置的 `Loader` 对模块进行翻译，再找出该模块依赖的模块，再递归此步直到所有入口依赖文件均得到处理；
+- build module 完成模块编译：经过上面一步使用 `Loader` 翻译完所有模块后，得到了每个模块被翻译后的最终内容，及它们之间的依赖关系；
+- seal 输出资源：根据入口和模块间的依赖关系，组装成一个个包含多个模块的 `Chunk`，再把每个 `Chunk` 转换成一个单独的文件加入到输出列表；
+  - 此亦为可修改输出内容的最后机会
+- emit 输出完成：在确定好输出内容后，根据配置确定输出的路径和文件名，把文件内容写入到文件系统；
+
+
+
+
+
 #### 7-2、构建自实现
 
 ##### 7-2-1、自实现1
@@ -1966,6 +1984,301 @@ console.log(code)
 ```
 
 <img src="/Image/Engineering/77.png" style="zoom:60%;" align="left"/>
+
+
+
+
+
+
+
+##### 7-2-1、自实现2
+
+```
+|-- forestpack
+    |-- dist
+    |   |-- bundle.js
+    |   |-- index.html
+    |-- lib								// 核心文件夹; 主要包括 compiler 和 parser
+    |   |-- compiler.js		// 编译相关; Compiler 为一个类, 并有 run 方法去开启编译，还有构建module(buildModule)和输出文件(emitFiles)
+    |   |-- index.js 			// 实例化Compiler类，并将配置参数(对应 fors tpack.config.js)传入 
+    |   |-- parser.js			// 解析相关; 包含解析 AST(getAST)、收集依赖(getDependencies)、转换(es6转es5)
+    |   |-- test.js
+    |-- src
+    |   |-- greeting.js
+    |   |-- index.js
+    |-- forstpack.config.js // 配置文件。类似 webpack.config.js
+    |-- package.json
+```
+
+```js
+// 1、基本
+// forstpack.js
+const path = require("path");
+module.exports = {
+	// 定义入口、出口
+  entry: path.join(__dirname, "./src/index.js"),
+  output: {
+    path: path.join(__dirname, "./dist"),
+    filename: "bundle.js",
+  },
+};
+
+// greeting.js
+export function greeting(name) {
+  return "你好" + name;
+}
+// index.js
+import { greeting } from "./greeting.js";
+document.write(greeting("森林"));
+```
+
+```js
+// 2、构建流程 - 1
+// 2-1、读取入口文件
+// 2-2、分析入口文件，递归的去读取模块所依赖的文件内容，生成AST语法树。
+// 2-3、根据 AST 语法树，生成浏览器能够运行的代码
+
+// compiler.js
+// 负责接收 forestpack.config.js 配置参数，并初始化 entry、output，并开启编译 run 方法: 处理构建模块、收集依赖、输出文件等;
+// 其中：buildModule 方法: 主要用于构建模块（被 run 方法调用）
+// 其中：emitFiles 方法: 输出文件（同样被 run 方法调用）
+const path = require("path");
+const fs = require("fs");
+module.exports = class Compiler {
+  // 接收通过lib/index.js new Compiler(options).run()传入的参数，对应`forestpack.config.js`的配置
+  constructor(options) {
+    const { entry, output } = options;
+    this.entry = entry;
+    this.output = output;
+    this.modules = [];
+  }
+  // 开启编译
+  run() {}
+  // 构建模块相关
+  buildModule(filename, isEntry) {
+    // filename: 文件名称
+    // isEntry: 是否是入口文件
+  }
+  // 输出文件
+  emitFiles() {}
+};
+
+
+// parse.js
+// 负责解析,替换源码和获取模块的依赖项
+// getAST： 将获取到的模块内容 解析成 AST 语法树
+// getDependencies：遍历 AST，将用到的依赖收集起来
+// transform：把获得的 ES6 的 AST 转化成 ES5
+const fs = require("fs");
+// const babylon = require("babylon");
+const parser = require("@babel/parser");
+// @babel/parser：用于将源码生成 AST
+const traverse = require("@babel/traverse").default;
+// @babel/traverse：对 AST 节点进行递归遍历
+const { transformFromAst } = require("babel-core");
+// babel-core/@babel/preset-env：将获得的 ES6 的 AST 转化成 ES5
+module.exports = {
+  // 解析我们的代码生成AST抽象语法树
+  getAST: (path) => {
+    const source = fs.readFileSync(path, "utf-8");
+
+    return parser.parse(source, {
+      sourceType: "module", //表示我们要解析的是ES模块
+    });
+  },
+  // 对AST节点进行递归遍历
+  getDependencies: (ast) => {
+    const dependencies = [];
+    traverse(ast, {
+      ImportDeclaration: ({ node }) => {
+        dependencies.push(node.source.value);
+      },
+    });
+    return dependencies;
+  },
+  // 将获得的ES6的AST转化成ES5
+  transform: (ast) => {
+    const { code } = transformFromAst(ast, null, {
+      presets: ["env"],
+    });
+    return code;
+  },
+};
+
+```
+
+```js
+// 2、构建流程 - 2
+// 完善 compiler.js
+const { getAST, getDependencies, transform } = require("./parser");
+const path = require("path");
+const fs = require("fs");
+
+module.exports = class Compiler {
+  constructor(options) {
+    const { entry, output } = options;
+    this.entry = entry;
+    this.output = output;
+    this.modules = [];
+  }
+  // 开启编译
+  run() {
+    const entryModule = this.buildModule(this.entry, true);
+    this.modules.push(entryModule);
+    this.modules.map((_module) => {
+      _module.dependencies.map((dependency) => {
+        this.modules.push(this.buildModule(dependency));
+      });
+    });
+    // console.log(this.modules);
+    this.emitFiles();
+  }
+  // 构建模块相关
+  buildModule(filename, isEntry) {
+    let ast;
+    if (isEntry) {
+      ast = getAST(filename);
+    } else {
+      const absolutePath = path.join(process.cwd(), "./src", filename);
+      ast = getAST(absolutePath);
+    }
+
+    return {
+      filename, // 文件名称
+      dependencies: getDependencies(ast), // 依赖列表
+      transformCode: transform(ast), // 转化后的代码
+    };
+  }
+  // 输出文件
+  emitFiles() {
+    const outputPath = path.join(this.output.path, this.output.filename);
+    let modules = "";
+    this.modules.map((_module) => {
+      modules += `'${_module.filename}' : function(require, module, exports) {${_module.transformCode}},`;
+    });
+
+    const bundle = `
+        (function(modules) {
+          function require(fileName) {
+            const fn = modules[fileName];
+            const module = { exports:{}};
+            fn(require, module, module.exports)
+            return module.exports
+          }
+          require('${this.entry}')
+        })({${modules}})
+    `;
+
+    fs.writeFileSync(outputPath, bundle, "utf-8");
+  }
+};
+
+// 解析 emitFiles 机制
+// 补充 webpack 打包后代码，简单分析即：
+// 1、webpack 将所有模块(可以简单理解成文件)包裹于一个函数中，并传入默认参数，将所有模块放入一个数组中，取名为 modules，并通过数组的下标来作为 moduleId。
+// 2、将 modules 传入一个自执行函数中，自执行函数中包含一个 installedModules 已经加载过的模块和一个模块加载函数，最后加载入口模块并返回。
+// 3、__webpack_require__ 模块加载，先判断 installedModules 是否已加载，加载过了就直接返回 exports 数据，没有加载过该模块就通过 modules[moduleId].call(module.exports, module, module.exports, __webpack_require__) 执行模块并且将 module.exports 给返回。
+
+// 用人话讲就是：
+
+// 1、经过 webpack 打包出来的是一个匿名闭包函数（IIFE）
+// 2、modules 是一个数组，每一项是一个模块初始化函数
+// 3、__webpack_require__ 用来加载模块，返回 module.exports，通过 WEBPACK_REQUIRE_METHOD(0) 启动程序
+
+// dist/index.xxxx.js
+(function(modules) {
+  // 已经加载过的模块
+  var installedModules = {};
+
+  // 模块加载函数
+  function __webpack_require__(moduleId) {
+    if(installedModules[moduleId]) {
+      return installedModules[moduleId].exports;
+    }
+    var module = installedModules[moduleId] = {
+      i: moduleId,
+      l: false,
+      exports: {}
+    };
+    modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+    module.l = true;
+    return module.exports;
+  }
+  __webpack_require__(0);
+})([
+/* 0 module */
+(function(module, exports, __webpack_require__) {
+  ...
+}),
+/* 1 module */
+(function(module, exports, __webpack_require__) {
+  ...
+}),
+/* n module */
+(function(module, exports, __webpack_require__) {
+  ...
+})]);
+```
+
+```js
+// 3、构造输出
+// lib/index
+const Compiler = require("./compiler");
+const options = require("../forestpack.config");
+// 实例化 Compiler 类，并将配置参数（对应forstpack.config.js）传入
+new Compiler(options).run();
+
+// 4、结果输出
+// 运行 node lib/index.js 就会在 dist 目录下生成 bundle.js 文件
+// 与用 webpack 打包生成的 js 文件作下对比
+(function (modules) {
+  function require(fileName) {
+    const fn = modules[fileName];
+    const module = { exports: {} };
+    fn(require, module, module.exports);
+    return module.exports;
+  }
+  require("/Users/fengshuan/Desktop/workspace/forestpack/src/index.js");
+})({
+  "/Users/fengshuan/Desktop/workspace/forestpack/src/index.js": function (
+    require,
+    module,
+    exports
+  ) {
+    "use strict";
+
+    var _greeting = require("./greeting.js");
+
+    document.write((0, _greeting.greeting)("森林"));
+  },
+  "./greeting.js": function (require, module, exports) {
+    "use strict";
+
+    Object.defineProperty(exports, "__esModule", {
+      value: true,
+    });
+    exports.greeting = greeting;
+
+    function greeting(name) {
+      return "你好" + name;
+    }
+  },
+});
+// 测试运行
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="./bundle.js"></script>
+  </body>
+</html>
+```
+
+
 
 
 
@@ -2319,8 +2632,18 @@ function hotApply() {
 由下面得知，模块热替换主要分3个阶段：
 
 - 第一个阶段：找出 `outdatedModules` 和 `outdatedDependencies`；
+
 - 第二个阶段：从缓存中删除过期的模块和依赖：`delete installedModules[moduleId]; & delete outdatedDependencies[moduleId];`
+
 - 第三个阶段：将新的模块添加到 `modules` 中，当下次调用 `__webpack_require__` (webpack 重写的 require 方法)方法时，即获取到了新的模块代码；
+
+  - 注意：`__webpack_require__` 函数，可在浏览器中执行的加载函数；
+    - 作用：用以模拟 Node 中的 require 语句，做了缓存优化，不会二次执行加载；
+    - 因为：浏览器无法像 Node 快速加载多个模块文件，而须通过网络请求异步加载文件；
+    - 所以：原多个独立模块文件，被合并到一 bundle.js 文件，且模块数量很多加载时间会越长，将所有模块都存放在数组中，便于执行一次网络加载；
+    - <img src="/Image/Engineering/20.png" style="zoom:50%;" align="left"/>
+
+  
 
 
 
@@ -3039,10 +3362,10 @@ module.exports.raw = true;
 ```js
 // 工作内容：复制文件内容，并根据配置为其生成唯一文件名；
 // 工作流程：
-// 通过 loaderUtils.interpolateName 方法可以根据 options.name 以及文件内容生成一个唯一的文件名 url（一般配置都会带上hash，否则很可能由于文件重名而冲突）
+// 通过 loaderUtils.interpolateName 方法可以根据 options.name 以及文件内容生成一个唯一的文件名 url(一般配置都会带上hash，否则很可能由于文件重名而冲突)
 // 通过 this.emitFile(url, content) 告诉 webpack 我需要创建一个文件，webpack会根据参数创建对应的文件，放在 public path 目录下。
 // 返回 'module.exports = __webpack_public_path__ + '+ JSON.stringify(url) + ‘;’ ，这样就会把原来的文件路径替换为编译后的路径
-// 对file-loader 中最重要的几行代码解释如下（我们自己来实现一个 file-loader 就只需要这几行代码就行了，完全可以正常运行且支持 name 配置)：
+// 对file-loader 中最重要的几行代码解释如下(我们自己来实现一个 file-loader 就只需要这几行代码就行了，完全可以正常运行且支持 name 配置)：
 
 var loaderUtils = require('loader-utils')
 

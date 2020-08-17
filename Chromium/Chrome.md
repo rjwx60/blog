@@ -120,8 +120,8 @@ Cache-Control 还有诸多属性值来对缓存作更细粒度的操作：
 - 存取效率快，但缓存持续时间短，会随着进程释放而释放(一旦关闭 Tab 页即被释放，未关闭但, 排在前排缓存失效)；
 - 从其中读取缓存时，浏览器会忽视 `Cache-Control`中的一些 `max-age、no-cache` 等头部配置, 除非设置  `no-store` 头部配置；
 - 几乎所有的请求资源都能进入 <u>Memory Cache</u>，主要分为 <u>preloader</u> 、<u>preload</u> ：
-  - preloader：用于 <u>当浏览器打开网页时，能一边解析执行 js/css，一边请求下一资源</u>，被请求的资源就会被放入 `Memory Cache` 中，供后续解析执行操作使用；
-  - preload：能显式指定预加载的资源，比如： `<link rel="preload">`
+  - preloader：用于 <u>当浏览器打开网页时，能边解析执行 js/css，边请求下一资源</u>，被请求的资源会被放入 `Memory Cache` 中，供后续解析执行操作使用；
+  - preload：用于显式指定预加载的资源，比如： `<link rel="preload">`
 
 
 
