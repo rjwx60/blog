@@ -1,6 +1,8 @@
-#### [1. Two Sum](https://leetcode-cn.com/problems/two-sum/)
+#### [0001. Two Sum](https://leetcode-cn.com/problems/two-sum/)
 
+来源：力扣（LeetCode）
 
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 
 ### 一、Content
 
@@ -112,7 +114,6 @@ var twoSum = function(nums, target) {
         }
     }
 };
-
 
 
 // 2、两遍 map
@@ -273,7 +274,7 @@ var threeSum = function(nums) {
     while(leftPoint < rightPoint) {
       let sum = nums[i] + nums[leftPoint] + nums[rightPoint];
       if (sum === 0) {
-        result.push([nums[i], nums[left], nums[right]]);
+        result.push([nums[i], nums[leftPoint], nums[rightPoint]]);
       }
       // 去重-双指针间的去重
       if (sum <= 0) {

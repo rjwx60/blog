@@ -1,14 +1,22 @@
-#### [35.Search Insert Position](https://leetcode-cn.com/problems/search-insert-position/)
+#### [0035.Search Insert Position](https://leetcode-cn.com/problems/search-insert-position/)
 
-Given a sorted array and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order. You may assume no duplicates in the array.
+来源：力扣（LeetCode）
 
-给定一个排序数组和一个目标值，在数组中找到目标值，并返回其索引。如果目标值不存在于数组中，返回它将会被按顺序插入的位置。
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 
-你可以假设数组中无重复元素。
+### 一、Content
+
+Given a sorted array and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order. 
+
+You may assume no duplicates in the array.
+
+给定一个排序数组和一个目标值，在数组中找到目标值，并返回其索引。如果目标值不存在于数组中，返回它将会被按顺序插入的位置；
+
+你可以假设数组中无重复元素；
 
 
 
-#### Example :
+#### 1-1、Example
 
 ```
 Input: [1,3,5,6], 5
@@ -26,9 +34,36 @@ Output: 0
 
 
 
-#### Code1：2020-07-10
+#### 1-2、Tag
 
-```javascript
+Array
+
+
+
+### 二、思路与解答
+
+#### 2-1、思路
+
+##### 2-1-1、自思路
+
+使用类似二分法的方式处理：搜寻中间值，然后比对，若大于中间值则取后半段，再取其中中间值，以此类推...
+
+- Code1 思路一开始就是对的，但边界处理没有做好，比如最先使用的是 ceil 而非 floor，就会有若 nums 只有一个元素，取中间值 0.5，使用 floor 的话就会变为 1 溢出；比如未考虑 target 为 0 的情况；但普遍行为却处理的还好，可能因为判断条件简单?
+- Code1 最大的感悟是，对临界、特殊情况的掌控感不足，导致卡在这上面的时间很长(一开始还看错题，以为除了要返回插入索引还要进行插入操作)
+- Code1 代码1的性能真的不忍直视…
+- 本题最大的关键在于使用减治(排除)思想的二分法解决，详看0000
+
+
+
+#### 2-2、题解
+
+##### 2-2-1、官解
+
+https://leetcode-cn.com/problems/search-insert-position/solution/
+
+##### 2-2-2、自实现
+
+```js
 /**
  * @param {number[]} nums
  * @param {number} target
@@ -64,11 +99,9 @@ function shrinkArea(nums, target, leftIndex, rightIndex) {
 }
 // 执行用时： 72 ms , 在所有 JavaScript 提交中击败了 50.08% 的用户 
 // 内存消耗： 33.2 MB , 在所有 JavaScript 提交中击败了 100.00% 的用户
+```
 
-// 思路:
-// 用类似二分法处理：搜寻中间值，然后比对，若大于中间值则取后半段，再取其中中间值，以此类推...
-
-
+```js
 /**
  * @param {number[]} nums
  * @param {number} target
@@ -103,22 +136,12 @@ var searchInsert = function(nums, target, leftIndex, rightIndex) {
 // 内存消耗： 32.8 MB , 在所有 JavaScript 提交中击败了 100.00% 的用户
 
 // 思路:
-// Code1 基础上的改进：由递归改为尾递归
+// 在前面基础上的改进：由递归改为尾递归
 ```
 
+##### 2-2-3、综合实现
 
-
-
-
-#### More：
-
-##### More1：
-
-作者：joeyzhouyicheng
-
-链接：https://leetcode-cn.com/problems/search-insert-position/solution/js-by-joeyzhouyicheng-4/
-
-```javascript
+```js
 // 1、暴力解法
 /**
  * @param {number[]} nums
@@ -218,22 +241,18 @@ var searchInsert = function(nums, target) {
 };
 // Runtime: 52 ms, faster than 83.92% of JavaScript online submissions for Search Insert Position.
 // Memory Usage: 33.9 MB, less than 67.81% of JavaScript online submissions for Search Insert Position.
+
+// 作者：joeyzhouyicheng
+// 链接：https://leetcode-cn.com/problems/search-insert-position/solution/js-by-joeyzhouyicheng-4/
 ```
 
 
 
-##### MoreX：
+### 三、Top
 
-更多解法：
+#### 3-1、44ms
 
-https://leetcode-cn.com/problems/search-insert-position/solution/
-
-
-
-#### Top：
-
-```javascript
-// top1: 44ms
+```js
 var searchInsert = function(nums, target) {
     for(let i=0;i<nums.length;i++){
         if(nums[i]>=target){
@@ -242,9 +261,13 @@ var searchInsert = function(nums, target) {
     }
     return nums.length
 };
-// 感悟:
+```
 
-// top2: 48ms
+
+
+#### 3-2、48ms
+
+```js
 var searchInsert = function (nums, target) {
     let index = nums.findIndex(item => target === item || target < item)
     if (index === -1) {
@@ -252,22 +275,16 @@ var searchInsert = function (nums, target) {
     }
     return index
 };
-// 感悟:
 ```
 
 
 
 
 
-#### Think：
+### 四、拓展
 
-- Code1 思路一开始就是对的，但边界处理没有做好，比如最先使用的是 ceil 而非 floor，就会有若 nums 只有一个元素，取中间值 0.5，使用 floor 的话就会变为 1 溢出；比如未考虑 target 为 0 的情况；但普遍行为却处理的还好，可能因为判断条件简单?
-- Code1 最大的感悟是，对临界、特殊情况的掌控感不足，导致卡在这上面的时间很长(一开始还看错题，以为除了要返回插入索引还要进行插入操作)
-- Code1 代码1的性能真的不忍直视…
-- 本题最大的关键在于使用减治(排除)思想的二分法解决，详看0000
+#### 4-1、xxx
 
+#### 4-2、xxx
 
 
-
-
-#### Expand：

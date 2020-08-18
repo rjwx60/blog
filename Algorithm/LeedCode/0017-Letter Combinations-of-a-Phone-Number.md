@@ -1,16 +1,20 @@
-#### [17. Letter Combinations of a Phone Number](https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/)
+#### [0017. Letter Combinations of a Phone Number](https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/)
+
+
+
+### 一、Content
 
 Given a string containing digits from `2-9` inclusive, return all possible letter combinations that the number could represent.
 
 A mapping of digit to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.
 
-给定一个仅包含数字 `2-9` 的字符串，返回所有它能表示的字母组合。
+给定一个仅包含数字 `2-9` 的字符串，返回所有它能表示的字母组合；
 
-给出数字到字母的映射如下（与电话按键相同）。注意 1 不对应任何字母。
+给出数字到字母的映射如下（与电话按键相同）。注意 1 不对应任何字母；
 
 
 
-#### Example：
+#### 1-1、Example
 
 ```
 Input: "23"
@@ -19,15 +23,42 @@ Output: ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"].
 
 
 
-#### Note：
+#### 1-2、Note
 
 Although the above answer is in lexicographical order, your answer could be in any order you want.
 
 
 
-#### Code1：2020-08-08
+#### 1-3、Tag
 
-```javascript
+Array
+
+
+
+### 二、思路与解答
+
+#### 2-1、思路
+
+##### 2-1-1、自思路
+
+- 关键是使用回溯，回溯是一种通过穷举所有可能情况来找到所有解的算法；
+  - 若一个候选解最后被发现并不是可行解，回溯算法会舍弃它，并在前面的一些步骤做出一些修改，并重新尝试找到可行解；如自实现；
+- 注意可读性，可读性对效率执行有一定帮助；
+- 任何时候都要注意可读性、边界情况
+- 时间复杂度：O(3^N  X 4^M)，其中 N 是输入数字中对应 3 个字母的数目（比方说 2，3，4，5，6，8）， M 是输入数字中对应 4 个字母的数目（比方说 7，9），N+M 是输入数字的总数；
+- 空间复杂度：O(3^N  X 4^M)，这是因为需要保存 3^N  X 4^M 个结果；
+
+
+
+#### 2-2、题解
+
+##### 2-2-1、官解
+
+https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/solution/
+
+##### 2-2-2、自实现
+
+```js
 var letterCombinations = function(digits) {
   // 对输入做处理，如果小于1返回空（LeetCode测试用例）
   if (digits.length < 1) return []
@@ -67,30 +98,13 @@ var letterCombinations = function(digits) {
 
 
 
+##### 2-2-3、综合实现
 
+### 三、Top
 
-#### More：
+#### 3-1、44ms
 
-##### More1：
-
-
-
-##### MoreX：
-
-更多解法：
-
-https://leetcode-cn.com/problems/letter-combinations-of-a-phone-number/solution/
-
-
-
-#### Top：
-
-```javascript
-// top1: 44ms
-/**
- * @param {string} digits
- * @return {string[]}
- */
+```js
 var letterCombinations = function(digits) {
     let numMap = {
         2: 'abc',
@@ -129,11 +143,13 @@ var letterCombinations = function(digits) {
 
     return arr
 };
-// 感悟:
-// 可读性对效率执行有一定帮助
+```
 
 
-// top2: 48ms
+
+#### 3-2、48ms
+
+```js
 var letterCombinations = function(digits) {
   let result = ['']
 
@@ -171,11 +187,13 @@ var letterCombinations = function(digits) {
 
   return result
 };
-// 感悟:
-// 同上
+```
 
 
-// top: 52ms
+
+#### 3-3、52ms
+
+```js
 var letterCombinations = function(digits) {
     var map = {
         2: 'abc',
@@ -216,17 +234,8 @@ var letterCombinations = function(digits) {
 
 
 
-#### Think：
+### 四、拓展
 
-- 使用回溯，回溯是一种通过穷举所有可能情况来找到所有解的算法。如果一个候选解最后被发现并不是可行解，回溯算法会舍弃它，并在前面的一些步骤做出一些修改，并重新尝试找到可行解；如 Code1；
+#### 4-1、xxx
 
-
-
-时间复杂度：O(3^N  X 4^M)，其中 N 是输入数字中对应 3 个字母的数目（比方说 2，3，4，5，6，8）， M 是输入数字中对应 4 个字母的数目（比方说 7，9），N+M 是输入数字的总数；
-
-空间复杂度：O(3^N  X 4^M)，这是因为需要保存 3^N  X 4^M 个结果；
-
-
-
-#### Expand：
-
+#### 4-2、xxx

@@ -1,12 +1,16 @@
-#### [56.Merge-Intervals](https://leetcode-cn.com/problems/merge-intervals/)
+#### [0056.Merge-Intervals](https://leetcode-cn.com/problems/merge-intervals/)
+
+
+
+### 一、Content
 
 Given a collection of intervals, merge all overlapping intervals.
 
-给出一个区间的集合，请合并所有重叠的区间。
+给出一个区间的集合，请合并所有重叠的区间；
 
 
 
-#### Example：
+#### 1-1、Example
 
 ```
 Input: [[1,3],[2,6],[8,10],[15,18]]
@@ -20,15 +24,39 @@ Explanation: Intervals [1,4] and [4,5] are considered overlapping.
 
 
 
-#### NOTE: 
+#### 1-2、Note
 
+```
 input types have been changed on April 15, 2019. Please reset to default code definition to get new method signature.
+```
 
 
 
-#### Code1：2020-07-10
+#### 1-3、Tag
 
-```javascript
+### 二、思路与解答
+
+#### 2-1、思路
+
+##### 2-1-1、自思路
+
+思路一开始就有，即当前值[1] > 下一值[0] 即表示有交集，但一开始未考虑乱序元素故未排序导致许多报错(题目无写明即须要考虑...)
+
+小区间、大区间、不相关区间；大区间、小区间、不相关区间；
+
+一开始只考虑了小大区间的交集，未考虑大小区间的交集情况，故未将最大区间范围固定，故同样导致许多报错
+
+**<u>*关键，许多题目的关键，找准临界值或判定条件，然后将其具象化，代码化，可能一遍不能实现的完美，那就多次*</u>**；
+
+#### 2-2、题解
+
+##### 2-2-1、官解
+
+https://leetcode-cn.com/problems/merge-intervals/solution/
+
+##### 2-2-2、自实现
+
+```js
 /**
  * @param {number[][]} intervals
  * @return {number[][]}
@@ -64,22 +92,13 @@ var merge = function(intervals) {
 };
 // 执行用时： 88 ms , 在所有 JavaScript 提交中击败了 71.64% 的用户 
 // 内存消耗： 38.2 MB , 在所有 JavaScript 提交中击败了 22.22% 的用户
-
-// 思路:
-// 思路一开始就有，即当前值[1] > 下一值[0] 即表示有交集，但一开始未考虑乱序元素故未排序导致许多报错(题目无写明即须要考虑...)
-// 小区间、大区间、不相关区间；大区间、小区间、不相关区间；一开始只考虑了小大区间的交集，未考虑大小区间的交集情况，故未将最大区间范围固定，故同样导致许多报错
 ```
 
 
 
-#### More：
+##### 2-2-3、综合实现
 
-##### More1：
-
-作者：jsyt
-链接：https://leetcode-cn.com/problems/merge-intervals/solution/js-jian-dan-yi-dong-jie-fa-by-jsyt/
-
-```javascript
+```js
 /**
  * @param {number[][]} intervals
  * @return {number[][]}
@@ -100,16 +119,9 @@ var merge = function(intervals) {
 
 // 思路:
 // 牛皮，四两拨千斤，由存入结果区间与现其他区间相比较，取最大值；若无交集则直接塞入；
-```
 
 
 
-##### More2：
-
-作者：caifeng123
-链接：https://leetcode-cn.com/problems/merge-intervals/solution/he-bing-qu-jian-chao-rong-yi-li-jie-93100-by-caife/
-
-```javascript
 var merge = function(intervals) {
   if(intervals.length === 0)
     return []
@@ -128,35 +140,30 @@ var merge = function(intervals) {
   }
   return res
 };
-
 // 思路:
 // 将数组按左边界排序以得到向上递增的数组，然后前一项的右边界 >= 当后一项的左边界即证明有相交
 // 合并前需要进行判断 若前一项右边界 >= 后一项的右边界则跳过不动
+
+// 作者：jsyt
+// 链接：https://leetcode-cn.com/problems/merge-intervals/solution/js-jian-dan-yi-dong-jie-fa-by-jsyt/
+// 作者：caifeng123
+// 链接：https://leetcode-cn.com/problems/merge-intervals/solution/he-bing-qu-jian-chao-rong-yi-li-jie-93100-by-caife/
 ```
 
 
 
-##### MoreX：
+### 三、Top
 
-更多解法：
+#### 3-1、64ms
 
-https://leetcode-cn.com/problems/merge-intervals/solution/
-
-
-
-#### Top：
-
-```javascript
-// top1: 64ms
+```js
 const merge = function(intervals) {
     // 定义结果数组
     const res = []  
     // 缓存区间个数
     const len = intervals.length
     // 将所有区间按照第一个元素大小排序
-    intervals.sort(function(a, b) {
-        return a[0] - b[0]
-    }) 
+    intervals.sort(function(a, b) { return a[0] - b[0]}) 
     // 处理区间的边界情况
     if(!intervals || !intervals.length) {
         return []
@@ -176,10 +183,13 @@ const merge = function(intervals) {
     }
     return res
 };
-// 感悟:
+```
 
 
-// top2: 68ms
+
+#### 3-2、68ms
+
+```js
 var merge = function(intervals) {
     if (intervals.length === 0) return [];
     intervals.sort((a, b) => a[0] - b [0]);
@@ -197,15 +207,12 @@ var merge = function(intervals) {
     }
     return resArr;
 };
-// 感悟:
 ```
 
 
 
-#### Think：
+### 四、拓展
 
-- 关键，许多题目的关键，找准临界值或判定条件，然后将其具象化，代码化，可能一遍不能实现的完美，那就多次；
+#### 4-1、xxx
 
-
-
-#### Expand：
+#### 4-2、xxx
