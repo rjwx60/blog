@@ -4,13 +4,13 @@ typora-root-url: ../Source
 
 
 
-## 一、基本排序
+### 一、基本排序
 
 **<u>*基本排序的基本思想非常类似：重排列时用的技术基本都是一组嵌套的for循环: 外循环遍历数组的每一项，内循环则用于比较元素*</u>**
 
 
 
-### 1-1、冒泡排序
+#### 1-1、冒泡排序-BubbleSort
 
 最笨最基本最经典点的方法，无需多言：
 
@@ -42,7 +42,7 @@ function bubleSort(arr) {
 
 
 
-### 1-2、选择排序
+#### 1-2、选择排序-SelectionSort
 
 选择排序是从数组的开头开始，将第一个元素与其他元素比较，检查完所有的元素后，最小的放在第一个位置，接下来再开始从第二个元素开始，重复直到最后；
 
@@ -70,7 +70,7 @@ function selectSort(arr) {
 
 
 
-### 1-3、插入排序
+#### 1-3、插入排序-InsertionSort
 
 插入排序核心：扑克牌思想： 打扑克牌，接起来一张，放哪里无所谓，再接起来一张，比第一张小，放左边，继续接，可能是中间数，就插在中间....
 
@@ -104,7 +104,7 @@ function insertSort(arr) {
 
 
 
-### 1-X、时间复杂度对比
+#### 1-X、时间复杂度对比
 
 | 排序算法     | 平均时间复杂度 | 最坏时间复杂度 | 空间复杂度 | 是否稳定 |
 | ------------ | :------------: | :------------: | :--------: | :------: |
@@ -117,13 +117,13 @@ function insertSort(arr) {
 
 
 
-## 二、高级排序
+### 二、高级排序
 
 如果所有排序都像上面的基本方法一样，那么对于大量数据的处理，将是灾难性的
 
 
 
-### 2-1、快速排序
+#### 2-1、快速排序-QuickSort
 
 快排是处理大数据最快的排序算法之一；
 
@@ -160,7 +160,7 @@ function quickSort(arr) {
 
 
 
-### 2-2、希尔排序
+#### 2-2、希尔排序-ShellSort
 
 希尔排序是插入排序的改良算法，但是核心理念与插入算法又不同，它会先比较距离较远的元素，而非相邻的元素；
 
@@ -248,7 +248,173 @@ console.log(shellSort(arr,gap))
 
 
 
-### 2-X、时间复杂度对比
+#### 2-3、归并排序-MergeSort
+
+归并排序是建立在归并操作上的一种有效的排序算法，采用分治法(Divide and Conquer)思想实现；
+
+- 分治法将问题分成一些小的问题然后递归求解，而治的阶段则将分的阶段得到的各答案"修补"在一起，即分而治之；
+
+将已有序的子序列合并，得到完全有序的序列；即先使每个子序列有序，再使子序列段间有序。若将两个有序表合并成一个有序表，称为二路归并。
+
+分割操作：
+
+- 将数组从中点进行分割，分为左、右两个数组
+- 递归分割左、右数组，直到数组长度小于`2`
+
+归并操作：
+
+- 若需合并，则左右两数组已有序；
+- 创建一临时存储数组`temp`，比较两数组第一个元素，将较小的元素加入临时数组；
+- 若左右数组有一个为空，则此时另一数组一定大于 `temp` 中的所有元素，直接将其所有元素加入 `temp`；
+
+![](/Image/Algorithm/Sort/6.gif )
+
+
+
+```js
+// Way - 1
+// 分割数组时直接将数组分割为两个数组，合并时直接合并数组。
+// 优点：思路简单，写法简单 
+// 缺点：空间复杂度略高，需要复制多个数组
+function mergeSort(array) {
+  if (array.length < 2) {
+    return array;
+  }
+  const mid = Math.floor(array.length / 2);
+  const front = array.slice(0, mid);
+  const end = array.slice(mid);
+  return merge(mergeSort(front), mergeSort(end));
+}
+
+function merge(front, end) {
+  const temp = [];
+  while (front.length && end.length) {
+    if (front[0] < end[0]) {
+      temp.push(front.shift());
+    } else {
+      temp.push(end.shift());
+    }
+  }
+  while (front.length) {
+    temp.push(front.shift());
+  }
+  while (end.length) {
+    temp.push(end.shift());
+  }
+  return temp;
+}
+
+
+
+// Way - 2
+// 记录数组的索引，使用 left、right 两个索引来限定当前分割的数组。
+// 优点：空间复杂度低，只需一个 temp 存储空间，不需要拷贝数组
+// 缺点：写法复杂
+function mergeSort(array, left, right, temp) {
+  if (left < right) {
+    const mid = Math.floor((left + right) / 2);
+    mergeSort(array, left, mid, temp)
+    mergeSort(array, mid + 1, right, temp)
+    merge(array, left, right, temp);
+  }
+  return array;
+}
+
+function merge(array, left, right, temp) {
+  const mid = Math.floor((left + right) / 2);
+  let leftIndex = left;
+  let rightIndex = mid + 1;
+  let tempIndex = 0;
+  while (leftIndex <= mid && rightIndex <= right) {
+    if (array[leftIndex] < array[rightIndex]) {
+      temp[tempIndex++] = array[leftIndex++]
+    } else {
+      temp[tempIndex++] = array[rightIndex++]
+    }
+  }
+  while (leftIndex <= mid) {
+    temp[tempIndex++] = array[leftIndex++]
+  }
+  while (rightIndex <= right) {
+    temp[tempIndex++] = array[rightIndex++]
+  }
+  tempIndex = 0;
+  for (let i = left; i <= right; i++) {
+    array[i] = temp[tempIndex++];
+  }
+}
+```
+
+
+
+#### 2-4、堆排序-HeapSort-MB
+
+堆排序是指利用堆这种数据结构所设计的一种排序算法；
+
+堆积是一个近似完全二叉树的结构，并同时满足堆积的性质：即子结点的键值或索引总是小于（或者大于）它的父节点；
+
+
+
+创建一个大顶堆，大顶堆的堆顶一定是最大的元素。
+
+交换第一个元素和最后一个元素，让剩余的元素继续调整为大顶堆。
+
+从后往前以此和第一个元素交换并重新构建，排序完成
+
+
+
+- 将初始待排序关键字序列(R1,R2….Rn)构建成大顶堆，此堆为初始的无序区；
+- 将堆顶元素R[1]与最后一个元素R[n]交换，此时得到新的无序区(R1,R2,……Rn-1)和新的有序区(Rn),且满足R[1,2…n-1]<=R[n]；
+- 由于交换后新的堆顶R[1]可能违反堆的性质，因此需要对当前无序区(R1,R2,……Rn-1)调整为新堆，然后再次将R[1]与无序区最后一个元素交换，得到新的无序区(R1,R2….Rn-2)和新的有序区(Rn-1,Rn)。不断重复此过程直到有序区的元素个数为n-1，则整个排序过程完成。
+
+
+
+
+
+![](/Image/Algorithm/Sort/7.gif )
+
+```js
+function heapSort(array) {
+  creatHeap(array);
+  console.log(array);
+  // 交换第一个和最后一个元素，然后重新调整大顶堆
+  for (let i = array.length - 1; i > 0; i--) {
+    [array[i], array[0]] = [array[0], array[i]];
+    adjust(array, 0, i);
+  }
+  return array;
+}
+// 构建大顶堆，从第一个非叶子节点开始，进行下沉操作
+function creatHeap(array) {
+  const len = array.length;
+  const start = parseInt(len / 2) - 1;
+  for (let i = start; i >= 0; i--) {
+    adjust(array, i, len);
+  }
+}
+// 将第target个元素进行下沉，孩子节点有比他大的就下沉
+function adjust(array, target, len) {
+  for (let i = 2 * target + 1; i < len; i = 2 * i + 1) {
+    // 找到孩子节点中最大的
+    if (i + 1 < len && array[i + 1] > array[i]) {
+      i = i + 1;
+    }
+    // 下沉
+    if (array[i] > array[target]) {
+      [array[i], array[target]] = [array[target], array[i]]
+      target = i;
+    } else {
+      break;
+    }
+  }
+}
+```
+
+
+
+
+
+#### 2-X、时间复杂度对比
 
 | 排序算法     | 平均时间复杂度 | 最坏时间复杂度 | 空间复杂度 | 是否稳定 |
 | ------------ | :------------: | :------------: | :--------: | :------: |
@@ -257,6 +423,8 @@ console.log(shellSort(arr,gap))
 | 直接插入排序 |     O(n²)      |     O(n²)      |    O(1)    |    是    |
 | 快速排序     |    O(nlogn)    |     O(n²)      |  O(logn)   |   不是   |
 | 希尔排序     |    O(nlogn)    |     O(n^s)     |    O(1)    |   不是   |
+| 归并排序     |    O(nlogn)    |    O(nlogn)    |    O(n)    |    是    |
+| 堆排序       |    O(nlogn)    |    O(nlogn)    |    O(1)    |   不是   |
 
 - 注意：时间复杂度记忆
   - 冒泡、选择、直接 排序需要两个for循环，每次只关注一个元素，平均时间复杂度为O(n²)(一遍找元素O(n)，一遍找位置O(n)）
@@ -264,9 +432,11 @@ console.log(shellSort(arr,gap))
 
 
 
-### 2-Y、注意事项
 
-#### 2-Y-1、稳定性
+
+#### 2-Y、注意事项
+
+##### 2-Y-1、稳定性
 
 若不考虑稳定性，快排似乎是近乎完美的方法之一，但它不稳定的：稳定性：通俗的讲：有两个相同的数 A 和 B，在排序前 A 在 B 前面，而经过排序后，B 变成在 A 的前面；此种情况就称：**<u>*排序的不稳定性*</u>**，而快排在对存在相同数进行排序时就有可能发生这种情况；
 
@@ -274,185 +444,6 @@ console.log(shellSort(arr,gap))
 - 危害：在前端领域，不稳定排序或操作将会使本身不需要变化的东西变化，比如 ul 的列表项快排，虽然相同但交换位置，导致重新渲染，带来性能损耗；
 
 
-
-
-
-## 三、常用技巧
-
-### 3-1、递归
-
-递归，即自己调用自己；***<u>很多时候做题觉得麻烦或感觉 "想象不过来"，主要是自己和自己较真</u>***，此时交给递归吧，它自己会帮你完成需要做的；
-
-递归步骤：
-
-- 寻找出口，递归一定有一个出口，锁定出口，保证不会死循环；
-- 递归条件，符合递归条件，自己调用自己；
-
-递归经典：斐波那契数列、对象深克隆 Deep Clone；
-
-本例从选 Deep Clone 作为起始 ：实现对一个对象(object)的深度克隆：
-
-- 出口： 遍历对象结束后 return
-- 递归条件： 遇到引用值 Array 或 Object
-
-```js
-// 所谓深度克隆，即当对象的某个属性值为 object 或 array 时，要获得一份 copy，而不是直接拿到引用值
-function deepClone(origin,target) {  	// origin 是被克隆对象，target 是我们获得 copy
-    var target = target || {}; 				// 定义target
-    for(var key in origin) {  				// 遍历原对象
-        if(origin.hasOwnProperty(key)) {
-            if(Array.isArray(origin[key])) { // 如果是数组
-                target[key] = [];
-                deepClone(origin[key],target[key]) // 递归
-            } else if (typeof origin[key] === 'object' && origin[key] !== null) {
-                target[key] = {};
-                deepClone(origin[key],target[key]) // 递归
-            } else {
-                target[key] = origin[key];
-            }
-        }
-    }
-    return target;
-}
-```
-
-#### 3-1-1、递归实战
-
-##### Q1：Array 数组的 flat 方法实现
-
-题目：请写一个 flat 方法，实现扁平化嵌套数组：
-
-```js
-// 比如 [1,2,[3,4]] => [1,2,3,4]
-Array.prototype.flat = function() {
-    var arr = [];
-    this.forEach((item,idx) => {
-        if(Array.isArray(item)) {
-            arr = arr.concat(item.flat()); // 递归去处理数组元素
-        } else {
-            arr.push(item)   // 非数组直接 push 进去
-        }
-    })
-    return arr;   // 递归出口
-}
-
-// 或者
-arr.prototype.flat = function() {
-    this.toString().split(',').map(item=> +item )
-}
-// toString 方法，连接数组并返回一个字符串 '2,2,3,2,3,4'
-// split 方法分割字符串，变成数组 ['2','2','3','2','3','4']
-// map 方法，将 string 映射成为 number 类型`2,2,3,2,3,4
-```
-
-##### Q2 实现简易版的co，自动执行generator
-
-题目：比如实现如下的功能：[从 Co 剖析和解释 generator 的异步原理](https://juejin.im/post/6844903648883900429)，剖析如下：
-
-```js
-const co = require('co');
-co(function *() {
-    const url = 'http://jasonplacerholder.typecoder.com/posts/1';
-    const response = yield fetch(url);
-    const post = yield response.json();
-    const title = post.title;
-    console.log('Title: ',title);
-})
-```
-
-- 第一步找出口，执行器返回的iterator如果状态为`done`，代表结束，可以出去
-- 递归条件： 取到下一个iterator，进行递归，自我调用
-
-```js
-function run(generat) {
-    const iterator = generat();
-    function autoRun(iteration) {
-        if(iteration.done) {return iteration.value}  // 出口
-        const anotherPromise = iteration.value;
-        anoterPromise.then(x => {
-            return autoRun(iterator.next(x))  // 递归条件
-        })
-    }
-    return autoRun(iterator.next()) 
-}
-```
-
-##### Q3. 爬楼梯问题
-
-题目：有一楼梯共M级，刚开始时在第一级，若每次只能跨上一级或二级，要走上第 M 级，共有多少种走法？
-
-分析： 此问题要倒过来看，要到达 n 级楼梯，只有两种方式，从 (n-1) 级 或 (n-2) 级到达；
-
-所以：可用递推思想去解题，假设有一个数组 s[n]，则 s[1] = 1 (于一开始就在第一级，只有一种方法)， s[2] = 1 (只能从s[1]上去 没有其他方法)；
-
-那么：就可推出 s[3] ~ s[n] 了；
-
-模拟：s[3] = s[1] + s[2]， 因为只能从第一级跨两步， 或第二级跨一步；
-
-```js
-function cStairs(n) {
-    if(n === 1 || n === 2) {
-        return 1;
-    } else {
-        return cStairs(n-1) + cStairs(n-2)
-    }
-}
-```
-
-##### Q4.二分查找
-
-二分查找，即在一有序序列中查找某一个值，与掌门人爆气球玩法非常类似：
-
-```js
-A: 0 ~ 100 猜一个数字
-B: 50
-A: 大了
-B: 25
-A: 对头，就是25
-```
-
-二分查找有递归、非递归两种写法，递归方法：
-
-- 设定区间，low & high；
-- 寻找出口： 找到 target，返回 target；
-- 否则寻找，当前次序没有找到，把区间缩小后递归；
-
-```js
-function binaryFind(arr,target,low = 0,high = arr.length - 1) {
-    const n = Math.floor((low+high) /2);
-    const cur = arr[n];
-    if(cur === target) {
-        return `找到了${target},在第${n+1}个`;
-    } else if(cur > target) {
-        return binaryFind(arr,target,low, n-1);
-    } else if (cur < target) {
-        return binaryFind(arr,target,n+1,high);
-    }
-    return -1;
-}
-```
-
-非递归方法：即使用循环来实现二分查找，其实思路基本一致：
-
-```js
-function binaryFind(arr, target) {
-    var low = 0,
-        high = arr.length - 1,
-        mid;
-    while (low <= high) {
-        mid = Math.floor((low + high) / 2);
-        if (target === arr[mid]) {
-            return `找到了${target},在第${mid + 1}个`
-        }
-        if (target > arr[mid]) {
-            low = mid + 1;
-        } else if (target < arr[mid]) {
-            high = mid - 1;
-        }
-    }
-    return -1
-}
-```
 
 
 
