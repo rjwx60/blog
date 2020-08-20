@@ -177,8 +177,10 @@ function init(n) {
 |                 |                                                              |                          |      |
 |                 |                                                              |                          |      |
 | 剑指Offer-0021  | [调整数组顺序使奇数位于偶数前面 LCOF](https://leetcode-cn.com/problems/diao-zheng-shu-zu-shun-xu-shi-qi-shu-wei-yu-ou-shu-qian-mian-lcof/) | Array、双向指针          |      |
+| 剑指Offer-0029  | [顺时针打印矩阵](https://leetcode-cn.com/problems/shun-shi-zhen-da-yin-ju-zhen-lcof/) | Array、多维数组          |      |
 | 剑指Offer-0057  | [和为s的两个数字](https://leetcode-cn.com/problems/he-wei-sde-liang-ge-shu-zi-lcof/) | Array、双向指针          |      |
 | 剑指Offer-0057Ⅱ | [II. 和为s的连续正数序列](https://leetcode-cn.com/problems/he-wei-sde-lian-xu-zheng-shu-xu-lie-lcof/) | Queue、双向指针          |      |
+| 剑指Offer-0066  | [构建乘积数组](https://leetcode-cn.com/problems/gou-jian-cheng-ji-shu-zu-lcof/) | Array、多维数组          |      |
 
 
 
