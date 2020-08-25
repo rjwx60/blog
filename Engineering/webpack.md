@@ -10,8 +10,6 @@ typora-root-url: ../Source
 
 webpack 是一个现代 JavaScript 应用程序的静态模块打包器(module bundler)。当 webpack 处理应用程序时，它会递归地构建一个依赖关系图(dependency graph)，其中包含应用程序需要的每个模块，然后将所有这些模块打包成一个或多个 bundle。
 
-
-
 webpack 是 JS 的 **模块打包工具** (module bundler)，通过分析模块间的依赖，最终将所有模块打包成一份或者多份代码包 (bundler)，供 HTML 直接引用。实质上，Webpack 仅仅提供了 **打包功能** 和一套 **文件处理机制**，然后通过生态中的各种 Loader 和 Plugin 对代码进行预编译和打包；因此 Webpack 具有高度的可拓展性，能更好的发挥社区生态的力量。
 
 #### 1-2、模块打包原理
@@ -24,24 +22,32 @@ Webpack 实际上为每个模块创造了一个可导出和导入的环境，但
 
 #### 2-1、环境搭建与配置
 
-- 初始化：`npm init -y`；
+初始化：`npm init -y`；
 
-- - 注意：-y 是默认勾选确认；
+- 注意：-y 是默认勾选确认；
 
-- 安装包：`npm install webpack webpack-cli --save-dev`；
 
-- - 注意：webpack4 将 webpack核心和脚手架进行分离，故需两者均进行安装；
+安装包：`npm install webpack webpack-cli --save-dev`；
 
-- 始运行：或 `./node_modules/.bin/webpack` 构建，或 `npm scripts` 运行；
+- 注意：webpack4 将 webpack核心和脚手架进行分离，故需两者均进行安装；
 
-- - 原理：模块的局部安装，会在 node_modules/.bin 目录下创建软链；当执行 package.json 中的 script 时，则会按照一定顺序寻找命令对应位置，本地 node_modules/.bin 路径就在此寻找清单中；
-  - 所以：无论是全局亦或局部安装的 Webpack，均无需写详细路径；
 
-- 配置项：或自行新建 `webpack.config.js` 或执行命令 `webpack --config` 指定配置文件名；
+始运行：或 `./node_modules/.bin/webpack` 构建，或 `npm scripts` 运行；
 
-- 示例如：配置文件基本配置如下：
+- 原理：模块的局部安装，会在 node_modules/.bin 目录下创建软链；当执行 package.json 中的 script 时，则会按照一定顺序寻找命令对应位置，本地 node_modules/.bin 路径就在此寻找清单中；
+- 所以：无论是全局亦或局部安装的 Webpack，均无需写详细路径；
+
+配置项：或自行新建 `webpack.config.js` 或执行命令 `webpack --config` 指定配置文件名；
+
+示例如：配置文件基本配置如下：
 
 <img src="/Image/Engineering/1.png" style="zoom:45%;" align="left"/>
+
+
+
+
+
+
 
 
 
@@ -158,29 +164,121 @@ plugin 用于增强 webpack 功能，常用于打包输出的 JS 文件优化、
 - speed-measure-webpack-plugin: 可以看到每个 Loader 和 Plugin 执行耗时 (整个打包耗时、每个 Plugin 和 Loader 耗时)
 - webpack-bundle-analyzer: 可视化 Webpack 输出文件的体积 (业务组件、依赖第三方模块)
 
-##### 2-2-4-1、BannerPlugin
+##### 2-2-4-1、HtmlWebpackPlugin
 
-版权提示插件；
+会自动在 `dist` 文件夹下生成 `index.html`，并将输出的 `js` 都引入进去；而配置 template 后，会依据所配置的 index.html 模板，生成一个自动引用打包后 JS 文件的新 index.html(此举常用于为文件添加 hash 值)；在编译过程中，插件会依据此模板生成最终的 html 页面，会自动添加所依赖的 css, js，favicon等文件；
+
+使用如下：引入模板文件，自动生成：index.html 文件；常用配置项如下：
+
+- filename：默认为 `index.html`，指定生成的 `index.html` 路径和名称；
+- template：默认为 '', 指定自定义模版 index.html 的路径；
+- favion：指定生成 `index.html` 的图标，若使用了 `template`，此属性亦可不用；
 
 ```js
+// template.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>
+        <%= htmlWebpackPlugin.options.title %>
+    </title>
+</head>
+<body></body>
+</html>
+
+// Ex1
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+module.exports = {
+  entry: {
+    app: "./src/index.js",
+    print: "./src/print.js",
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: "Webpack Output Management",
+    }),
+  ],
+  output: {
+    filename: "[name].bundle.js",
+    path: path.resolve(__dirname, "dist"),
+  },
+};
+
+
+// Ex2
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+module.exports = {
+  entry: {
+    app: "./src/index.js",
+    print: "./src/print.js",
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: "Webpack Output Management",
+      filename: "admin.html",
+      template: "src/template.html",
+    }),
+  ],
+  output: {
+    filename: "[name].bundle.js",
+    path: path.resolve(__dirname, "dist"),
+  },
+};
+```
+
+##### 2-2-4-2、BannerPlugin
+
+```js
+// 版权提示插件；
 plugins：[
 	new webpack.BannerPlugin('版权所有，翻版必究')
 ]
 ```
 
-##### 2-2-4-2、HtmlWebpackPlugin
+##### 2-2-4-3、CleanWebpackPlugin
 
-依据 index.html 模板，生成一个自动引用打包后 JS 文件的新 index.html，常用于为文件添加 hash 值；
+安装：`npm i --save-dev clean-webpack-plugin`
 
-在编译过程中，插件会依据此模板生成最终的 html 页面，会自动添加所依赖的 css, js，favicon等文件；
+每次构建之后, 都会生成 `dist` 文件夹，但若有历史遗留下来的文件，它不会自动清理掉，可利用此插件在每次构建前清理`/dist`文件夹；
 
-使用如下：引入模板文件，自动生成：index.html 文件；
+注意：若安装的 `clean-webpack-plugin` 是 `3.0`  以上，则须通过 `const { CleanWebpackPlugin } = require('clean-webpack-plugin')` 方式引用，并须用 `cleanAfterEveryBuildPatterns` 来配置要清理的文件夹；
 
 ```js
-new HtmlWebpackPlugin({
-	template：__dirname + "/app/index.tmpl.html"
-})
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+
+module.exports = {
+  entry: {
+    app: "./src/index.js",
+    print: "./src/print.js",
+  },
+  plugins: [
+    new CleanWebpackPlugin({
+      cleanAfterEveryBuildPatterns: ["dist"], // 这个是非必填的
+    }),
+    new HtmlWebpackPlugin({
+      title: "Webpack Output Management",
+      filename: "assets/admin.html",
+      template: "src/index.html",
+    }),
+  ],
+  output: {
+    filename: "[name].bundle.js",
+    path: path.resolve(__dirname, "dist"),
+  },
+};
 ```
+
+
+
+
 
 ##### 2-2-4-X、其他
 
@@ -242,8 +340,10 @@ module：{
 module：{
 	rules：[
 		{
+      // webpack 根据正则表达式，来确定应该查找哪些文件，并将其提供给指定的 loader
 			test：/\.css$/,
 			use：[
+      	// loader 执行顺序是从右往左，从下往上的
 				'style-loader', 'css-loader'
 			]
 		},
@@ -394,9 +494,11 @@ module.exports = {
 
 首先安装解析包：`npm i file-loader -D`；
 
-- file-loader：可用于处理文件、亦可用于处理字体：
+- file-loader：可用于处理文件、亦可用于处理字体，[file-loader-options设置](https://www.webpackjs.com/loaders/file-loader/)
+  - `name` 的 `[name]` 表示使用文件的原始名称、 `[ext]` 表示文件的原始类型、 `[hash]` 表示以哈希值命名、 `[path]` 表示资源相对于 `context`路径等；
+  - `context` 默认为 `webpack.config.js`
 - url-loader：可用于处理文件、亦可用于处理字体、但还可进行较小资源文件自动转 base64 的配置；
-  - 注意：图3 的 url-loader 内部使用了 file-loader；
+  - 注意：url-loader 内部使用了 file-loader；
   - 注意：一般情况下，link 中 css 也会被处理，若无处理，可参考：[问题八](https://blog.csdn.net/sinat_17775997/article/details/61924901)
 
 ```js
@@ -405,7 +507,14 @@ module：{
 		{
 			test：'/\.(png|svg|jpg|gif)$/',
 			use：[
-				'file-loader'
+        {
+      		// 将打包之后的图片存放到 images 文件夹下, 并且命名为图片的原始名称
+          loader: "file-loader",
+          options: {
+            name: "[name].[ext]",
+            outputPath: "images/",
+          },
+        },
 			]
 		},
 		{
@@ -863,6 +972,336 @@ module.export = {
 
 
 #### 5-X、高效插件
+
+##### 5-X-1、webpack --watch
+
+观察者模式, 只需要在`package.json`里配置一个脚本命令:
+
+```json
+// 观察模式-只需在 package.json 配置一个脚本命令
+"scripts": {
+	"watch": "webpack --watch/-w"
+}
+// 实时监控文件, 改动后自执行编译指令, 但需要手动刷新页面
+```
+
+
+
+##### 5-X-2、webpack-dev-server
+
+此插件是 watch 模式的改进，无需手动刷新浏览器；每次修改了本地代码之后, 都会重新自动编译, 并刷新页面
+
+- 安装： `npm i --save-dev webpack-dev-server`
+
+- 添加脚本命令： `"start": "webpack-dev-server --open"`
+
+- 结果：不会生成 `dist` 文件夹，而是开启一本地的 web 服务器 `localhost:8080`；
+
+- 配置：在 `webpack.config.js` 中配置 `devServer`：[更多配置项](https://www.webpackjs.com/configuration/dev-server/)
+
+- ```js
+  module.exports = {
+      devServer: {
+          contentBase: './dist', 		// 告诉服务器从哪里提供内容
+          host: '0.0.0.0', 					// 默认是 localhost
+          port: 8000, 							// 端口号, 默认是8080
+          open: true, 							// 是否自动打开浏览器
+          hot: true, 								// 启用 webpack 的模块热替换特性
+          hotOnly: true 						// 当编译失败之后不进行热更新
+      }
+  }
+  ```
+
+
+
+##### 5-X-3、webpack-dev-middle
+
+安装：`npm i --save-dev webpack-dev-middleware express`
+
+前面介绍的 `webpack-dev-server` 能开启一个本地的`web`服务器(通过服务器实现与客户端通讯)，其实现原理是 WDS 内部使用了 webpack-dev-middle 中间件；此中间件是一个容器(wrapper)，能将 webpack 处理后的文件传递给一个服务器(server)，也可单独使用，<u>实现本地服务器的搭建</u>；
+
+- 每次修改本地代码能够重新编译，代码发往服务器执行；
+- 不会自动刷新页面；
+
+```json
+// package.json 配置命令
+{
+    "scripts": {
+        "server": "node server.js"
+    }
+}
+```
+
+```js
+// webpack.config.js
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+
+module.exports = {
+  entry: {
+    app: "./src/index.js",
+    print: "./src/print.js",
+  },
+  devtool: "inline-source-map", // 仅开发环境报错追踪
+  plugins: [
+    new CleanWebpackPlugin({
+      cleanAfterEveryBuildPatterns: ["dist"],
+    }),
+    new HtmlWebpackPlugin({
+      title: "Webpack Output2",
+      filename: "index.html",
+      template: "src/index.html",
+    }),
+  ],
+  output: {
+    filename: "[name].bundle.js",
+    path: path.resolve(__dirname, "dist"),
+    // 此选项指定在浏览器中所引用的「此输出目录对应的公开 URL」
+    publicPath: "/assets/",
+  },
+};
+```
+
+```js
+// server.js - 根目录 - 用以编写本地服务
+const express = require("express");
+const webpack = require("webpack");
+const webpackDevMiddleware = require("webpack-dev-middleware");
+
+const app = express();
+const config = require("./webpack.config");
+const compiler = webpack(config);
+// 将 webpack 处理后的文件传递给一个服务器
+app.use(
+  webpackDevMiddleware(compiler, {
+    publicPath: config.output.publicPath,
+  })
+);
+app.listen(3000, function () {
+  console.log("Example app listening on port 3000!\n");
+});
+
+// 随后 npm run server 即可运行，打开 localhost:3000/assets/ 访问页面
+```
+
+- 注意：若无配置 `output.publicPath` 和 `webpack-dev-middleware` 的 `publicPath`，则默认都会是`""`，以根目录作为配置项；
+- 注意：若配置了`output.publicPath`，则 `webpack-dev-middleware` 中的 `publicPath` 也要和它一样才行；
+
+
+
+
+
+##### 5-X-4、webpack-merge 
+
+安装：`npm i --save-dev webpack-merge`
+
+开发环境和生产环境的构建目标差异巨大：
+
+- 开发环境：可能需要有 HMR 等能力；
+- 生产环境：更加关注体积、资源优化与整理，力求更小 bundle(压缩输出)，更轻量 source map；
+
+为遵循逻辑分离，可为每个环境编写彼此独立的 webpack 配置，但这些配置，不乏公用的配置项，此时便可通过 webpack-merge 将这些公用配置项提取，然后不同配置则写在不同文件中；插件原理实际就是将多个 `webpack` 配置合并成一个；
+
+```js
+// webpack.common.js
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+
+module.exports = {
+  entry: "./src/index.js",
+  output: {
+    filename: "[name].bundle.js",
+    path: path.resolve(__dirname, "dist"),
+  },
+  plugins: [
+    new CleanWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      title: "webpack bundle",
+    }),
+  ],
+};
+
+
+// webpack.dev.js
+const merge = require("webpack-merge");
+const commonConfig = require("./webpack.common");
+
+module.exports = merge(commonConfig, {
+  devtool: "inline-source-map", // 错误追踪
+  devServer: {
+    // 设置 webpack-dev-server 监听的文件
+    contentBase: "./dist",
+  },
+});
+
+
+// webpack.prod.js
+const merge = require("webpack-merge");
+const commonConfig = require("./webpack.common");
+const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
+
+module.exports = merge(commonConfig, {
+  plugins: [
+    new UglifyJSPlugin(), // 压缩输出
+  ],
+});
+```
+
+```json
+// package.json
+{
+    "name": "webpack-bundle",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "webpack-dev-server --open --config webpack.dev.js",
+        "build": "webpack --config webpack.prod.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "clean-webpack-plugin": "^3.0.0",
+        "html-webpack-plugin": "^3.2.0",
+        "uglifyjs-webpack-plugin": "^2.2.0",
+        "webpack": "^4.41.5",
+        "webpack-cli": "^3.3.10",
+        "webpack-dev-server": "^3.10.3",
+        "webpack-merge": "^4.2.2"
+    }
+}
+```
+
+- 开发环境：执行 `npm run start` ，自动打开 `localhost:8080` 页面并且有自动重载功能；
+- 生产环境：执行 `npm run build` ，打包生成 `dist` 文件夹，且 `bundle` 中 `js` 为压缩过后的代码；
+
+
+
+##### 5-X-5、process.env.NODE_ENV
+
+`process.env.NODE_ENV`是 Node.js 暴露给执行脚本的系统环境变量，其主要作用声明当前环境是：开发环境(development)亦或是生产环境(production)；
+
+可在任何 `src` 本地代码中引用：`process.env.NODE_ENV`，但注意在 `webpack.config.js` 中却无法获取；
+
+##### 5-X-5-1、webpack.DefinePlugin 
+
+鉴于上述问题，可通过 webpack 内置的 webpack.DefinePlugin 插件在 webpack.config.js 内部修改/指定 `NODE_ENV` 值
+
+```js
+const webpack = require("webpack");
+const merge = require("webpack-merge");
+const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
+const commonConfig = require("./webpack.common.js");
+
+module.exports = merge(commonConfig, {
+  devtool: "source-map",
+  plugins: [
+    new UglifyJSPlugin({
+      sourceMap: true,
+    }),
+    // 方式1
+    new webpack.DefinePlugin({
+      "process.env.NODE_ENV": JSON.stringify("production"),
+    }),
+    // 方式2
+    new webpack.DefinePlugin({
+      "process.env": {
+        NODE_ENV: `"production"`,
+      },
+    });
+  ],
+});
+```
+
+##### 5-X-5-2、命令行配置模式mode
+
+除使用 `webpack.DefinePlugin` 插件来修改环境变量，还可在命令行中 `--mode` 变量设置：`webpack --mode=production 或 webpack --mode=development`
+
+此后，**<u>*在本地代码中便可获取到*</u>**的 `process.env.NODE_ENV`值就即为配置的 `mode` 值；
+
+- 注意：若同时设置，则 webpack.definePlugin 优先级高于 mode 设置；
+
+##### 5-X-5-3、命令行传递环境变量
+
+可通过命令行的 `--env` 参数设置能**<u>*在 webpack.config.js 配置中访问到*</u>** 的值；
+
+```json
+// Ex1
+{
+  "scripts": {
+      "start": "webpack-dev-server --open --config webpack.dev.js",
+      "build": "webpack --config webpack.prod.js",
+      "local": "webpack --env.custom=local --env.production --progress --config webpack.local.js"
+  }
+}
+// --env.custom=local  	给环境变量中设置一个自定义的属性 custom ，其值为 local 
+// --env.production  	 	设置 env.production == true (这里的 env 并不会影响 process.env )
+// --progress  					打印出编译进度的百分比值
+// --config webpack.local.js  
+// 以 webpack.local.js 中的内容执行 webpack 构建，随后在根目录下构建 webpack.config.js 即可
+```
+
+命令行传递环境变量判断 NODE_ENV
+
+- 注意：下面的 env.NODE_ENV 并非 process.env.NODE_ENV，所以它并不能改变 `process.env`，也即不管哪种方式生成的页面，在页面中获取到的`process.env.NODE_ENV` 都还是 `production`；
+
+```js
+// Ex2
+// package.json
+// 配置参数进行参数传递
+{
+  "name": "webpack-bundle",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "webpack-dev-server --open --config webpack.dev.js",
+      "build": "webpack --config webpack.prod.js",
+      "local": "webpack --env.custom=local --env.production=false --mode=development --progress --config webpack.local.js",
+      "combine-dev": "webpack --env.NODE_ENV=development --config webpack.combine.js",
+      "combine-prod": "webpack --env.NODE_ENV=production --config webpack.combine.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+      "clean-webpack-plugin": "^3.0.0",
+      "html-webpack-plugin": "^3.2.0",
+      "lodash": "^4.17.15",
+      "uglifyjs-webpack-plugin": "^2.2.0",
+      "webpack": "^4.41.5",
+      "webpack-cli": "^3.3.10",
+      "webpack-dev-server": "^3.10.3",
+      "webpack-merge": "^4.2.2"
+  }
+}
+
+
+// webpack.combine.js
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+
+module.exports = env => {
+    return {
+        entry: './src/index.js',
+        output: {
+            filename: env.NODE_ENV === 'production' ? '[name].[hash].bundle.js' : '[name].bundle.js',
+            path: path.resolve(__dirname, 'dist')
+        },
+        plugins: [
+            new CleanWebpackPlugin(),
+            new HtmlWebpackPlugin({
+                title: '合并成同一个webpack配置'
+            })
+        ]
+    }
+}
+```
 
 - `HotModuleReplacementPlugin`：模块热替换；
 - `size-plugin`：监控资源体积变化，尽早发现问题；

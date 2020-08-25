@@ -317,6 +317,93 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
 
 <img src="/Image/NetWork/websocket/7.png" style="zoom:50%;" align="left"/>
 
+##### 4-1-X、实现
+
+```js
+// 客户端
+const ws = new WebSocket("ws://localhost:8080");
+ws.onopen = function () {
+  ws.send("123");
+  console.log("open");
+};
+ws.onmessage = function () {
+  console.log("onmessage");
+};
+ws.onerror = function () {
+  console.log("onerror");
+};
+ws.onclose = function () {
+  console.log("onclose");
+};
+
+// 客户端心跳检测
+this.heartTimer = setInterval(() => {
+  if (this.heartbeatLoss < MAXLOSSTIMES) {
+    events.emit("network", "sendHeart");
+    this.heartbeatLoss += 1;
+    this.phoneLoss += 1;
+  } else {
+    events.emit("network", "offline");
+    this.stop();
+  }
+  if (this.phoneLoss > MAXLOSSTIMES) {
+    this.PhoneLive = false;
+    events.emit("network", "phoneDisconnect");
+  }
+}, 5000);
+
+
+// 服务端
+const express = require("express");
+const { Server } = require("ws");
+const app = express();
+const wsServer = new Server({ port: 8080 });
+wsServer.on("connection", (ws) => {
+  ws.onopen = function () {
+    console.log("open");
+  };
+  ws.onmessage = function (data) {
+    console.log(data);
+    ws.send("234");
+    console.log("onmessage" + data);
+  };
+  ws.onerror = function () {
+    console.log("onerror");
+  };
+  ws.onclose = function () {
+    console.log("onclose");
+  };
+});
+
+app.listen(8000, (err) => {
+  if (!err) {
+    console.log("监听OK");
+  } else {
+    console.log("监听失败");
+  }
+});
+
+// 自定义通讯协议
+const {Socket} = require('net') 
+const tcp = new Socket()
+// 保持底层 tcp 链接不断，长连接
+tcp.setKeepAlive(true);
+tcp.setNoDelay(true);
+// 指定对应域名端口号链接
+tcp.connect(80,166.166.0.0)
+
+// 建立连接后根据后端传送的数据类型 使用对应不同的解析
+// readUInt8 readUInt16LE readUInt32LE readIntLE 等处理后得到 myBuf 
+// 从对应的指针开始的位置截取 buffer
+const myBuf = buffer.slice(start);
+// 截取对应的头部 buffer
+const header = myBuf.slice(headstart,headend)
+// 精确截取数据体的 buffer, 并且转化成 js 对象
+const body = JSON.parse(myBuf.slice(headend-headstart,bodylength).tostring())
+
+// https://segmentfault.com/a/1190000019891825
+```
+
 
 
 #### 		4-2、保持心跳

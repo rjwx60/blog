@@ -10,7 +10,15 @@ typora-root-url: ../Source
 
 ### 二、浏览器缓存
 
-浏览器中的缓存作用分为 2 种情况，一种是需要发送 HTTP 请求(强缓)，另一种则不用(协缓)；
+浏览器中的缓存作用分为 2 种情况，一种是需要发送 HTTP 请求(强缓)，另一种则不用(协缓)；首次缓存、非首次缓存、用户行为与缓存如下：
+
+<img src="/Image/Chromium/711.png" style="zoom:50%;" align="left"/>
+
+<img src="/Image/Chromium/712.png" style="zoom:50%;" align="left"/>
+
+<img src="/Image/Chromium/713.png" style="zoom:50%;" align="left"/>
+
+
 
 #### 2-1、强缓存
 
