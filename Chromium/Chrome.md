@@ -285,13 +285,34 @@ Cookie 本质是浏览器中存储的一个很小的、内容以键值对形式�
 
 ### 四、浏览器跨域
 
-浏览器遵循 **同源政策(scheme(协议)、host(主机)、port(端口)三种均同)**，而非同源站点有如下限制:
+**<u>*浏览器遵循同源政策*</u>**，即(scheme(协议)、host(主机)、port(端口)三种均同)，而非同源站点有如下限制:
 
 - 不能读取和修改对方的 DOM；
 - 不读访问对方的 Cookie、IndexDB 和 LocalStorage；
 - 限制 XMLHttpRequest 请求；
 
-而当浏览器发起某次 Ajax 请求(<u>跨域请求</u>)时，只要当前 URL 和目标 URL 不同源，就会产生 **跨域**，表现为：请求发出，服务器也成功响应，但前端就是拿不到响应；实际上，跨域请求的响应已到达客户端，只是被浏览器所拦截 (跨域是由于浏览器的同源策略引起的)；
+而当浏览器发起某次 Ajax 请求(<u>跨域请求</u>)时，只要当前 URL 和目标 URL 不同源，就会产生 **<u>*跨域*</u>**；**<u>*表现为*</u>**：请求发出，服务器也成功响应，但前端就是拿不到响应；实际上，跨域请求的响应已到达客户端，只是被浏览器所拦截；即**<u>*跨域是由于浏览器的同源策略引起的*</u>**；
+
+```
+// 同源
+http://www.example.com:8080/index.html
+http://www.example.com:8080/home.html
+// 跨域
+http://www.example.com:8080/index.html
+http://www3.example.com:8080/index.html
+// 跨域：http 默认端口80，https 默认端口443
+http://www.example.com:80 === http://www.example.com
+https://www.example.com:443 === https://www.example.com
+```
+
+**<u>*浏览器禁止跨域原因：*</u>**
+
+首先，跨域只存在于浏览器端；浏览器为 `web` 提供了访问入口，且访问方式很简单(地址栏输入地址或点击某链接即可)，因而须要对此种 **<u>开放的形态</u>** 有所限制；
+
+所以，<u>同源策略的产生主要是为了：保证用户信息的安全，防止恶意的网站窃取数据</u>；可细分为两种：Ajax同源策略、DOM同源策略：
+
+- 前者限制：不同源页面不能获取 `cookie`、不同源页面不能发起 `Ajax` 请求(可防 CSRF)；
+- 后者限制：不同源页面不能获取 `DOM` (可防点击劫持)；
 
 
 
@@ -307,6 +328,8 @@ Cookie 本质是浏览器中存储的一个很小的、内容以键值对形式�
   - <img src="/Image/Chromium/6.png" style="zoom:50%;" align="left"/>
   - 总结：利用 `Unix Domain Socket`套接字，配合事件驱动的高性能网络并发库  `libevent` 完成进程通信 IPC 过程；
 - 最后，服务端处理完并将响应返回，主进程检查到跨域行为，且无配置 CORS 响应头，遂将响应体全部丢弃，而不会发往渲染进程，实现了拦截数据的目的；
+
+
 
 
 
@@ -429,7 +452,7 @@ Access-Control-Expose-Headers: xxx
 
 
 
-##### 4-2-2-3、非简单请求
+##### 4-2-1-3、非简单请求
 
 非简单请求不同于简单请求，前者只是单纯请求，后者则会先使用 `OPTIONS` 方法发起一个预检请求到服务器，以获知服务器是否允许该实际请求，避免跨域请求对服务器的用户数据产生未预期的影响；即主要体现在两方面：**<u>预检请求</u>**、**<u>响应字段</u>**，主流程是：
 
@@ -483,15 +506,15 @@ Content-Length: 0
 
 
 
-##### 4-2-2-4、注意事项
+##### 4-2-1-4、注意事项
 
-##### 4-2-2-4-1、减少预检请求次数：
+##### 4-2-1-4-1、减少预检请求次数：
 
 - 尽量发出简单请求；
 - 服务端设置 `Access-Control-Max-Age` 字段：在有效时间内浏览器无需再为同一请求发送预检请求；
   - 局限性：只能为同一请求缓存，无法针对整个域或模糊匹配 URL 做缓存；
 
-##### 4-2-2-4-2、携带身份凭证
+##### 4-2-1-4-2、携带身份凭证
 
 跨域 [XMLHttpRequest](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest) 或 [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) 请求，浏览器默认 **<u>不会</u> **发送身份凭证信息比如 Cookie，若要坚持发送凭证信息，则需满足 3 个条件：
 
@@ -577,14 +600,51 @@ app.listen(8080);
 
 
 
+##### 4-2-1-5、补充
+
+简单请求：
+
+- 当发起跨域请求时：
+  - **<u>*若是非简单请求*</u>**，浏览器会帮我们自动触发预检请求，也就是 OPTIONS 请求，用于确认目标资源是否支持跨域；
+  - **<u>*如果是简单请求*</u>**，则不会触发预检，直接发出正常请求；
+- 浏览器会根据服务端响应的 header 自动处理剩余的请求，如果响应支持跨域，则继续发出正常请求，若不支持，则在控制台显示错误；
+
+非简单请求：
+
+- 1、浏览器先根据同源策略，对前端页面和后台交互地址做匹配，若同源，则直接发送数据请求；若不同源，则发送跨域请求；
+- 2、服务器收到浏览器跨域请求后，根据自身配置返回对应文件头；
+  - 若未配置过任何允许跨域，则文件头里不包含 `Access-Control-Allow-origin` 字段；
+  - 若配置过域名，则返回 `Access-Control-Allow-origin + 对应配置规则里的域名的方式`；
+- 3、浏览器根据接受到的 响应头里的 `Access-Control-Allow-origin` 字段做匹配：
+  - 若无该字段，说明不允许跨域，从而抛出一个错误；
+  - 若有该字段，则对字段内容和当前域名做比对；
+    - 若同源，则说明可以跨域，浏览器接受该响应；
+    - 若不同源，则说明该域名不可跨域，浏览器不接受该响应，并抛出一个错误；
+
+注意：在 `CORS` 中有 `简单请求` 和 `非简单请求`，简单请求不会触发 `CORS` 预检请求，而非简单请求会。
+
+注意：`"需预检的请求"` 要求必须首先使用 [OPTIONS](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods/OPTIONS)  方法发起一个预检请求到服务器，以获知服务器是否允许该实际请求；
+
+注意："预检请求“的使用，可避免跨域请求对服务器的用户数据产生未预期的影响；
+
+
+
+
+
 ##### 4-2-2、JSONP
 
-XMLHttpRequest 对象遵循同源政策，但 `script` 标签没有跨域限制，可通过 src 填上目标地址发出 GET 请求，实现跨域请求，也即 JSONP 原理，最大优势是兼容性好(兼容 IE 低版本)，但缺点也明显：只支持 GET 请求；
+JSONP 原理：XMLHttpRequest 对象遵循同源政策，但 `script` 标签没有跨域限制，可通过 src 填上目标地址发出 GET 请求，实现跨域请求；
+
+JSONP 原理：主要利用 `script` 标签的`src`属性没有跨域的限制，通过指向一个需要访问的地址，由服务端返回一个预先定义好的 `Javascript` 函数的调用，并且将服务器数据以该函数参数的形式传递过来，此方法需要前后端配合完成；
+
+最大优势是兼容性好(兼容 IE 低版本)，但缺点也明显：只支持 GET 请求；执行过程如下：
 
 - 首先，前端定义一个解析函数；比如： `jsonpCallback = function (res) {}`
 - 然后，通过 `params`  的形式包装 `script` 标签的请求参数，并声明为上述执行函数名；比如：`cb=jsonpCallback`；
 - 然后，后端获取到前端声明的执行函数(`jsonpCallback`)，并以带上参数且调用执行函数的方式传递给前端
 - 最后，前端在 `script` 标签请求返回资源时就会去执行 `jsonpCallback`，并通过回调的方式拿到数据；
+
+**<u>*JSONP 实现1：*</u>**
 
 ```html
 // 1、创建全局函数，等待执行
@@ -593,7 +653,7 @@ XMLHttpRequest 对象遵循同源政策，但 `script` 标签没有跨域限制�
         console.log(res)
     }
 </script>
-// 2、构建请求脚本，等待请求内容返回
+// 2、通过下方代码 jsonp 构建的请求脚本，写入 html 后便等待请求内容返回
 <script src='http://localhost:8080/api/jsonp?id=1&cb=jsonpCallback' type='text/javascript'></script>
 // 3、服务端拿到 URL 参数，处理请求，最后在响应体中写入 jsonpCallback(...)，并将处理后的内容以函数参数形式传入
 // 4、前端拿到后台内容并执行，执行调用全局函数，并将参数传入函数中执行；
@@ -647,13 +707,86 @@ app.get('/', function(req, res) {
   let { a, b, callback } = req.query
   console.log(a); // 1
   console.log(b); // 2
-  // 注意哦，返回给 script 标签，浏览器直接把这部分字符串执行
+  // 注意，返回给 script 标签，浏览器直接把这部分字符串执行
   res.end(`${callback}('数据包')`);
 })
 app.listen(3000)
 ```
 
-[JSONP 封装]([https://github.com/LinDaiDai/niubility-coding-js/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/%E8%B7%A8%E5%9F%9F/JSONP%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0.md](https://github.com/LinDaiDai/niubility-coding-js/blob/master/计算机网络/跨域/JSONP原理及实现.md))
+**<u>*JSONP 实现2：*</u>**
+
+```js
+// 1、前端
+function JSONP({ url, params = {}, callbackKey = "cb", callback }) {
+  // 定义本地的唯一 callbackId，若是没有的话则初始化为 1
+  JSONP.callbackId = JSONP.callbackId || 1;
+  let callbackId = JSONP.callbackId;
+  // 把要执行的回调加入到 JSON 对象中，避免污染 window
+  JSONP.callbacks = JSONP.callbacks || [];
+  JSONP.callbacks[callbackId] = callback;
+  // 把这个名称加入到参数中: 'cb=JSONP.callbacks[1]'
+  params[callbackKey] = `JSONP.callbacks[${callbackId}]`;
+  // 得到'id=1&cb=JSONP.callbacks[1]'
+  const paramString = Object.keys(params)
+    .map((key) => {
+      return `${key}=${encodeURIComponent(params[key])}`;
+    })
+    .join("&");
+  // 创建 script 标签
+  const script = document.createElement("script");
+  script.setAttribute("src", `${url}?${paramString}`);
+  document.body.appendChild(script);
+  // id 自增，保证唯一
+  JSONP.callbackId++;
+}
+JSONP({
+  url: "http://localhost:8080/api/jsonps",
+  params: {
+    a: "2&b=3",
+    b: "4",
+  },
+  callbackKey: "cb",
+  callback(res) {
+    console.log(res);
+  },
+});
+JSONP({
+  url: "http://localhost:8080/api/jsonp",
+  params: {
+    id: 1,
+  },
+  callbackKey: "cb",
+  callback(res) {
+    console.log(res);
+  },
+});
+// 注意: encodeURI 和 encodeURIComponent 区别：
+// 前者不会对本身属于 URI 的特殊字符进行编码，例如冒号、正斜杠、问号和井字号；
+// 后者则会对它发现的任何非标准字符进行编码
+```
+
+```js
+// 2、后端
+const Koa = require('koa');
+const app = new Koa();
+const items = [{ id: 1, title: 'title1' }, { id: 2, title: 'title2' }]
+
+app.use(async (ctx, next) => {
+  if (ctx.path === '/api/jsonp') {
+    const { cb, id } = ctx.query;
+    const title = items.find(item => item.id == id)['title']
+    ctx.body = `${cb}(${JSON.stringify({title})})`;
+    return;
+  }
+  if (ctx.path === '/api/jsonps') {
+    const { cb, a, b } = ctx.query;
+    ctx.body = `${cb}(${JSON.stringify({ a, b })})`;
+    return;
+  }
+})
+console.log('listen 8080...')
+app.listen(8080);
+```
 
 
 
@@ -1363,7 +1496,7 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
 
 ##### 6-4-1、重排/回流
 
-DOM 修改导致元素尺寸或位置发生变化时，浏览器需要重新计算渲染树，触发重排/回流；
+对 DOM 修改导致元素的尺寸或位置发生变化时，浏览器需要重新计算渲染树，触发重排/回流；
 
 - 触发条件：对 DOM 结构的修改引发 DOM 几何尺寸变化时，会导致 **<u>重排(reflow)</u>**；
   - 页面初次渲染；
@@ -1381,12 +1514,9 @@ DOM 修改导致元素尺寸或位置发生变化时，浏览器需要重新计�
     - getComputedStyle()
     - getBoundingClientRect()
     - scrollTo()
-  
-- 回流过程：依照上面的渲染流水线，触发重排/回流时，若 DOM 结构发生改变，则重新渲染 DOM 树，然后将后续流程(包括主线程之外的任务)全部走一遍；
+- 回流过程：依照下面的渲染流水线，触发重排/回流时，若 DOM 结构发生改变，则重新渲染 DOM 树，然后将后续流程(含主线程外的任务)全部走一遍；相当于将解析和合成的过程重新又走了一篇，开销巨大；
 
 <img src="/Image/Chromium/13.png" style="zoom:50%;" align="left"/>
-
-- 注意：相当于将解析和合成的过程重新又走了一篇，开销巨大；
 
 
 
@@ -1396,7 +1526,7 @@ DOM 修改导致样式发生变化，但无影响其几何属性，触发重绘�
 
 - 触发条件：当 DOM 的修改导致样式变化，且没有影响几何属性时，会导致 **<u>重绘(repaint)</u>**；
 
-- 重绘过程：由于没有导致 DOM 几何属性变化，故元素的位置信息无需更新，从而省去布局过程：
+- 重绘过程：由于没有导致 DOM 几何属性变化，故元素的位置信息无需更新，从而省去布局与建图层树过程，然后继续进行分块、生成位图等后面系列操作；
 
 <img src="/Image/Chromium/14.png" style="zoom:50%;" align="left"/>
 
@@ -1410,9 +1540,11 @@ DOM 修改导致样式发生变化，但无影响其几何属性，触发重绘�
 
 直接合成，比如利用 CSS3 的 `transform`、`opacity`、`filter` 等属性可实现合成效果，即  **<u>GPU加速</u>**；
 
+补充：GPU加速即：在使用`CSS3`中的`transform`、`opacity`、`filter`属性时，跳过布局和绘制流程，直接进入非主线处理的部分，即交给合成线程；
+
 - GPU 加速原因：在合成的情况下，会直接跳过布局和绘制流程，直接进入`非主线程`处理的部分，即直接交给 **<u>合成线程</u>** 处理：
-  - 充分发挥 GPU 优势：**<u>合成线程</u>** 生成位图的过程中会调用线程池，并在其中使用 GPU 进行加速生成，而 GPU 是擅长处理位图数据；
-  - 没有占用主线程资源：即使主线程卡住，但效果依然能够流畅地展示；
+  - 充分发挥 GPU 优势：**<u>合成线程</u>** 生成位图的过程中：会调用线程池，并在其中使用 GPU 进行加速生成，而 GPU 是擅长处理位图数据；
+  - **<u>*无占用主线程资源*</u>**：即使主线程卡住，但效果依然能够流畅地展示；
 - GPU 使用注意：GPU 渲染字体会导致字体模糊，过多 GPU 处理会导致内存问题；
 
 
@@ -1467,6 +1599,8 @@ JavaScript：
 
   - 注意：值并非限制 tranform，任何可实现合成效果的 CSS 属性均可使用 `will-change` 来声明；[使用例子](https://juejin.im/post/5da52531518825094e373372)；
 
+  - 注意：通俗说即利用 CSS3 的`transform`、`opacity`、`filter` 这些属性，以实现合成的效果，即`GPU`加速；
+  
   - ```css
     #divId {
       will-change: transform;
@@ -1514,18 +1648,22 @@ JavaScript：
 
 - 首先，渲染的前提是生成渲染树，故 HTML 和 CSS 势必会阻塞渲染；
   - 优化：若想渲染快，可降低初始所需的渲染的文件 大小，并且扁平层级，优化选择器；
-- 然后，当浏览器在解析到  `script ` 标签时，会暂停构建 DOM，完成后才会从暂停的地方重新开始；
+  - 注意：CSS 由单独的下载线程异步下载，由于 DOM 树的解析和构建此步与 css 并无关系，故并不会影响 DOM 解析，但最终布局树需要 DOM 树和 DOM 样式的，因此 CSS 会阻塞布局树的建立；
+- 然后，当浏览器在解析到  `script ` 标签时，会暂停构建 DOM，完成后才会从暂停的地方重新开始(即 script 会阻塞页面渲染)；
+  - 注意：因为 JS属于单线程，在加载 `script` 标签内容时，渲染线程会被暂停，因 `script`标签中内容可能会操作`DOM`，若加载`script`标签的同时渲染页面就会产生冲突，渲染线程(`GUI`)和 JS 引擎线程是互斥的；
   - 优化：若想首屏渲染快，一般而言不应在首屏时就加载 JS 文件，而将 `script` 标签放在 `body` 标签底部；
-  - 优化：若想首屏渲染快，亦可给 `script` 标签添加 `defer` 或者 `async` 属性：
+  - 优化：若想首屏渲染快，亦可给 `script` 标签添加 `defer` 或 `async` 属性：
     - `defer` 属性表示该 JS 文件会并行下载，但会放到 HTML 解析完成后顺序执行，此时的 `script` 标签可放在任意位置；
     - 对于没有任何依赖的 JS 文件可以加上 `async` 属性，表示 JS 文件下载和解析不会阻塞渲染；
+    - 注意：一般脚本与 DOM 元素和其它脚本间的依赖关系不强时会选用 async；当脚本依赖于 DOM 元素和其它脚本的执行结果时会选用 defer；
 
 ##### 6-X-2-1、script 引入方式
 
-- HTML 静态引入 `<script>` 
 - JS 动态插入 `<script>`
-- `<script defer>`：延迟加载，元素解析完成后执行；
-- `<script async>`：异步加载，但执行时会阻塞元素渲染；
+
+- HTML 静态引入 `<script>` 
+  - `<script defer>`：延迟加载，元素解析完成后执行；
+  - `<script async>`：异步加载，但执行时会阻塞元素渲染；
 
 
 

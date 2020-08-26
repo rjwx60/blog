@@ -664,7 +664,7 @@ module.export = {
 
 
 
-##### 2-3-6、文件指纹策略
+##### 2-3-6、文件指纹策略(hash)
 
 文件指纹即打包后输出的文件名的后缀；
 
@@ -672,14 +672,22 @@ module.export = {
 
 <img src="/Image/Engineering/15.png" style="zoom:50%;" align="left"/>
 
-策略：chunkhash、contenthash、hash：
+**<u>*策略：chunkhash、contenthash、hash：*</u>**
 
-- `Hash`：和整个项目的构建相关，只要项目文件有修改，整个项目构建的 hash 就会更改；
-- `Chunkhash`：和 webpack 打包的 chunk 相关，不同的 entry 会生成不同的 chunkhash 值；
-- `Contenthash`：根据文件内容定义 hash，文件内容不变，则 contenthash 不变；
+- `hash`：与整个项目的构建相关，只要项目文件有修改，整个项目构建的 hash 就会更改，且全部文件都共用相同的 hash 值(粒度为整个项目)；
+- `chunkhash`：与 webpack 打包的 chunk 相关，根据不同的 entry 进行依赖文件解析，构建对应的 chunk，并生成对应的 hash 值；只有被修改的 chunk 在重新构建后才会生成新的 hash 值，此过程不会影响其它的 chunk(粒度为 entry 的每个入口文件)；
+- `contenthash`：根据文件内容定义 hash，文件内容不变，则 contenthash 不变；即跟每个生成的文件有关，每个文件都有一个唯一 hash 值；当要构建的文件内容发生改变时，就会生成新 hash 值，且该文件的改变并不会影响和它同一个模块下的其它文件(粒度为每个文件的内容)
   - 注意：contenthash 用于 css 文件、chunkhash 用于 js 文件；
   - 注意：若 hash 与 chunkhash 造成的问题，请看[问题十二](https://blog.csdn.net/sinat_17775997/article/details/61924901)；
   - 注意：chunk 模式无法与 WDS 共用，即无法与 hotModule 共用，须切换至 production mode，去除热更新；
+
+**<u>*策略补充*</u>**：
+
+- 如果是 `hash` ，则跟整个项目有关，有一处文件发生更改则所有文件的 `hash` 值都会发生改变，它们共用一个 `hash` 值；
+- 如果是 `chunkhash`，只和 `entry` 的每个入口文件有关，也即同一个 `chunk` 下的文件有所改动，则该 `chunk` 下的文件的 `hash` 值就会发生改变；
+- 如果是 `contenthash`，和每个生成的文件有关，只有当要构建的文件内容发生改变时，才会给该文件生成新的 `hash` 值，并不会影响其它文件；
+
+
 
 ##### 2-3-6-1、JS 文件指纹设置
 
@@ -917,9 +925,19 @@ module.export = {
 
 ### 五、构建优化策略
 
+#### 5-1、项目优化分析
+
+`size-plugin`：监控资源体积变化，尽早发现问题；
+
+`webpack-dashboard`：可更友好的展示相关打包信息；
+
+`speed-measure-webpack-plugin`：简称 SMP，分析出 Webpack 打包过程中 Loader 和 Plugin 的耗时，有助于找到构建过程中的性能瓶颈；
+
+`webpack-bundle-analyzer`：分析打包后整个项目中的体积结构，既可看到项目中用到的所有第三方包，又能看到各个模块在整个项目中的占比；
 
 
-#### 5-1、优化构建速度
+
+#### 5-2、优化构建速度
 
 - 使用`高版本`的 Webpack 和 Node.js
 - `多进程/多实例构建`：HappyPack(不维护)、thread-loader
@@ -966,6 +984,88 @@ module.export = {
   - 建议采用 polyfill-service 只给用户返回需要的polyfill，社区维护。 (部分国内奇葩浏览器UA可能无法识别，但可以降级返回所需全部polyfill)
 
 更多优化请参考[官网-构建性能](https://www.webpackjs.com/guides/build-performance/)
+
+- 先使用`webpack-bundle-analyzer`分析打包后整个项目中的体积结构，既可以看到项目中用到的所有第三方包，又能看到各个模块在整个项目中的占比。
+
+- `Vue`路由懒加载，使用`() => import(xxx.vue)`形式，打包会根据路由自动拆分打包。
+
+- 第三方库按需加载，例如`lodash`库、`UI`组件库
+
+- 使用`purgecss-webpack-plugin`和`glob`插件去除无用样式(`glob`插件可以可以同步查找目录下的任意文件夹下的任意文件)：
+
+  ```
+  new PurgecssWebpackPlugin({
+      // paths表示指定要去解析的文件名数组路径
+      // Purgecss会去解析这些文件然后把无用的样式移除
+      paths: glob.sync('./src/**/*', {nodir: true})
+      // glob.sync同步查找src目录下的任意文件夹下的任意文件
+      // 返回一个数组，如['真实路径/src/css/style.css','真实路径/src/index.js',...]
+  })
+  ```
+
+- 文件解析优化：
+
+  - `babel-loader`编译慢，可以通过配置`exclude`来去除一些不需要编译的文件夹，还可以通过设置`cacheDirectory`开启缓存，转译的结果会被缓存到文件系统中
+  - 文件解析优化：通过配置`resolve`选项中的`alias`。`alias`创建`import`或者`require`的别名，加快`webpack`查找速度。
+
+- 使用`webpack`自带插件`IgnorePlugin`忽略`moment`目录下的`locale`文件夹使打包后体积减少`278k`
+
+  - 问题原因：使用`moment`时发现会把整个`locale`语言包都打包进去导致打包体积过大，但是我们只需要用到中文包
+
+  - 在`webpack`配置中使用`webpack`自带的插件`IgnorePlugin`忽略`moment`目录下的`locale`文件夹
+
+  - 之后在项目中引入：
+
+    ```
+    // index.js
+    // 利用IgnorePlugin把只需要的语言包导入使用就可以了，省去了一下子打包整个语言包
+    import moment from 'moment';
+    // 单独导入中文语言包
+    import 'moment/locale/zh-cn';
+    ```
+
+  - (或者不用这种方式，直接使用更加轻量的`Day.js`也可以)
+
+- 使用`splitChunks`进行拆包，抽离公共模块，一些常用配置项：
+
+- `chunks`:表示选择哪些 `chunks` 进行分割，可选值有：`async，initial和all`
+
+  - `minSize`: 表示新分离出的`chunk`必须大于等于`minSize`，默认为30000，约30kb
+  - `minChunks`: 表示一个模块至少应被minChunks个chunk所包含才能分割，默认为1
+  - `name`: 设置`chunk`的文件名
+  - `cacheGroups`: 可以配置多个组，每个组根据test设置条件，符合test条件的模块，就分配到该组。模块可以被多个组引用，但最终会根据priority来决定打包到哪个组中。默认将所有来自 node_modules目录的模块打包至vendors组，将两个以上的chunk所共享的模块打包至default组。
+
+- `DllPlugin`动态链接库，将第三方库的代码和业务代码抽离：
+
+  - 根目录下创建一个`webpack.dll.js`文件用来打包出`dll`文件。并在`package.json`中配置`dll`指令生成`dll`文件夹，里面就会有`manifest.json`以及生成的`xxx.dll.js`文件
+  - 将打包的dll通过`add-asset-html-webpack-plugin`添加到html中，再通过DllReferencePlugin把dll引用到需要编译的依赖。
+
+更多优化请参考[官网-构建性能](https://www.webpackjs.com/guides/build-performance/)
+
+
+
+1. 使用`purgecss-webpack-plugin`和`glob`插件去除无用样式(`glob`插件可以可以同步查找目录下的任意文件夹下的任意文件)：
+
+```
+new PurgecssWebpackPlugin({
+    // paths表示指定要去解析的文件名数组路径
+    // Purgecss会去解析这些文件然后把无用的样式移除
+    paths: glob.sync('./src/**/*', {nodir: true})
+    // glob.sync同步查找src目录下的任意文件夹下的任意文件
+    // 返回一个数组，如['真实路径/src/css/style.css','真实路径/src/index.js',...]
+})
+```
+
+1. 文件解析优化：
+
+- `babel-loader`编译慢，可以通过配置`exclude`来去除一些不需要编译的文件夹，还可以通过设置`cacheDirectory`开启缓存，转译的结果会被缓存到文件系统中
+- 文件解析优化：通过配置`resolve`选项中的`alias`、`extensions`、`modules`来实现。`alias`创建`import`或者`require`的别名；加快`webpack`查找速度。`extensions`自动解析确定的扩展；`modules`解析模块时应该搜索的目录，通常建议使用绝对路径，避免层层查找祖先目录。
+
+1. 还有的话，从`webpack-merge`提取一些公共的配置项
+
+
+
+
 
 
 

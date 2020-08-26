@@ -40,6 +40,30 @@ function bubleSort(arr) {
 - 外层循环，从最大值开始递减，因为内层是两两比较，因此最外层当`>=2`时即可停止；
 - 内层是两两比较，从0开始，比较 `inner` 与 `inner+1`，因此，临界条件是 `inner<outer -1`；
 
+```js
+// 优化后的冒泡排序
+function bubbleSort (arr) {
+  for (let i = 0; i < arr.length; i++) {
+    let flag = true;
+    for (let j = 0; j < arr.length - i - 1; j++) {
+      if (arr[j] > arr[j + 1]) {
+        flag = false;
+        let temp = arr[j];
+        arr[j] = arr[j + 1];
+        arr[j + 1] = temp;
+      }
+    }
+    // 使用一个 flag 来优化：若某一次循环中没有交换过元素，则意味着排序已经完成
+    if (flag) break;
+  }
+  return arr;
+}
+// 优化原理：
+// 冒泡排序总会执行 (N-1)+(N-2)+(N-3)+..+2+1 趟，但若运行到当中某一趟时排序已经完成，或输入的是一个有序数组，则后边的比较就都是多余的，为避免这种情况，可增加一个flag，判断排序是否在中途就已经完成 (也即判断有无发生元素交换)
+```
+
+
+
 
 
 #### 1-2、选择排序-SelectionSort
