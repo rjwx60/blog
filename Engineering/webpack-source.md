@@ -2442,7 +2442,7 @@ accept 工作时往 `hot._acceptedDependencies` 对象存入局部更新回调�
 
 - 再看 accept
 
-```
+```js
 if (module.hot) {
     module.hot.accept(["./content.js"], render);
     // 等价于 module.hot._acceptedDependencies["./content.js"] = render
@@ -2451,4 +2451,35 @@ if (module.hot) {
 }
 ```
 
+##### 7-4-5、详看 HMR-实现
 
+##### 7-4-6、补充
+
+webpack-dev-server，webpack-hot-middleware，webpack-dev-middleware
+
+- Webpack-dev-middleware：负责将编译的文件返回、更改文件系统为内存文件系统、让 webpack 以 watch 模式编译；
+
+- Webpack-hot-middleware：实现浏览器和 Webpack 服务器间双向通信、并在客户端订阅/接收服务端的更新变化，然后利用 HMR.runtime 执行更改；
+
+  - 服务端：负责监听 compiler.hooks.done 的 webpack 编译完成事件；并通过 SSE 实现向客户端推送事件服务(类似 websocket)：building、built、sync事件；SSE (server-sent-event)，亦称 EventSource，可实现服务端到客户端的单向通信；并可通过心跳机制检测客户端是否存活；
+
+  - 客户端：客户端需负责响应/接应服务端消息，并获取服务端返回内容，处理新编译模块代码，此部分内容通过打包时注入进去；页面执行时，页面代码随之执行， 创建 SSE 实例，请求 [/__webpack_hmr](https://github.com/webpack-contrib/webpack-hot-middleware/blob/master/client.js#L88)，监听building、built、sync事件，回调函数利用 HMR.runtime 进行更新；
+
+    - ```js
+      entry: {
+        	index: [
+          		// 主动引入client.js
+          		"./node_modules/webpack-hot-middleware/client.js",
+          		// 无需引入webpack/hot/dev-server，webpack/hot/dev-server 通过 require('./process-update') 已经集成到 client.js模块
+          		"./src/index.js",
+        	]
+      },
+      ```
+  
+
+- webpack-dev-server：内置了 Webpack-dev-middleware 和 Express 服务器，利用 `eventSource` 实现 webpack-hot-middleware 逻辑
+- 注意： `webpack-dev-server ` 功能已封装好，除 `webpack.config` 和命令行参数之外，很难定制型开发；在搭建脚手架时，利用 `webpack-dev-middleware`和`webpack-hot-middleware`，以及后端服务，可让开发更灵活；
+
+<img src="/Image/Engineering/505.png" style="zoom:50%;" align=""/>
+
+参考：https://juejin.im/post/6844904020528594957

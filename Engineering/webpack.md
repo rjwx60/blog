@@ -300,25 +300,59 @@ Mode 的内置函数功能与选项：production(默认)、development、none；
 
 ##### 2-3-1、解析 JSX、ES6
 
-首先安装解析包：`npm i @babel/preset-env -D`、`npm i @babel/preset-reat -D`；
+首先安装解析包：`npm i babel-loader @babel/core @babel/preset-env -D`
 
-其中：<u>JSX 解析可在 ES6 基础上在 `.babelrc` 文件上增加 `@babel/preset-reat` 即可</u>；
+- 注意：`@babel/core `是 Babel 核心， `@babel/preset-env` 是能将 ES6+ 的语法转成 ES5 的一组插件集合；
+- 其中：<u>JSX 解析可在 ES6 基础上在 `.babelrc` 文件上增加 `@babel/preset-reat` 即可</u>；
 
-- 注意：babel-loader 依赖 babel，此须配置 .babelrc 文件；
-- 注意：babel 有两个重要概念：presets(一系列 babel plugin 集合)、plugin(一 plugin 对应一功能)；
+优化：
+
+- 编译慢：
+  - 减少文件：通过配置 `include `和 `exclude `来减少被处理的文件；
+  - 开启缓存：设置 `cacheDirectory`  选项为`true` 以开启缓存，转译的结果将会缓存到文件系统中；
+- 体积大：Babel 对一些公共方法使用了非常小的辅助代码，比如 `_extend`；默认情况下会被添加到每一个需要它的文件中，所以会导致打包文件体积过大；引入 `babel runtime` 作为一个单独的模块，避免重复；
+  - 使用方式：执行 `npm install @babel/plugin-transform-runtime --save-dev`  来将它包含到项目中；并使用 `npm install babel-runtime --save` 将 `babel-runtime` 安装为一个依赖:
 
 ```js
 // webpack.config.js
 module：{
 	rules：[
 		{
-			test：/\.js$/,
-			use：'babel-loader'
-		}
+      // 作用: 
+      // 对除 node_modules、bower_components 文件夹外所有 JS 文件使用 babel-loader.
+      // 同时 Babel 配置使用的是 @babel/preset-env 这个 preset.
+      test: /.js$/,
+      exclude: /(node_moudules|bower_components)/,
+      use: [
+        {
+          loader: 'babel-loader',
+          options: {
+            // 注意：babel 有两个重要概念：presets(一系列 babel plugin 集合)、plugin(一 plugin 对应一功能)
+            // 下面 plugins 配置表示只将箭头函数转换为普通函数
+            presets: ["@babel/preset-env"]
+            // plugins: [require('@babel/plugin-transform-arrow-functions')]
+            // 或写法2
+            // plugins: ['@babel/plugin-transform-arrow-functions']
+          	// 优化方式 - runtime
+            // plugins: ['@babel/plugin-transform-runtime']
+          }
+        }
+      ]
+		},
+    {
+      test: /\.js$/,
+      loader: 'babel-loader?cacheDirectory',
+      include: [
+        path.resolve(__dirname, 'src')
+      ],
+      exclude: /node_modules/
+    }
 	]
 }
 
+
 // .babelrc
+// 注意：babel-loader 依赖 babel，若上述无配置 options, 则还须配置 .babelrc 文件；
 {
   "presets"：[
     "@babel/preset-env",
@@ -333,7 +367,7 @@ module：{
 
 首先安装解析包：`npm i style-loader css-loader less less-loader sass sass-loader -D`；[补充](https://segmentfault.com/a/1190000006178770#articleHeader5) 和 [深入](https://github.com/css-modules/css-modules)
 
-- css-loader：用于加载 css 文件，并转成 commonjs 对象，能够使用类似 @import 和 url(...) 的方法实现 require() 功能；
+- css-loader：用于加载 css 文件，并转成 commonjs 对象，使其能够使用类似 @import 和 url(...) 的方法实现 require() 功能；
 - style-loader：将所有计算后的样式，通过 `<style>` 标签插入 `head` 中，二者组合能将样式表，嵌入 webpack 打包后的 JS 文件中；
 
 ```js
@@ -352,7 +386,17 @@ module：{
 			use：[
 				'style-loader', 'css-loader', 'less-loader'
 			]
-		}
+		},
+    {
+      test: /\.less$/,
+        use: [{
+          loader: "style-loader" // creates style nodes from JS strings
+        }, {
+          loader: "css-loader" // translates CSS into CommonJS
+        }, {
+          loader: "less-loader" // compiles Less to CSS
+        }]
+    }
 	]
 }
 ```
@@ -529,7 +573,12 @@ module：{
 				{
 					loader：'url-loader',
 					options：{
-						limit：10240
+						limit：10240,
+          	// 不设置, 默认返回 base64 格式
+          	// 设置 limit, 小于该值, 返回 base64 格式
+          	// 设置 limit, 大于该值, 交给 file-loader 处理, 若无安装配置 file-loader 则报错
+          	esModule: false
+          	// 避免输出 Module{...} 的形式，避免发生 <img src="[object Module]" />
 					}
 				}
 			]
@@ -776,12 +825,13 @@ module.export = {
 
 
 
-
 ##### 2-3-6-3、CSS 文件指纹设置
 
-使用 [contenthash] 设置 MiniCssExtractPlugin 的 filename；安装：`npm i mini-css-extract-plugin -D`；
+安装：`npm i mini-css-extract-plugin -D`；
 
-- 注意：普通使用中，style-loader 会将 css 合并插入至文档，但此不利于作版本管理，故通常将其提取分离，然后再处理；
+普通使用中，style-loader 会将 css 合并插入至文档，但此不利于作版本管理，故通常将其提取分离，然后再处理；
+
+可通过使用 [contenthash] 设置 MiniCssExtractPlugin (替代 ExtractTextWebpackPlugin)的 filename，来实现将 css 类文件提取并作为单独文件加载到页面上；
 
 ```js
 module.export = {
@@ -791,7 +841,7 @@ module.export = {
       {
         test：/\.css$/,
         use：[
-          // 删除与之冲突的 style-loader，并替换为插件提供的loader
+          // 删除与之冲突的 style-loader，并替换为插件提供的 loader
           // 'style-loader', 
           MiniCssExtractPlugin.loader,
           'css-loader'
@@ -800,7 +850,7 @@ module.export = {
       {
         test：/\.less$/,
         use：[
-          // 删除与之冲突的 style-loader，并替换为插件提供的loader
+          // 删除与之冲突的 style-loader，并替换为插件提供的 loader
           // 'style-loader', 
           MiniCssExtractPlugin.loader,
           'css-loader', 
@@ -925,7 +975,7 @@ module.export = {
 
 ### 五、构建优化策略
 
-#### 5-1、项目优化分析
+#### 5-1、优化分析
 
 `size-plugin`：监控资源体积变化，尽早发现问题；
 
@@ -937,7 +987,9 @@ module.export = {
 
 
 
-#### 5-2、优化构建速度
+#### 5-2、优化配置
+
+
 
 - 使用`高版本`的 Webpack 和 Node.js
 - `多进程/多实例构建`：HappyPack(不维护)、thread-loader
@@ -982,8 +1034,6 @@ module.export = {
   - 必须是ES6的语法，因为有很多第三方库仍采用 CommonJS 语法，为了充分发挥 Scope hoisting 的作用，需要配置 mainFields 对第三方模块优先采用 jsnext:main 中指向的ES6模块化语法
 - `动态Polyfill`
   - 建议采用 polyfill-service 只给用户返回需要的polyfill，社区维护。 (部分国内奇葩浏览器UA可能无法识别，但可以降级返回所需全部polyfill)
-
-更多优化请参考[官网-构建性能](https://www.webpackjs.com/guides/build-performance/)
 
 - 先使用`webpack-bundle-analyzer`分析打包后整个项目中的体积结构，既可以看到项目中用到的所有第三方包，又能看到各个模块在整个项目中的占比。
 
@@ -1040,10 +1090,6 @@ module.export = {
   - 根目录下创建一个`webpack.dll.js`文件用来打包出`dll`文件。并在`package.json`中配置`dll`指令生成`dll`文件夹，里面就会有`manifest.json`以及生成的`xxx.dll.js`文件
   - 将打包的dll通过`add-asset-html-webpack-plugin`添加到html中，再通过DllReferencePlugin把dll引用到需要编译的依赖。
 
-更多优化请参考[官网-构建性能](https://www.webpackjs.com/guides/build-performance/)
-
-
-
 1. 使用`purgecss-webpack-plugin`和`glob`插件去除无用样式(`glob`插件可以可以同步查找目录下的任意文件夹下的任意文件)：
 
 ```
@@ -1061,11 +1107,639 @@ new PurgecssWebpackPlugin({
 - `babel-loader`编译慢，可以通过配置`exclude`来去除一些不需要编译的文件夹，还可以通过设置`cacheDirectory`开启缓存，转译的结果会被缓存到文件系统中
 - 文件解析优化：通过配置`resolve`选项中的`alias`、`extensions`、`modules`来实现。`alias`创建`import`或者`require`的别名；加快`webpack`查找速度。`extensions`自动解析确定的扩展；`modules`解析模块时应该搜索的目录，通常建议使用绝对路径，避免层层查找祖先目录。
 
-1. 还有的话，从`webpack-merge`提取一些公共的配置项
+更多优化请参考[官网-构建性能](https://www.webpackjs.com/guides/build-performance/)
 
 
 
 
+
+
+
+##### 5-2-1、开发体验优化
+
+##### 5-2-1-1、优化 loader 配置
+
+Loader 对文件的转换操作很耗时，可通过下列方式 **<u>加快编译处理速度</u>**：
+
+- 减少处理：让尽可能少的文件被 Loader 处理；可通过 `test/include/exclude` 三个配置项来命中 Loader 要应用规则的文件；
+- 开启缓存：设置 `cacheDirectory`  选项为`true` 以开启缓存，转译的结果将会缓存到文件系统中；
+- 减小体积：Babel 对一些公共方法使用了非常小的辅助代码，比如 `_extend`；默认情况下会被添加到每一个需要它的文件中，所以会导致打包文件体积过大；引入 `babel runtime` 作为一个单独的模块，避免重复；
+  - 使用方式：执行 `npm install @babel/plugin-transform-runtime --save-dev`  来将它包含到项目中；并使用 `npm install babel-runtime --save` 将 `babel-runtime` 安装为一个依赖:
+
+```js
+// webpack.config.js
+module：{
+	rules：[
+		{
+      // 作用: 
+      // 对除 node_modules、bower_components 文件夹外所有 JS 文件使用 babel-loader.
+      // 同时 Babel 配置使用的是 @babel/preset-env 这个 preset.
+      test: /.js$/,
+      exclude: /(node_moudules|bower_components)/,
+      use: [
+        {
+          loader: 'babel-loader',
+          options: {
+            presets: ["@babel/preset-env"]
+          	// 优化方式 - runtime
+            // plugins: ['@babel/plugin-transform-runtime']
+          }
+        }
+      ]
+		},
+    {
+      test: /\.js$/,
+      loader: 'babel-loader?cacheDirectory',
+      include: [
+        path.resolve(__dirname, 'src')
+      ],
+      exclude: /node_modules/
+    },
+    {
+      test: /\.js$/,
+      // babel -loader 支持缓存转换出的结果，通过 cacheDirectory 选项开启
+      use: ['babel-loader?cacheDirectory'] ,
+      // 只对项目根目录下 src 目录中的文件采用 babel-loader
+      include: path.resolve(__dirname,'src'),
+      exclude: /node_modules/
+    }
+	]
+}
+```
+
+
+
+##### 5-2-1-2、优化 resolve.modules 配置
+
+resolve.modules 默认值是 `['node_modules']`，含义是先去当前目录的 `node_modules` 目录下去寻找模块，如果没找到就去上一级目录 `../node_modules` 中找，再没有就去 `../../node_modules` 中找，以此类推；与 Node 模块寻找机制相似；
+
+但当安装的三方模块都放在项目根目录的 `node_modules` 目录下时，就没必要按默认方式去一层层寻找，此时 **<u>指明存放三方模块的绝对路径可加速寻找模块</u>**；
+
+```js
+module.exports = {
+  resolve: {
+    modules: [path.resolve( __dirname,'node modules')]
+  },
+  // else
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, "src")
+    },
+    extensions: [".js", ".vue"],
+    mainFields: ["index", "main"],
+    modules: [path.resolve(__dirname, "src"),"node_modules"]
+  }
+}
+```
+
+
+
+##### 5-2-1-3、优化 resolve.mainFields 配置
+
+安装的第三方模块中，都会有一个 `package.json` 文件，用于描述模块属性与依赖，其中可能存在多个入口文件的字段描述，原因是<u>某些模块可同时用于多种环境，针对不同运行环境需要使用不同代码</u>；resolve.mainFields 默认值与当前 target 配置有关，对应关系如下：
+
+- target 为 web 或 webworker 时，值是 `['browser', 'module', 'main']`；
+- target 为其他情况时，值是 `[ 'module', 'main']`；
+
+以 target 等于 web 为例， Webpack 会先采用三方模块中的 browser 字段，去寻找模块的入口文件，若不存在则采用 module 字段，以此类推；
+
+为 **<u>减少搜索步骤</u>**，在明确三方模块的入口文件描述字段时，可将其设置得尽量少；而由于大多数三方模块均采用 main 字段去描述入口文件位置，故可这样配置：
+
+```js
+module.exports = {
+  resolve: {
+    // 只采用 main 字段作为入口文件的描述字段，以减少搜索步骤
+    mainFields: ['main']
+  }
+  // else
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, "src")
+    },
+    extensions: [".js", ".vue"],
+    mainFields: ["index", "main"],
+    modules: [path.resolve(__dirname, "src"),"node_modules"]
+  }
+}
+```
+
+
+
+##### 5-2-1-4、优化 resolve.alias 配置
+
+resolve.alias 配置项可设置别名，来将原导入路径映射成一个新的导入路径；
+
+在实战项目中常常会依赖一些庞大的三方模块，以 React 库为例，发布出去的 React 库中包含两套代码：
+
+- 一套是采用 CommonJS 规范的模块化代码，这些文件都放在 lib 录下，以 `package.json` 中指定的入口文件 react.js 为模块的入口；
+- 一套是将 React 的所有相关代码打包好的完整代码放到一个单独文件中， 这些代码没有采用模块化，可直接执行；其中：
+  - dist/react.js 用于开发环境，包含检查和警告的代码；
+  - dist/react.min.js 用于线上环境，被最小化了；
+
+默认情况下， Webpack 会从入口文件 `./node_modules/react/react.js` 开始递归解析和处理依赖的几十个文件，操作十分耗时，而通过配置 resolve.alias, 可让 Webpack 在处理 React 库时，直接使用单独、完整的 react.min.js 文件，从而 **<u>跳过耗时的递归解析操作，加快查找速度</u>**；
+
+```js
+module.exports = {
+  resolve: {
+    // 使用 alias 将导入 react 的语句换成直接使用单独、完整的 react.min.js 文件，
+    // 减少耗时的递归解析操作
+    alias: {
+      'react': path.resolve( __dirname ,'./node_modules/react/dist/react.min.js'),
+    }
+  }
+  // else
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, "src")
+    },
+    extensions: [".js", ".vue"],
+    mainFields: ["index", "main"],
+    modules: [path.resolve(__dirname, "src"),"node_modules"]
+  }
+}
+```
+
+注意：对某些库使用这个优化方法后，会影响到利用 Tree-Sharking 去除无效代码的优化，因打包好的完整文件中有部分代码在项目中可能永远用不上；
+
+**<u>分场景使用</u>**：对整体性比较强的库采用此法优化，因完整文件中的代码是一个整体，每一行都是不可或缺的；但是对于一些工具类的库，则不建议用此方法；
+
+
+
+##### 5-2-1-5、优化 resolve.extensions 配置
+
+若导入的语句无带文件后缀，Webpack 会自动带上后缀去尝试询问文件是否存在；若此列表越长或正确后缀越往后，就会造成尝试次数越多；
+
+可通过 resolve .extensions **<u>尽可能减少后缀尝试的可能性</u>**
+
+但注意 resolve .extensions 的配置也会影响到构建性能，在配置 resolve.extensions 时应遵守以下几点，以做到尽可能地优化构建性能：
+
+- 后缀尝试列表要尽可能小，不要将项目中不可能存在的情况写到后缀尝试列表中；
+- 频率出现最高的文件后缀要优先放在最前面，以做到尽快退出寻找过程；
+- 在源码中写导入语句时，要尽可能带上后缀从而可以避免寻找过程；比如确定情况下将 `require ('./data ')` 写成 `require ('./data.json')`
+
+```js
+module.exports = {
+  resolve : {
+    // 尽可能减少后缀尝试的可能性
+    extensions : ['.js', '.json'],
+  }
+  // else
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, "src")
+    },
+    extensions: [".js", ".vue"],
+    mainFields: ["index", "main"],
+    modules: [path.resolve(__dirname, "src"),"node_modules"]
+  }
+}
+```
+
+
+
+##### 5-2-1-6、优化 module.noParse 配置
+
+module.noParse 配置项可 **<u>让 Webpack 忽略对部分无采用模块化的文件的递归解析处理</u>**，提高构建性能；
+
+```js
+module.exports = {
+  module: {
+    noParse: /jquery/,
+  }
+};
+```
+
+
+
+##### 5-2-1-7、使用 HardSourceWebpackPlugin
+
+作用等同过去的 DLLPlugin 和 DLLReferencePlugin，其用某种方法实现了拆分 bundles，即 **<u>利用动态链接库减少编译</u>**，大大提升了构建的速度；
+
+包含大量复用模块的动态链接库只需被编译一次，在之后的构建过程中，被动态链接库包含的模块，将不会重新编译，而是直接使用动态链接库中的代码；由于动态链接库中大多数包含的是常用的第三方模块，比如 react、react-dom ，所以只要不升级这些模块的版本，动态链接库就无需重新编译；
+
+```js
+// https://github.com/webpack/webpack/tree/master/examples/dll-user
+// DllPlugin 和 DLLReferencePlugin 都是 webpack 的内置模块
+module.exports = {
+  // mode: "development || "production",
+  plugins: [
+    new webpack.DllReferencePlugin({
+      context: path.join(__dirname, "..", "dll"),
+      manifest: require("../dll/dist/alpha-manifest.json") // eslint-disable-line
+    }),
+    new webpack.DllReferencePlugin({
+      scope: "beta",
+      manifest: require("../dll/dist/beta-manifest.json"), // eslint-disable-line
+      extensions: [".js", ".jsx"]
+    })
+  ]
+};
+
+// Ex - 1
+// 1、配置 webpack.dll.js，将 lodash、jquery、antd 抽离出来
+const path = require("path");
+const webpack = require("webpack");
+const {CleanWebpackPlugin} = require("clean-webpack-plugin");
+
+module.exports = {
+  mode: "production",
+  entry: {
+    lodash: ["lodash"],
+    jquery: ["jquery"],
+    antd: ["antd"]
+  },
+  output: {
+    filename: "[name].dll.js",
+    path: path.resolve(__dirname, "dll"),
+    library: "[name]" // name 和 library 保持一致
+  },
+  plugins: [
+    new CleanWebpackPlugin(),
+    new webpack.DllPlugin({
+      name: "[name]",
+      path: path.resolve(__dirname, "manifest/[name].manifest.json")
+    })
+  ]
+};
+// 2、配置 package.json 中，新增 script 打包 dll
+"scripts": {
+  ...,
+  "dll": "webpack --config webpack.dll.js"
+}
+// 3、配置webpack.config.js：
+// 将打包的 dll 通过 add-asset-html-webpack-plugin 添加到 html 中，再通过 DllReferencePlugin 把 dll 引用到需要编译的依赖
+const manifests = ['antd', 'jquery', 'lodash'];
+const dllPlugins = manifests.map(item => {
+  return new webpack.DllReferencePlugin({
+    manifest: require(`./manifest/${item}.manifest`)
+  });
+});
+
+module.exports = {
+  // ...,
+  plugins: [
+    ...dllPlugins,
+    new AddAssetHtmlPlugin({
+      filepath: path.resolve(__dirname, "./dll/*.dll.js")
+    })
+  ]
+}
+```
+
+而 Webpack5 中使用 `HardSourceWebpackPlugin` 实现，使用简单且一样的效果(webapck4 就可以用!!!!!)；
+
+```js
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
+
+const plugins = [
+	new HardSourceWebpackPlugin()
+]
+```
+
+注意：该插件与测量各流程耗时的插件 `speed-measure-webpack-plugin` 不兼容；
+
+
+
+##### 5-2-1-8、使用 HappyPack
+
+Webpack 是单线程模型，即需要一个一个地处理任务，不能同时处理多个任务；
+
+HappyPack **<u>将任务分解给多个子进程去并发执行</u>**，子进程处理完后再将结果发送给主进程，从而发挥多核 CPU 性能；
+
+整个 Webpack 构建流程中，最耗时的流程可能就是 Loader 对文件的转换操作，因要转换的文件数据量巨大，且这些转换都只能一个个地处理； 
+
+HappyPack 核心原理就是将这部分任务分解到多个进程中去并行处理，从而减少总的构建时间。
+
+```js
+const HappyPack = require('happypack')
+const os = require('os')
+const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length })
+
+{
+  test: /\.js$/,
+    // loader: 'babel-loader',
+    loader: 'happypack/loader?id=happy-babel-js', // 增加新的HappyPack构建loader
+      include: [resolve('src')],
+        exclude: /node_modules/,
+}
+// ...
+plugins: [
+  new HappyPack({
+    id: 'happy-babel-js',
+    loaders: ['babel-loader?cacheDirectory=true'],
+    threadPool: happyThreadPool
+  })
+]
+```
+
+
+
+##### 5-2-1-9、使用 ParallelUglifyPlugin
+
+webpack 默认提供 UglifyJS 插件来压缩 JS 代码，但其使用的是单线程压缩代码，也即对于多个 JS 文件则需一个一个文件地进行压缩；这在正式环境中打包压缩代码速度非常慢，(因压缩代码前须先将代码解析成 AST，然后再去应用各种规则分析和处理，导致过程耗时非常大)；
+
+所以当 webpack 有多个 JS 文件需要输出和压缩时，可利用 ParallelUglifyPlugin 插件，其会开启多个子进程，将多个文件压缩工作分别给多个子进程去完成，但注意，每个子进程还是通过 UglifyJS 去压缩代码；**<u>即单线变多线程并行处理压缩</u>**；
+
+
+
+##### 5-2-1-10、优化文件监听的性能
+
+在开启监听模式时，默认情况下会监听配置的 Entry 文件、与所有 Entry 递归依赖的文件，在这些文件中会有很多存在于 `node_modules` 下，因如今的 Web 项目会依赖大量的第三方模块， 所以大多数情况下都不可能去编辑 `node_modules` 下的文件，所以此时可 **<u>忽略监听 node_modules 下的文件</u>**，采用此方法优化后， Webpack 消耗的内存和 CPU 将会大大减少；
+
+```js
+module.export = {
+  watchOptions : {
+    // 不监听的 node_modules 目录下的文件
+    ignored : /node_modules/,
+  }
+}
+```
+
+
+
+
+
+##### 5-2-2、输出质量优化
+
+##### 5-2-2-1、实现 CDN 的接入
+
+构建需要实现以下几点:
+
+- 静态资源的导入  URL 需要变成指向 DNS 服务的绝对路径的 URL，而不是相对 HTML 文件的
+- 静态资源的文件名需要带上由文件内容算出来的 Hash 值，以防止被缓存
+- 将不同类型的资源放到不同域名的 DNS 服务上，以防止资源的并行加载被阻塞
+
+
+
+##### 5-2-2-2、使用 Tree Shaking
+
+Tree Shaking 正常工作前提：提交给 Webpack 的 JS 代码须采用 ES6 的模块化语法，因 **<u>摇树优化</u>** 的实现依赖于 ES6 模块化的静态语法，可进行静态分析；
+
+首先，为将采用 ES6 模块化的代码提交给 Webpack ，需配置 Babel 以让其保留 ES6 模块化语句；修改 .babelrc 文件如下：
+
+```json
+{
+  'presets':[
+    [
+      'env',{
+        'module':false
+      }
+    ]
+  ]
+}
+```
+
+然后，要使用 UglifyJsPlugin 插件；若在 `mode:"production"` 模式，则插件已默认添加；若在其它模式下，则须手工添加；
+
+注意：要配置 `optimization.usedExports` (当然在 `mode: "production"` 模式下默认打开)，其告诉 webpack 每个模块明确使用 exports；此后，webpack 会在打包文件中添加诸如 `/* unused harmony export */` 的注释，然后 UglifyJsPlugin 插件会对这些注释作出理解；
+
+总结：开启 TreeShaking 有多种方式，
+
+- `webpack4` 直接通过 `mode` 配置成 `production` 即可；
+- `webpack4` 若无配置 `mode`的话它默认也会启用；
+- 通过在命令行中添加 `--optimize-minimize`, 比如`"build": "webpack --optimize-minimize"`；
+- 所以：开启 mode prodduction 模式就完事…哦，不开也会帮你开；
+
+```js
+module.exports = {
+  mode: 'none',
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new UglifyJsPlugin()
+    ],
+    usedExports: true,
+    sideEffects: true
+  }
+}
+```
+
+
+
+##### 5-2-2-3、提取公共代码
+
+大型网站通常由多个页面组成，每个页面都是一个独立的单页应用，但由于所有页面都采用同样的技术栈及同一套样式代码，这就导致页面间有很多相同的代码；过去(3)通过 CommonsChunkPlugin 实现，现在通过(4) SplitChunks 实现；
+
+**<u>通过 splitChunks 对相同代码进行分包</u>**：
+
+```js
+module.exports = {
+  //...
+  optimization: {
+    splitChunks: {
+      // 表示选择哪些 chunks 进行分割，可选值有：async、initial、all
+      chunks: "async",
+      // 表示新分离出的 chunk 必须大于等于 minSize，默认为 30000，约 30kb
+      minSize: 30000,
+      // 表示一个模块至少应被 minChunks 个 chunk 所包含才能分割；默认为1
+      minChunks: 1,
+      // 表示按需加载文件时，并行请求的最大数目；默认为5
+      maxAsyncRequests: 5,
+      // 表示加载入口文件时，并行请求的最大数目；默认为3。
+      maxInitialRequests: 3,
+      // 表示拆分出的 chunk 的名称连接符。默认为~。如chunk~vendors.js
+      automaticNameDelimiter: '~',
+      // 设置 chunk 的文件名。默认为 true。当为 true 时，splitChunks 基于 chunk 和 cacheGroups 的 key 自动命名。
+      name: true,
+      // cacheGroups 下可配置多个组，每个组根据 test 设置条件，符合 test 条件的模块，就分配到该组
+      // 模块可被多个组引用，但最终会根据 priority 来决定打包到哪个组中
+      // 默认将所有来自 node_modules 目录的模块打包至 vendors 组，将两个以上的 chunk 所共享的模块打包至 default 组
+      cacheGroups: {
+          vendors: {
+              test: /[\\/]node_modules[\\/]/,
+              priority: -10
+          },
+          // 
+      default: {
+              minChunks: 2,
+              priority: -20,
+              reuseExistingChunk: true
+          }
+      }
+    }
+  }
+}
+// 总结:
+// 1.被复用代码或来自 node_moules 文件夹中的模块
+// 2.模块的体积大小必须大于等于 30kb 才进行拆分
+// 3.当按需加载 chunks 时，并行请求的最大数量不能超过 5
+// 4.初始页面加载时，并行请求的最大数量不能超过 3
+
+
+
+// Ex - 1
+// 将 node_modules 中的 react 和 moment 再进行拆分，避免打包出的 vendor 包过大
+splitChunks: {  
+    chunks: 'all',  
+    minSize: 30000,
+     minChunks: 1,
+    cacheGroups: {    
+        lib: {      
+            name: 'vendors',      
+            test: /[\\/]node_modules[\\/]/,      
+            priority: 10,      
+            chunks: 'initial' // 只打包初始时依赖的第三方    
+        },    
+       react: {      
+            name: 'react', // 单独将 react 拆包      
+            priority: 20,
+            test: /[\\/]node_modules[\\/]react[\\/]/,      
+            chunks: 'all'    
+       },
+       moment: {
+            name: 'moment', //单独将moment拆包
+            priority: 20,
+            test: /[\\/]node_modules[\\/]moment[\\/]/
+       },
+       default: {
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true
+        }
+    }
+}
+
+```
+
+
+
+##### 5-2-2-4、分割代码以按需加载/懒加载
+
+Webpack 支持两种动态代码拆分技术：
+
+- 符合 ECMAScript proposal 的 `import() 语法`(推荐)
+- 传统的 `require.ensure`
+
+import() 用于动态加载模块，其引用的模块及子模块会被分割打包成一个独立的 chunk；Webpack 还允许以注释的方式传参，进而更好的生成 chunk；
+
+即使用 `import` 动态导入方式，可将要导入的模块单独分离到一个 `bundle` 中，以实现代码分离；
+
+```js
+import(/** webpackChunkName: "lodash" **/ 'lodash').then(_ => {
+ // doSomething
+})
+
+// single target
+import(
+  /* webpackChunkName: "my-chunk-name" */
+  /* webpackMode: "lazy" */
+  'module'
+);
+
+// multiple possible targets
+import(
+  /* webpackInclude: /\.json$/ */
+  /* webpackExclude: /\.noimport\.json$/ */
+  /* webpackChunkName: "my-chunk-name" */
+  /* webpackMode: "lazy" */
+  `./locale/${language}`
+);
+
+
+// Ex - 1
+// index.js
+function getTLP() {
+    return import ( /* webpackChunkName: "tlp" */ 'jquery').then(_ => {})
+}
+// 或 async await 形式
+async function getTLP() {
+  const TLP = await import ( /* webpackChunkName: "tlp" */ 'jquery');
+  return TLP;
+}
+// 更为明显的表现懒加载形式 - 打包内容同样包含 bundle.js，但只有点击才会被网页请求加载
+btn.onclick = e => import ( /* webpackChunkName: "TSL" */ "./print").then(module => {
+  var print = module.default
+  print()
+})
+
+// webpack.config.js
+const path = require('path');
+module.exports = {
+    entry: {
+        index: './src/index.js'
+    },
+    output: {
+        filename: '[name].bundle.js',
+      	// 可通过 chunkFilename 进行更自定义的命名操作，若无配置 output.chunkFilename 则取默认值 [id].bundle.js
+        chunkFilename: '[name].bundle.js',
+        path: path.resolve(__dirname, 'dist')
+    }
+}
+// 结果：生成文件包含一个叫 tlp.bundle.js
+```
+
+1、页面按需加载/懒加载(路由，页面绑定路由)(框架层级)
+
+```js
+// React 实现1
+// 使用 loaable 动态引入
+import React from'react'
+import { Route } from'react-router-dom'
+import { loadable } from'react-common-lib'
+
+const Test = loadable({
+  loader: () =>import('./test'),
+})
+
+const AppRouter = () => (
+<div>
+  <Route path="/test" exact component={Test} />
+<div/>
+)
+
+// React 实现2
+// 使用 React.lazy 函数可以像渲染常规组件一样处理动态引入的组件，应在 Suspense 组件中渲染 lazy 组件，配合路由更高效
+import { Switch, Route, Redirect } from 'react-router-dom';
+
+const Home = lazy(() => import('../views/Home));
+const About = lazy(() => import('../views/About'));
+const WrappedComponent = (component) => {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            {component}
+        </Suspense>
+    );
+};
+const Main = () => (
+  <Switch>
+    <Route path="/home" component={WrappedComponent(Home)} />
+    <Route exact path="/about" component={WrappedComponent(About)} />
+  </Switch>
+);
+export default Main;
+
+
+// Vue 
+// 使用 () => import(xxx.vue)形式，打包会根据路由自动拆分打包
+import VueRouter from 'vue-router'
+Vue.use(VueRouter)
+export default new VueRouter {
+   routes: [
+      {
+        path: 'a',
+        component: () => import('../views/A.vue')
+      },
+      {
+        path: 'b',
+        component: () => import('../views/B.vue')
+      }
+   ]
+}
+
+// Angular
+// 早已支持
+```
+
+2、三方库按需加载，避免把整个库打包到项目中；
+
+```js
+// 按需引入lodash需要函数
+import get from 'lodash/get';
+
+// 按需引入组件
+import { Button } from 'element-ui';
+Vue.component(Button.name, Button);
+```
 
 
 

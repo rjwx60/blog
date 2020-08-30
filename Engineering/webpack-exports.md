@@ -148,7 +148,7 @@ let webpackConfig = {
 
 ##### 8-1-4、解析 Loader
 
-##### 8-1-4-1、分析 url-loader
+##### 8-1-4-1、url-loader
 
 处理图片，将图片转为 base64；
 
@@ -205,7 +205,7 @@ module.exports.raw = true;
 
 
 
-##### 8-1-4-2、分析 file-loader
+##### 8-1-4-2、file-loader
 
 ```js
 // 工作内容：复制文件内容，并根据配置为其生成唯一文件名；
@@ -248,7 +248,7 @@ module.exports.raw = true
 
 
 
-##### 8-1-4-3、分析 style-loader
+##### 8-1-4-3、style-loader
 
 <img src="/Image/Engineering/424.png" style="zoom:50%;" align="left"/>
 
@@ -338,7 +338,7 @@ module.exports = function (content) {
 
 
 
-##### 8-1-4-4、分析 css-loader
+##### 8-1-4-4、css-loader
 
 css-loader 工作原理：
 
@@ -545,13 +545,9 @@ css-loader [css-loader 源码解析](https://github.com/lihongxun945/diving-into
 
 
 
-##### 8-1-4-5、分析 babel-loader
+##### 8-1-4-5、babel-loader
 
-
-
-
-
-##### 8-1-4-6、分析 vue-loader
+##### 8-1-4-6、vue-loader
 
 
 
@@ -672,6 +668,54 @@ Loader 支持链式调用，所以开发上需要严格遵循“单一职责”�
     ```
 
 - 其他技巧：比如 模块依赖、代码公用、绝对路径，更多的 API请看 [文1](https://juejin.im/post/6844903555673882632#heading-15)、[文2](https://segmentfault.com/a/1190000015088834#articleHeader10)
+
+- 示例：
+
+  - ```
+    // 注意: source 参数是 compiler 传递给 Loader 的一个文件的原内容
+    
+    // 1、基本形式
+    module.exports = function (source ) { 
+        return source; 
+    }
+    
+    // 2、三方模块
+    const sass= require('node-sass'); 
+    module.exports = function (source) { 
+      return sass(source);
+    }
+    
+    // 3、webpackAPI
+    // 获取用户为 Loader 传入的 options
+    const loaderUtils =require ('loader-utils'); 
+    module.exports = (source) => {
+        const options= loaderUtils.getOptions(this); 
+        return source; 
+    }
+    // 返回sourceMap
+    module.exports = (source)=> { 
+        this.callback(null, source, sourceMaps); 
+        // 当使用 this.callback 返回内容时 ，该 Loader 必须返回 undefined,
+        // 以让 Webpack 知道该 Loader 返回的结果在 this.callback 中，而不是 return 中
+        return; 
+    }
+    // 异步
+    module.exports = (source) => {
+        const callback = this.async()
+        someAsyncOperation(source, (err, result, sourceMaps, ast) => {
+            // 通过 callback 返回异步执行后的结果
+            callback(err, result, sourceMaps, ast)
+        })
+    }
+    // 缓存加速
+    module.exports = (source) => { 
+        // 关闭该 Loader 的缓存功能
+        this.cacheable(false)
+        return source 
+    }
+    ```
+
+    
 
 
 
@@ -862,11 +906,8 @@ Webpack 就像工厂中的一条产品流水线，原材料经过 Loader 与 Plu
   - Webpack 中两个最重要的类 Compiler 与 Compilation 便是继承于 Tapable，也拥有这样的事件流机制；
 
     - <u>*Compiler*</u>：可简单理解为 <u>*Webpack 实例*</u>，其包含当前 Webpack 中的所有配置信息，如 options， loaders, plugins 等信息，全局唯一，只在启动时完成初始化创建，随着生命周期逐一传递；
-
     - <u>*Compilation*</u>：可称为 <u>编译实例</u>，当监听到文件发生改变时，Webpack 会创建一个新的 Compilation 对象，开始一次新编译，其包含当前输入资源，输出资源，变化文件等，同时通过它提供的 API，可监听每次编译过程中触发的事件钩子；
-    - <u>*两者区别*</u>：
-      - Compiler 全局唯一，且从启动生存到结束；
-      - Compilation 对应每次编译，每轮编译循环均会重新创建；
+    - <u>*两者区别*</u>：前者全局唯一，且从启动生存到结束；后者对应每次编译，每轮编译循环均会重新创建；
 
 
 
@@ -918,27 +959,68 @@ module.export = {
 
 ##### 8-2-4、解析 Plugin
 
+
+
 ##### 8-2-5、编写 Plugin
 
-webpack 在运行的生命周期中会广播出许多事件，Plugin 可以监听这些事件，在特定的阶段钩入想要添加的自定义功能。Webpack 的 Tapable 事件流机制保证了插件的有序性，使得整个系统扩展性良好；[Plugin的API](https://www.webpackjs.com/api/plugins/) 
+webpack 在运行的生命周期中会广播出许多事件，Plugin 可以监听这些事件，在特定的阶段钩入想要添加的自定义功能；
 
-- compiler 暴露了与 Webpack 整个生命周期相关的钩子；
-- compilation 暴露了与模块和依赖有关的粒度更小的事件钩子； 
-- 插件需要在其原型上绑定apply  方法，才能访问 compiler 实例；
-- 传给每个插件的 compiler 和 compilation对象均为同一引用，若在一个插件中修改了它们身上的属性，会影响后续插件；
-- 找出合适的事件点去完成想要的功能，以构建自定义 plugin：
+Webpack 的 Tapable 事件流机制保证了插件的有序性，使得整个系统扩展性良好；[Plugin的API](https://www.webpackjs.com/api/plugins/) 
+
+- Compiler 对象是 webpack 的编译器对象，compiler 对象会在启动 webpack 时被一次性地初始化，compiler 对象中包含了所有 webpack 可自定义操作的配置，例如 loader 的配置，plugin 的配置，entry 的配置等各种原始 webpack 配置等；还暴露了与 Webpack 整个生命周期相关的钩子；
+- Compilation 对象代表了一次单一的版本 webpack 构建和生成编译资源的过程。当运行 webpack 开发环境中间件时，每当检测到一个文件变化，一次新的编译将被创建，从而生成一组新的编译资源以及新的 compilation 对象；一个 compilation 对象包含了 当前的模块资源、编译生成资源、变化的文件、以及 被跟踪依赖的状态信息。编译对象也提供了很多关键点回调供插件(或称与模块和依赖有关的粒度更小的事件钩子)做自定义处理时选择使用；
+- Compiler 和 Compilation 的区别在于： Compiler 代表了整个 Webpack 从启动到关闭的生命周期，而 Compilation 只代表一次新的编译；
+- Tapable 库：webpack 的插件架构主要基于 Tapable 实现，Tapable 是 webpack 项目组的一个内部库，主要是抽象了一套插件机制；它类似于 NodeJS 的 EventEmitter 类，专注于自定义事件的触发和操作。Compilation 和 Compiler 都继承于 Tapable，除此之外, Tapable 允许你通过回调函数的参数访问事件的生产者；
+- 注意：webpack 本质上是一种事件流机制，其工作流程就是将各个插件串联起来，而实现这一切的核心就是 Tapable，webpack 中最核心的负责编译的 Compiler 和负责创建 bundles 的 Compilation 都是 Tapable 实例，Tapable 能够让开发者为 JS 模块添加并应用插件。 它可被其它模块继承或混合；
+
+- 注意：插件需要在其原型上绑定 apply  方法，才能访问 compiler 实例；
+- 注意：传给每个插件的 compiler 和 compilation对象均为同一引用，若在一个插件中修改了它们身上的属性，会影响后续插件；
+- 注意：可找出合适的事件点去完成想要的功能，以构建自定义 plugin：
   - emit 事件发生时，可以读取到最终输出的资源、代码块、模块及其依赖，并进行修改(emit 事件是修改 Webpack 输出资源的最后时机)
   - watch-run 当依赖的文件发生变化时会触发
-- 异步事件需要在插件处理完任务时调用回调函数通知 Webpack 进入下一个流程，不然会卡住；
+- 注意：异步事件需要在插件处理完任务时调用回调函数通知 Webpack 进入下一个流程，不然会卡住；
+
+```js
+// 基本形式
+// 1、BasicPlugin.js 文件（独立模块）
+// 2、模块对外暴露的 js 函数
+class BasicPlugin{ 
+  //在构造函数中获取用户为该插件传入的配置
+  constructor(pluginOptions) {
+    this.options = pluginOptions;
+  } 
+  //3、原型定义一个 apply 函数，并注入了 compiler 对象
+  apply(compiler) { 
+    //4、挂载 webpack 事件钩子（这里挂载的是 emit 事件）
+    compiler.plugin('emit', function (compilation, callback) {
+      // ... 内部进行自定义的编译操作
+      // 5、操作 compilation 对象的内部数据
+      console.log(compilation);
+      // 6、执行 callback 回调
+      callback();
+    });
+  }
+} 
+// 7、暴露 js 函数
+module.exports = BasicPlugin;
+
+// 总结：
+// plugin 是一个独立模块，而模块对外暴露了一个 JS 函数，函数的原型(prototype) 上定义了一个注入 compiler 对象的 apply 方法，apply 函数中需要有通过 compiler 对象挂载的 webpack 事件钩子，钩子的回调中能拿到当前编译的 compilation 对象；若是异步编译插件则可拿到回调 callback(须在数据处理完成后执行 callback回调)；可自定义编译流程并处理 complition 对象的内部数据；
+
+// 流程：
+// Webpack 启动后，在读取配置的过程中会先执行 new BasicPlugin(options) 初始化一个 BasicPlugin 并获得其实例; 在初始化 Compiler 对象后，再调用 basicPlugin.apply(compiler) 为插件实例传入 compiler 对象。插件实例在获取到 compiler 对象后，就可以通过 compiler. plugin(事件名称, 回调函数)监听到 Webpack 广播的事件，并且可以通过 compiler 对象去操作 Webpack
+```
 
 
 
 
-##### 8-2-5-1、前置知识
+
+
+
+
+##### 8-2-5-1、知识再补充
 
 **<u>*补充详看 Tapable、Webpack 构建流程 A 与 G*</u>**
-
-使用插件示例演示如何编写 plugin 插件：
 
 ```js
 // 零、观察 plugin 调用形式，说明 plugin 极有可能是构造函数或类
@@ -950,6 +1032,7 @@ new Plugin1({ msg: "TLP" })
 function Plugin1 (options) {
   this.options = options
 }
+
 // 2. 构建原型方法 apply
 Plugin1.prototype.apply = function (compiler) {
   // 监听 done 事件 虽事件触发而触发
@@ -957,6 +1040,7 @@ Plugin1.prototype.apply = function (compiler) {
     console.log(this.options.msg)
   })
 }
+
 // 3. 将自定义插件导出
 module.exports = Plugin1;
 // 1、插件如何调用，需不需要传递参数(对应 webpack.config.js 配置)；
@@ -976,8 +1060,7 @@ class Plugin1 {
   }
 }
 module.exports = Plugin1;
-// 打印了 TLP
-// 并提示 Tapable.plugin 的形式的写法已被抛弃：Tapable.plugin is deprecated. Use new API on `.hooks` instead
+// 打印了 TLP 并提示 Tapable.plugin 的形式的写法已被抛弃：Tapable.plugin is deprecated. Use new API on `.hooks` instead
 
 // 三、将 Tappable.plugin 的形式改为 compiler.hooks.done.tap 形式
 function Plugin1 (options) {
@@ -989,6 +1072,7 @@ Plugin1.prototype.apply = function (compiler) {
   })
 }
 module.exports = Plugin1;
+
 // compiler：一个扩展至 Tapable 的对象；
 // compiler.hooks：compiler 对象属性，有不同的钩子函数；
 // done：hooks 常用钩子之一，在一次编译完成后执行；
@@ -1004,42 +1088,46 @@ module.exports = Plugin1;
 
 - Webpack 的 Tapable 事件流机制保证了插件的有序性，使得整个系统扩展性良好；
 - Tapable 为 webpack 提供了统一的插件接口(钩子)类型定义，它是 webpack 的核心功能库、
-
 - 总结：Tapable 是 webpack 用来创建钩子的库，为 webpack 提供了 plugin 接口；
-
-Tapable 向外暴露了 9 个 `Hooks` 类、及 3 种方法：tap、tapAsync、tapPromise，可用于为插件创建钩子；
 
 <img src="/Image/Engineering/27.png" style="zoom:40%;" align="left" />
 
-<u>**Tapable 9 种 `Hooks` 类与 3 种方法间的关系：**</u>
-
-- `Hooks` 类表示钩子属于何种类型，比如 `done` 属于 `AsyncSeriesHook` 类；
-- `tap、tapAsync、tapPromise` 方法用于注入不同类型的自定义构建行为；钩子有同步、异步钩子；
-- 注意：只需知道：使用的每种钩子有类型区分，并通过 `Hooks`  类；
+Tapable 向外暴露了 9 个 `Hooks/钩子` 类、及 3 种注册/发布模式：tap、tapAsync、tapPromise，可用于为插件创建钩子；使用：[结合文档](https://www.webpackjs.com/api/compiler-hooks/#hooks)：比如，注册一个`compile`的钩子，根据官方文档，其属于 `SyncHook` 类型，则只能使用 `tap` 来注册；
 
 <u>**Tapable-Hooks-Sync***</u>
 
 - SyncHook --> 同步串行钩子，不关心返回值；
-- SyncBailHook  --> 同步串行钩子，如果返回值不为 null 则跳过之后的函数；
-- SyncLoopHook --> 同步循环，如果返回值为 true 则继续执行，返回值为 false 则跳出循环；
-- SyncWaterfallHook --> 同步串行，上一个函数返回值会传给下一个监听函数；
+- SyncBailHook  --> 同步串行钩子，只要监听函数中有一个函数的返回值不为 null，则跳过剩下所有的逻辑；
+- SyncLoopHook --> 同步循环，当监听函数被触发时，若该监听函数返回 true 时则这个监听函数会反复执行，若返回 undefined 则表示退出循环；
+- SyncWaterfallHook --> 同步串行，上一个监听函数的返回值可以传给下一个监听函数；
 
 <u>**Tapable-Hooks-Async***</u>
 
 - AsyncParallel*：异步并发
-  - AsyncParallelHook --> 异步并发，不关心返回值；
+  - AsyncParallelHook --> 异步并发，不关心监听函数的返回值；
   - AsyncParallelBailHook -->  异步并发，只要监听函数的返回值不为 null，则忽略后续监听函数执行，直接跳跃到 callAsync 等触发函数绑定的回调函数，然后执行此被绑定的回调函数；
 - AsyncSeries*：异步串行；
   - AsyncSeriesHook --> 异步串行，不关心 callback 参数；
   - AsyncSeriesBailHook --> 异步串行，callback 参数不为 null，则忽略后续的函数，直接执行 callAsync 函数绑定的回调函数；
-  - AsyncSeriesWaterfallHook --> 异步串行，上一个函数的 callback(err, data) 第二个参数会传给下一个监听函数；
+  - AsyncSeriesWaterfallHook --> 异步串行，上一个函数中的 callback(err, data) 第二个参数会传给下一个监听函数；
 
-**<u>Tapable-Function</u>**
+```js
+// Tappable 简化模型，即发布订阅者模式
+class SyncHook{
+   constructor(){
+      this.hooks = {}
+   }
+   
+   tap(name,fn){
+    if(!this.hooks[name])this.hooks[name] = []
+     this.hooks[name].push(fn) 
+   }      
 
-- `tap`：可注册同步钩子也可注册异步钩子；
-- `tapAsync`：回调方式注册异步钩子；
-- `tapPromise`：`Promise` 方式注册异步钩子；
-- 使用：[结合文档](https://www.webpackjs.com/api/compiler-hooks/#hooks)：比如，注册一个`compile`的钩子，根据官方文档，其属于 `SyncHook` 类型，则只能使用 `tap` 来注册；
+   call(name){
+     this.hooks[name].forEach(hook=>hook(...arguments))
+   }
+}
+```
 
 **<u>*Compiler*</u>**：一对象，代表了 ***完整的 webpack 环境配置***；webpack 在构建时：
 
@@ -1504,3 +1592,11 @@ module.exports = MyPlugin
     ```
 
     
+
+
+
+
+
+
+
+参考：https://juejin.im/post/6844904022567043080
