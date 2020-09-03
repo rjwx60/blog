@@ -975,6 +975,8 @@ module.export = {
 
 ### 五、构建优化策略
 
+更多优化请参考 [官网](https://www.webpackjs.com/)、 [官网-构建性能](https://www.webpackjs.com/guides/build-performance/)
+
 #### 5-1、优化分析
 
 `size-plugin`：监控资源体积变化，尽早发现问题；
@@ -983,135 +985,13 @@ module.export = {
 
 `speed-measure-webpack-plugin`：简称 SMP，分析出 Webpack 打包过程中 Loader 和 Plugin 的耗时，有助于找到构建过程中的性能瓶颈；
 
-`webpack-bundle-analyzer`：分析打包后整个项目中的体积结构，既可看到项目中用到的所有第三方包，又能看到各个模块在整个项目中的占比；
+`webpack-bundle-analyzer`：分析打包后整个项目中的体积结构，输出结果含项目中用到的所有第三方包，及各个模块在整个项目中的占比；
 
 
 
 #### 5-2、优化配置
 
-
-
-- 使用`高版本`的 Webpack 和 Node.js
-- `多进程/多实例构建`：HappyPack(不维护)、thread-loader
-- `压缩代码`
-  - 多进程并行压缩
-    - webpack-paralle-uglify-plugin
-    - uglifyjs-webpack-plugin 开启 parallel 参数 (不支持ES6)
-    - terser-webpack-plugin 开启 parallel 参数
-  - 通过 mini-css-extract-plugin 提取 Chunk 中的 CSS 代码到单独文件，通过 css-loader 的 minimize 选项开启 cssnano 压缩 CSS。
-- `图片压缩`
-  - 使用基于 Node 库的 imagemin (很多定制选项、可以处理多种图片格式)
-  - 配置 image-webpack-loader
-- `缩小打包作用域`：
-  - exclude/include (确定 loader 规则范围)
-  - resolve.modules 指明第三方模块的绝对路径 (减少不必要的查找)
-  - resolve.mainFields 只采用 main 字段作为入口文件描述字段 (减少搜索步骤，需要考虑到所有运行时依赖的第三方模块的入口文件描述字段)
-  - resolve.extensions 尽可能减少后缀尝试的可能性
-  - noParse 对完全不需要解析的库进行忽略 (不去解析但仍会打包到 bundle 中，注意被忽略掉的文件里不应包含 import、require、define 等模块化语句)
-  - IgnorePlugin (完全排除模块)
-  - 合理使用alias
-- `提取页面公共资源`：
-  - 基础包分离：
-    - 使用 html-webpack-externals-plugin，将基础包通过 CDN 引入，不打入 bundle 中
-    - 使用 SplitChunksPlugin 进行(公共脚本、基础包、页面公共文件)分离(Webpack4内置)即代码分割，替代了 CommonsChunkPlugin 插件；
-    - 注意：代码分割本质其实是：在`源代码直接上线`和`打包成唯一脚本main.bundle.js`这两种极端方案间的一种更适合实际场景的中间状态。<u>用可接受的服务器性能压力增加来换取更好的用户体验</u>；
-    - 极端1：源代码直接上线：虽然过程可控，但是http请求多，性能开销大；
-    - 极端2：打包成唯一脚本：一把梭完自己爽，服务器压力小，但是页面空白期长，用户体验不好；
-- `DLL`：
-  - 用 DllPlugin 进行分包、用DllReferencePlugin(索引链接) 对 manifest.json 引用，让一些基本不改动的代码先打包成静态资源，避免反复编译浪费时间。
-  - HashedModuleIdsPlugin 可解决模块数字id问题
-- `充分利用缓存提升二次构建速度`：
-  - babel-loader 开启缓存
-  - terser-webpack-plugin 开启缓存
-  - 使用 cache-loader 或者 hard-source-webpack-plugin
-- `Tree shaking`
-  - 打包过程中检测工程中没有引用过的模块并进行标记，在资源压缩时将它们从最终的bundle中去掉(只能对ES6 Modlue生效) 开发中尽可能使用ES6 Module的模块，提高tree shaking效率
-  - 禁用 babel-loader 的模块依赖解析，否则 Webpack 接收到的就都是转换过的 CommonJS 形式的模块，无法进行 tree-shaking
-  - 使用 PurifyCSS(不在维护) 或者 uncss 去除无用 CSS 代码
-    - purgecss-webpack-plugin 和 mini-css-extract-plugin配合使用(建议)
-- `Scope hoisting`
-  - 构建后的代码会存在大量闭包，造成体积增大，运行代码时创建的函数作用域变多，内存开销变大。Scope hoisting 将所有模块的代码按照引用顺序放在一个函数作用域里，然后适当的重命名一些变量以防止变量名冲突
-  - 必须是ES6的语法，因为有很多第三方库仍采用 CommonJS 语法，为了充分发挥 Scope hoisting 的作用，需要配置 mainFields 对第三方模块优先采用 jsnext:main 中指向的ES6模块化语法
-- `动态Polyfill`
-  - 建议采用 polyfill-service 只给用户返回需要的polyfill，社区维护。 (部分国内奇葩浏览器UA可能无法识别，但可以降级返回所需全部polyfill)
-
-- 先使用`webpack-bundle-analyzer`分析打包后整个项目中的体积结构，既可以看到项目中用到的所有第三方包，又能看到各个模块在整个项目中的占比。
-
-- `Vue`路由懒加载，使用`() => import(xxx.vue)`形式，打包会根据路由自动拆分打包。
-
-- 第三方库按需加载，例如`lodash`库、`UI`组件库
-
-- 使用`purgecss-webpack-plugin`和`glob`插件去除无用样式(`glob`插件可以可以同步查找目录下的任意文件夹下的任意文件)：
-
-  ```
-  new PurgecssWebpackPlugin({
-      // paths表示指定要去解析的文件名数组路径
-      // Purgecss会去解析这些文件然后把无用的样式移除
-      paths: glob.sync('./src/**/*', {nodir: true})
-      // glob.sync同步查找src目录下的任意文件夹下的任意文件
-      // 返回一个数组，如['真实路径/src/css/style.css','真实路径/src/index.js',...]
-  })
-  ```
-
-- 文件解析优化：
-
-  - `babel-loader`编译慢，可以通过配置`exclude`来去除一些不需要编译的文件夹，还可以通过设置`cacheDirectory`开启缓存，转译的结果会被缓存到文件系统中
-  - 文件解析优化：通过配置`resolve`选项中的`alias`。`alias`创建`import`或者`require`的别名，加快`webpack`查找速度。
-
-- 使用`webpack`自带插件`IgnorePlugin`忽略`moment`目录下的`locale`文件夹使打包后体积减少`278k`
-
-  - 问题原因：使用`moment`时发现会把整个`locale`语言包都打包进去导致打包体积过大，但是我们只需要用到中文包
-
-  - 在`webpack`配置中使用`webpack`自带的插件`IgnorePlugin`忽略`moment`目录下的`locale`文件夹
-
-  - 之后在项目中引入：
-
-    ```
-    // index.js
-    // 利用IgnorePlugin把只需要的语言包导入使用就可以了，省去了一下子打包整个语言包
-    import moment from 'moment';
-    // 单独导入中文语言包
-    import 'moment/locale/zh-cn';
-    ```
-
-  - (或者不用这种方式，直接使用更加轻量的`Day.js`也可以)
-
-- 使用`splitChunks`进行拆包，抽离公共模块，一些常用配置项：
-
-- `chunks`:表示选择哪些 `chunks` 进行分割，可选值有：`async，initial和all`
-
-  - `minSize`: 表示新分离出的`chunk`必须大于等于`minSize`，默认为30000，约30kb
-  - `minChunks`: 表示一个模块至少应被minChunks个chunk所包含才能分割，默认为1
-  - `name`: 设置`chunk`的文件名
-  - `cacheGroups`: 可以配置多个组，每个组根据test设置条件，符合test条件的模块，就分配到该组。模块可以被多个组引用，但最终会根据priority来决定打包到哪个组中。默认将所有来自 node_modules目录的模块打包至vendors组，将两个以上的chunk所共享的模块打包至default组。
-
-- `DllPlugin`动态链接库，将第三方库的代码和业务代码抽离：
-
-  - 根目录下创建一个`webpack.dll.js`文件用来打包出`dll`文件。并在`package.json`中配置`dll`指令生成`dll`文件夹，里面就会有`manifest.json`以及生成的`xxx.dll.js`文件
-  - 将打包的dll通过`add-asset-html-webpack-plugin`添加到html中，再通过DllReferencePlugin把dll引用到需要编译的依赖。
-
-1. 使用`purgecss-webpack-plugin`和`glob`插件去除无用样式(`glob`插件可以可以同步查找目录下的任意文件夹下的任意文件)：
-
-```
-new PurgecssWebpackPlugin({
-    // paths表示指定要去解析的文件名数组路径
-    // Purgecss会去解析这些文件然后把无用的样式移除
-    paths: glob.sync('./src/**/*', {nodir: true})
-    // glob.sync同步查找src目录下的任意文件夹下的任意文件
-    // 返回一个数组，如['真实路径/src/css/style.css','真实路径/src/index.js',...]
-})
-```
-
-1. 文件解析优化：
-
-- `babel-loader`编译慢，可以通过配置`exclude`来去除一些不需要编译的文件夹，还可以通过设置`cacheDirectory`开启缓存，转译的结果会被缓存到文件系统中
-- 文件解析优化：通过配置`resolve`选项中的`alias`、`extensions`、`modules`来实现。`alias`创建`import`或者`require`的别名；加快`webpack`查找速度。`extensions`自动解析确定的扩展；`modules`解析模块时应该搜索的目录，通常建议使用绝对路径，避免层层查找祖先目录。
-
-更多优化请参考[官网-构建性能](https://www.webpackjs.com/guides/build-performance/)
-
-
-
-
+全局优化：使用`高版本`的 Webpack 和 Node.js
 
 
 
@@ -1169,7 +1049,17 @@ module：{
 
 
 
-##### 5-2-1-2、优化 resolve.modules 配置
+##### 5-2-1-2、exclude & resolve & ignore & module
+
+- resolve.modules：指明第三方模块的绝对路径，避免层层查找祖先目录 (减少不必要的查找)
+- resolve.mainFields：只采用 main 字段作为入口文件描述字段 (减少搜索步骤，需要考虑到所有运行时依赖的第三方模块的入口文件描述字段)；
+- resolve.alias：创建 import 或 require 别名；加快 webpack 查找速度；
+- resolve.extensions：尽可能减少后缀尝试的可能性；
+- module.noParse：忽略完全无需解析的库 (不去解析但仍会打包到 bundle 中，注意被忽略掉的文件里不应包含 import、require、define 等模块化语句)
+
+
+
+##### 5-2-1-2-1、优化 resolve.modules 配置
 
 resolve.modules 默认值是 `['node_modules']`，含义是先去当前目录的 `node_modules` 目录下去寻找模块，如果没找到就去上一级目录 `../node_modules` 中找，再没有就去 `../../node_modules` 中找，以此类推；与 Node 模块寻找机制相似；
 
@@ -1194,7 +1084,7 @@ module.exports = {
 
 
 
-##### 5-2-1-3、优化 resolve.mainFields 配置
+##### 5-2-1-2-2、优化 resolve.mainFields 配置
 
 安装的第三方模块中，都会有一个 `package.json` 文件，用于描述模块属性与依赖，其中可能存在多个入口文件的字段描述，原因是<u>某些模块可同时用于多种环境，针对不同运行环境需要使用不同代码</u>；resolve.mainFields 默认值与当前 target 配置有关，对应关系如下：
 
@@ -1225,7 +1115,7 @@ module.exports = {
 
 
 
-##### 5-2-1-4、优化 resolve.alias 配置
+##### 5-2-1-2-3、优化 resolve.alias 配置
 
 resolve.alias 配置项可设置别名，来将原导入路径映射成一个新的导入路径；
 
@@ -1265,7 +1155,7 @@ module.exports = {
 
 
 
-##### 5-2-1-5、优化 resolve.extensions 配置
+##### 5-2-1-2-4、优化 resolve.extensions 配置
 
 若导入的语句无带文件后缀，Webpack 会自动带上后缀去尝试询问文件是否存在；若此列表越长或正确后缀越往后，就会造成尝试次数越多；
 
@@ -1297,7 +1187,7 @@ module.exports = {
 
 
 
-##### 5-2-1-6、优化 module.noParse 配置
+##### 5-2-1-2-5、优化 module.noParse 配置
 
 module.noParse 配置项可 **<u>让 Webpack 忽略对部分无采用模块化的文件的递归解析处理</u>**，提高构建性能；
 
@@ -1311,7 +1201,31 @@ module.exports = {
 
 
 
-##### 5-2-1-7、使用 HardSourceWebpackPlugin
+##### 5-2-1-2-6、Ignore 多余包
+
+使用 webpack 自带插件 IgnorePlugin 防止在 `import` 或 `require` 调用时，生成以下正则表达式匹配的模块：
+
+- `requestRegExp` 匹配(test)资源请求路径的正则表达式。
+- `contextRegExp` （可选）匹配(test)资源上下文（目录）的正则表达式。
+
+```js
+new webpack.IgnorePlugin(requestRegExp, [contextRegExp])
+new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
+```
+
+```js
+// index.js
+// 利用 IgnorePlugin 将必要语言包导入使用即可
+import moment from 'moment';
+// 单独导入中文语言包
+import 'moment/locale/zh-cn';
+```
+
+
+
+
+
+##### 5-2-1-3、使用 HardSourceWebpackPlugin / DLL
 
 作用等同过去的 DLLPlugin 和 DLLReferencePlugin，其用某种方法实现了拆分 bundles，即 **<u>利用动态链接库减少编译</u>**，大大提升了构建的速度；
 
@@ -1361,11 +1275,15 @@ module.exports = {
     })
   ]
 };
+
+
 // 2、配置 package.json 中，新增 script 打包 dll
 "scripts": {
   ...,
   "dll": "webpack --config webpack.dll.js"
 }
+
+
 // 3、配置webpack.config.js：
 // 将打包的 dll 通过 add-asset-html-webpack-plugin 添加到 html 中，再通过 DllReferencePlugin 把 dll 引用到需要编译的依赖
 const manifests = ['antd', 'jquery', 'lodash'];
@@ -1400,7 +1318,7 @@ const plugins = [
 
 
 
-##### 5-2-1-8、使用 HappyPack
+##### 5-2-1-4、使用 HappyPack/Thread-loader
 
 Webpack 是单线程模型，即需要一个一个地处理任务，不能同时处理多个任务；
 
@@ -1432,17 +1350,125 @@ plugins: [
 ]
 ```
 
+[Thread-loader](https://www.webpackjs.com/loaders/thread-loader/)
+
+安装：`npm install --save-dev thread-loader`
+
+使用：将此 loader 放置在其他 loader 前，而后的 loader 就会在一个单独的 worker 池(worker pool)中运行，但注意是受限的：
+
+- 这些 loader 不能产生新的文件。
+- 这些 loader 不能使用定制的 loader API（也就是说，通过插件）。
+- 这些 loader 无法获取 webpack 的选项设置。
+
+注意：每个 worker 都是一个单独的有 600ms 限制的 node.js 进程。同时跨进程的数据交换也会被限制；
+
+注意：请仅在耗时的 loader 上使用；
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        include: path.resolve("src"),
+        use: [
+          {
+            loader: "thread-loader",
+            // 有同样配置的 loader 会共享一个 worker 池(worker pool)
+            options: {
+              // 产生的 worker 的数量，默认是 cpu 的核心数
+              workers: 2,
+
+              // 一个 worker 进程中并行执行工作的数量
+              // 默认为 20
+              workerParallelJobs: 50,
+
+              // 额外的 node.js 参数
+              workerNodeArgs: ['--max-old-space-size', '1024'],
+
+              // 闲置时定时删除 worker 进程
+              // 默认为 500ms
+              // 可以设置为无穷大， 这样在监视模式(--watch)下可以保持 worker 持续存在
+              poolTimeout: 2000,
+
+              // 池(pool)分配给 worker 的工作数量
+              // 默认为 200
+              // 降低这个数值会降低总体的效率，但是会提升工作分布更均一
+              poolParallelJobs: 50,
+
+              // 池(pool)的名称
+              // 可以修改名称来创建其余选项都一样的池(pool)
+              name: "my-pool"
+            }
+          },
+          "expensive-loader"
+        ]
+      }
+    ]
+  }
+}
+
+// 预热
+// 通过预热 worker 池(worker pool)来防止启动 worker 时的高延时
+// 这会启动池(pool)内最大数量的 worker 并把指定的模块载入 node.js 的模块缓存中
+const threadLoader = require('thread-loader');
+
+threadLoader.warmup({
+  // pool options, like passed to loader options
+  // must match loader options to boot the correct pool
+}, [
+  // modules to load
+  // can be any module, i. e.
+  'babel-loader',
+  'babel-preset-es2015',
+  'sass-loader',
+]);
+```
 
 
-##### 5-2-1-9、使用 ParallelUglifyPlugin
 
-webpack 默认提供 UglifyJS 插件来压缩 JS 代码，但其使用的是单线程压缩代码，也即对于多个 JS 文件则需一个一个文件地进行压缩；这在正式环境中打包压缩代码速度非常慢，(因压缩代码前须先将代码解析成 AST，然后再去应用各种规则分析和处理，导致过程耗时非常大)；
+
+
+##### 5-2-1-5、内容物压缩
+
+JS：webpack 默认提供 UglifyJS 插件来压缩 JS 代码，但其使用的是单线程压缩代码，也即对于多个 JS 文件则需一个一个文件地进行压缩；这在正式环境中打包压缩代码速度非常慢，(因压缩代码前须先将代码解析成 AST，然后再去应用各种规则分析和处理，导致过程耗时非常大)；
 
 所以当 webpack 有多个 JS 文件需要输出和压缩时，可利用 ParallelUglifyPlugin 插件，其会开启多个子进程，将多个文件压缩工作分别给多个子进程去完成，但注意，每个子进程还是通过 UglifyJS 去压缩代码；**<u>即单线变多线程并行处理压缩</u>**；
 
+- webpack-paralle-uglify-plugin
+- uglifyjs-webpack-plugin 开启 parallel 参数 (不支持ES6)
+- terser-webpack-plugin 开启 parallel 参数
+
+CSS：通过 mini-css-extract-plugin 提取 Chunk 中的 CSS 代码到单独文件，通过 css-loader 的 minimize 选项开启 cssnano 压缩 CSS；
+
+- 使用 `purgecss-webpack-plugin` 和 `glob` 插件去除无用样式 (`glob`插件可以可以同步查找目录下的任意文件夹下的任意文件)：
+
+- ```js
+  new PurgecssWebpackPlugin({
+      // paths表示指定要去解析的文件名数组路径
+      // Purgecss会去解析这些文件然后把无用的样式移除
+      paths: glob.sync('./src/**/*', {nodir: true})
+      // glob.sync同步查找src目录下的任意文件夹下的任意文件
+      // 返回一个数组，如['真实路径/src/css/style.css','真实路径/src/index.js',...]
+  })
+  ```
+
+Image：
+
+- 使用基于 Node 库的 imagemin (很多定制选项、可处理多种图片格式)
+- 配置 image-webpack-loader
 
 
-##### 5-2-1-10、优化文件监听的性能
+
+
+
+
+
+
+
+
+
+##### 5-2-1-6、优化文件监听的性能
 
 在开启监听模式时，默认情况下会监听配置的 Entry 文件、与所有 Entry 递归依赖的文件，在这些文件中会有很多存在于 `node_modules` 下，因如今的 Web 项目会依赖大量的第三方模块， 所以大多数情况下都不可能去编辑 `node_modules` 下的文件，所以此时可 **<u>忽略监听 node_modules 下的文件</u>**，采用此方法优化后， Webpack 消耗的内存和 CPU 将会大大减少；
 
@@ -1473,9 +1499,9 @@ module.export = {
 
 ##### 5-2-2-2、使用 Tree Shaking
 
-Tree Shaking 正常工作前提：提交给 Webpack 的 JS 代码须采用 ES6 的模块化语法，因 **<u>摇树优化</u>** 的实现依赖于 ES6 模块化的静态语法，可进行静态分析；
+即打包过程中检测工程中没有引用过的模块并进行标记，在资源压缩时将它们从最终的bundle中去掉；但Tree Shaking 正常工作前提：提交给 Webpack 的 JS 代码须采用 ES6 的模块化语法，**<u>因 摇树优化 的实现依赖于 ES6 模块化的静态语法</u>**，可进行静态分析；
 
-首先，为将采用 ES6 模块化的代码提交给 Webpack ，需配置 Babel 以让其保留 ES6 模块化语句；修改 .babelrc 文件如下：
+首先，为将采用 ES6 模块化的代码提交给 Webpack ，需配置 Babel 以让其保留 ES6 模块化语句(否则 Webpack 接收到的就都是转换过的 CommonJS 形式的模块，无法进行 tree-shaking)；修改 .babelrc 文件如下：
 
 ```json
 {
@@ -1491,14 +1517,16 @@ Tree Shaking 正常工作前提：提交给 Webpack 的 JS 代码须采用 ES6 �
 
 然后，要使用 UglifyJsPlugin 插件；若在 `mode:"production"` 模式，则插件已默认添加；若在其它模式下，则须手工添加；
 
-注意：要配置 `optimization.usedExports` (当然在 `mode: "production"` 模式下默认打开)，其告诉 webpack 每个模块明确使用 exports；此后，webpack 会在打包文件中添加诸如 `/* unused harmony export */` 的注释，然后 UglifyJsPlugin 插件会对这些注释作出理解；
+- 注意：要配置 `optimization.usedExports` (当然在 `mode: "production"` 模式下默认打开)，其告诉 webpack 每个模块明确使用 exports；此后，webpack 会在打包文件中添加诸如 `/* unused harmony export */` 的注释，然后 UglifyJsPlugin 插件会对这些注释作出理解；
+
 
 总结：开启 TreeShaking 有多种方式，
 
 - `webpack4` 直接通过 `mode` 配置成 `production` 即可；
 - `webpack4` 若无配置 `mode`的话它默认也会启用；
 - 通过在命令行中添加 `--optimize-minimize`, 比如`"build": "webpack --optimize-minimize"`；
-- 所以：开启 mode prodduction 模式就完事…哦，不开也会帮你开；
+- 所以：开启 mode prodduction 模式就完事…，不开也会帮你开…；
+- 其他：使用 PurifyCSS(不再维护) 或 uncss 去除无用 CSS 代码：purgecss-webpack-plugin 和 mini-css-extract-plugin 配合使用(建议)
 
 ```js
 module.exports = {
@@ -1516,9 +1544,15 @@ module.exports = {
 
 
 
-##### 5-2-2-3、提取公共代码
 
-大型网站通常由多个页面组成，每个页面都是一个独立的单页应用，但由于所有页面都采用同样的技术栈及同一套样式代码，这就导致页面间有很多相同的代码；过去(3)通过 CommonsChunkPlugin 实现，现在通过(4) SplitChunks 实现；
+
+
+
+##### 5-2-2-3、提取公共代码 SplitChunks
+
+大型网站通常由多个页面组成，每个页面都是一个独立的单页应用，但由于所有页面都采用同样的技术栈及同一套样式代码，这就导致页面间有很多相同代码；过去(版本3)通过 CommonsChunkPlugin 实现，现在通过(版本4) SplitChunks 实现；
+
+- 注意：代码分割本质是：在 `源代码直接上线 `和 `打包成唯一脚本main.bundle.js` 这两种极端方案间的一种更适合实际场景的中间状态；<u>用可接受的服务器性能压力增加来换取更好的用户体验</u>；
 
 **<u>通过 splitChunks 对相同代码进行分包</u>**：
 
@@ -1730,7 +1764,7 @@ export default new VueRouter {
 // 早已支持
 ```
 
-2、三方库按需加载，避免把整个库打包到项目中；
+2、三方库按需加载，按功能模块加载，避免把整个库打包到项目中；
 
 ```js
 // 按需引入lodash需要函数

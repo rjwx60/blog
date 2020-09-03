@@ -27,7 +27,7 @@ function bubleSort(arr) {
                 arr[inner] = arr[inner + 1];
                 arr[inner + 1] = temp;
               	// 或可利用 ES6 的解构赋值
-              	[arr[inner],arr[inner+1]] = [arr[inner+1],arr[inner]]
+              	// [arr[inner],arr[inner+1]] = [arr[inner+1],arr[inner]]
             }
         }
     }
@@ -85,6 +85,21 @@ function selectSort(arr) {
     }
     return arr
 }
+
+// 外层循环从0开始到 length-1， 然后内层比较，最小的放开头 - 感觉这个更好
+function selectSort(arr) {
+  for(let i = 0, len = arr.length; i < len-1; i++) {
+    // 默认每次比较的起始作为最小值
+    let min = i
+    // 比较出以i为起始的最小值
+    for(let j = i+1; j <= len-1; j++) {
+      if(arr[min] > arr[j]) {
+        min = j
+      }
+    }
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+}
 ```
 
 注意：
@@ -118,6 +133,23 @@ function insertSort(arr) {
     }
     return arr;
 }
+
+// Emmmmm....
+function insertionSort(arr) {
+  var temp, inner
+  for (var outer = 1; outer <= arr.length - 1; ++outer) {
+    // 待插入的数据
+    temp = arr[outer]
+    inner = outer
+    // 找到需要插入的位置，其他数据往后移动，并为该位置提供空间
+    while (inner > 0 && (arr[inner - 1] >= temp)) {
+      arr[inner] = arr[inner - 1]
+      --inner
+    }
+    // 将待插入数据插入适应位置
+    arr[inner] = temp
+  }
+}
 ```
 
 注意这里两次循环中，`i`和`j`的含义：
@@ -138,6 +170,7 @@ function insertSort(arr) {
 
 - 注意：插入排序时，若序列逆序，则每次插入都要一次次交换，此时速度和冒泡排序是一样，时间复杂度O(n²)；
 - 注意：基本排序算法 ：基本思想就是两层循环嵌套，第一遍找元素O(n),第二遍找位置O(n)，所以这几种方法，时间复杂度就可以这么简便记忆啦!
+- 注意：排序数据较多时，插入排序最快，选择排序第二，冒泡排序最慢；
 
 
 
@@ -160,6 +193,7 @@ function insertSort(arr) {
 1. 选择一个基准元素，将列表分割成两个子序列；
 2. 对列表重新排序，将所有小于基准值的元素放在基准值前面，所有大于基准值的元素放在基准值的后面；
 3. 分别对较小元素的子序列和较大元素的子序列重复步骤1和2
+4. 注意：快速排序算法非常适用于大型数据集合；在处理小数据集时性能反而会下降；
 
 ![](/Image/Algorithm/Sort/4.gif )
 
@@ -179,6 +213,23 @@ function quickSort(arr) {
         }
     }
     return quickSort(left).concat(current,quickSort(right)); // 递归
+}
+
+
+// Emmmmm....
+function quickSort(arr) {
+  if(arr.length === 0) {
+    return []
+  } 
+  let left = []
+  let right = []
+  // 选择第一个元素为基准值
+  let base = arr[0]
+  for(let i = 1; i<arr.length; i++) {
+    arr[i] < base ? left.push(arr[i]) : right.push(arr[i])
+  }
+  // 可见在数据比较小的时候递归执行的比较多，消耗了性能
+  return quickSort(left).concat(base, quickSort(right))
 }
 ```
 
@@ -268,6 +319,28 @@ console.log(shellSort(arr,gap))
 //  交换了23和19
 // 当前序列为[0,2,3,4,5,6,8,9,19,23,45,55] 
 //  交换了55和45
+
+
+
+function shellSort(arr,gaps) {
+  // 遍历间隔序列
+  for(let g=0; g<gaps.length; g++) {
+    let gap = gaps[g]
+    // 使用间隔遍历数据
+    for(let i=gap; i<arr.length; i++) {
+      // 以下是插入操作
+      // 例如[1,3,4,2]，其中最后一个数字2是带插入[1,3,4]中的数据，间隔如果是1
+      // 先将2和4比较，因为2小于4，则4后移变成[1,3,4,4]
+      // 再将2和3比较，因为2小于3，则3后移变成[1,3,3,4]
+      // 再将2和1比较，因为2大于1，移动结束，将2插入最后一个移动的数字所在的位置，变成[1,2,3,4]
+      let temp = arr[i]
+      for(j=i; j>=gap && arr[j-gap] > temp; j-=gap) {
+        arr[j] = arr[j - gap]
+      }
+      arr[j] = temp
+    }
+  }
+}
 ```
 
 
@@ -327,6 +400,77 @@ function merge(front, end) {
   }
   return temp;
 }
+
+
+
+
+// Emmm...
+function mergeSort (arr) {
+  // 只有一个数组元素不需要排序
+  if(arr.length < 2) {
+    return
+  }
+  let left, right, step = 1
+  // 如果 step 超过了数组长度，那么不需要拆分了
+  // 例如以上示例中的第四趟，step = 8，但是数组长度只有7，因此已经排好序了，不需要在遍历了
+  while(step < arr.length) {
+    left = 0
+    right = step
+    // 第一次 step = 1，将一个数组拆分被只有一个元素的多个数组
+    // 第二次 step = 2, 将拆分的只有一个元素的数组合并成排好序的只有2个元素的多个数组
+    // ...
+    // 注意: 这里考虑的是左右数组元素个数一致的情况
+    while(right + step <= arr.length) {
+      mergeArrays(arr, left, left+step, right, right+step)
+      left = right + step
+      right = left + step
+    }
+    // 注意: 这里考虑的是左右数组元素个数不一致的情况
+    if(right < arr.length) {
+      mergeArrays(arr, left, left+step, right, arr.length)
+    }
+    // 第一次step = 1,
+    // 第二次step = 2, 因此进行两两合并，只是合并的每个数组长度是1
+    // 第三次step = 4, 仍然进行两两合并，只是合并的每个数组长度是2
+    step *= 2
+  }
+}
+function mergeArrays(arr, leftStart, leftEnd, rightStart, rightEnd) {
+  let rightArr = new Array(rightEnd - rightStart + 1)
+  let leftArr = new Array(leftEnd - leftStart + 1)
+  let k = rightStart
+
+  // 对需要排序的数组按照 step 进行数组拆分，拆分成一个个小数组
+  for(let i=0; i<rightArr.length - 1; i++) {
+    rightArr[i] = arr[k]
+    ++k
+  }
+  k = leftStart
+  for(let i=0; i<leftArr.length - 1; i++) {
+    leftArr[i] = arr[k]
+    ++k
+  }
+  rightArr[rightArr.length-1] = Infinity // 哨兵值
+  leftArr[leftArr.length-1] = Infinity // 哨兵值
+  // 对拆分的数组进行从小到大排序
+  let m=0, n=0;
+  for(let k = leftStart; k < rightEnd; k++) {
+    // 如果左数组小于右数组则当前序列插入左数组值
+    // 需要如果右数组已经插入完毕了，那么右数组的值是Infinity，此时始终会插入左数组值
+    if(leftArr[m] <= rightArr[n]) {
+      arr[k] = leftArr[m]
+      m++
+    // 否则插入右数组值  
+    // 如果左数组已经插入完毕，那么左数组的最后值是Infinity，此时始终会插入右数组值
+    } else {
+      arr[k] = rightArr[n]
+      n++
+    }
+  }    
+} 
+
+
+
 
 
 
