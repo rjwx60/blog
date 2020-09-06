@@ -22,9 +22,8 @@
   },
   "homepage": "https://github.com/rjwx60/blog#readme",
   "devDependencies": {
-    "vuepress": "^1.5.4"
+    "vuepress": "^1.5.4",
+    "vuepress-theme-reco": "^1.5.5"
   },
-  "dependencies": {
-    "vuepress-auto-sidebar": "^1.1.1"
-  }
+  "dependencies": {}
 }
