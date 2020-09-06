@@ -1,5 +1,5 @@
 ---
-typora-root-url: ../Source
+typora-root-url: ../../BlogImgsBed/Source
 ---
 
 ### 一、基本
