@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>0035.Search Insert Position | Leibnize 个人学习笔记</title>
+    <meta name="generator" content="VuePress 1.5.4">
+    
+    <meta name="description" content="整理自网络">
+    <link rel="preload" href="/docs/assets/css/0.styles.2f643d57.css" as="style"><link rel="preload" href="/docs/assets/js/app.cda475f7.js" as="script"><link rel="preload" href="/docs/assets/js/2.c902c426.js" as="script"><link rel="preload" href="/docs/assets/js/14.0880e743.js" as="script"><link rel="prefetch" href="/docs/assets/js/10.418fecbd.js"><link rel="prefetch" href="/docs/assets/js/11.e2c998bf.js"><link rel="prefetch" href="/docs/assets/js/12.b627468b.js"><link rel="prefetch" href="/docs/assets/js/13.682b9b92.js"><link rel="prefetch" href="/docs/assets/js/15.4a6c4027.js"><link rel="prefetch" href="/docs/assets/js/16.200e0299.js"><link rel="prefetch" href="/docs/assets/js/17.1c6394bc.js"><link rel="prefetch" href="/docs/assets/js/18.c0560a2b.js"><link rel="prefetch" href="/docs/assets/js/19.f63607cc.js"><link rel="prefetch" href="/docs/assets/js/20.d56d802e.js"><link rel="prefetch" href="/docs/assets/js/21.52c3ae8e.js"><link rel="prefetch" href="/docs/assets/js/22.b47add39.js"><link rel="prefetch" href="/docs/assets/js/23.a8a40e53.js"><link rel="prefetch" href="/docs/assets/js/24.a0e2af55.js"><link rel="prefetch" href="/docs/assets/js/25.1fb24116.js"><link rel="prefetch" href="/docs/assets/js/26.068130b1.js"><link rel="prefetch" href="/docs/assets/js/27.6cb72d75.js"><link rel="prefetch" href="/docs/assets/js/28.d99e5701.js"><link rel="prefetch" href="/docs/assets/js/29.4848d9ba.js"><link rel="prefetch" href="/docs/assets/js/3.be11a00a.js"><link rel="prefetch" href="/docs/assets/js/30.92ed4a03.js"><link rel="prefetch" href="/docs/assets/js/31.de402b39.js"><link rel="prefetch" href="/docs/assets/js/32.b5ca6564.js"><link rel="prefetch" href="/docs/assets/js/33.c3d91abd.js"><link rel="prefetch" href="/docs/assets/js/34.b868c98b.js"><link rel="prefetch" href="/docs/assets/js/35.4128bd9f.js"><link rel="prefetch" href="/docs/assets/js/36.8e4b22b8.js"><link rel="prefetch" href="/docs/assets/js/37.090897e6.js"><link rel="prefetch" href="/docs/assets/js/38.f8d5752b.js"><link rel="prefetch" href="/docs/assets/js/39.f949333a.js"><link rel="prefetch" href="/docs/assets/js/4.64176cb5.js"><link rel="prefetch" href="/docs/assets/js/40.39833f40.js"><link rel="prefetch" href="/docs/assets/js/41.a12c7b96.js"><link rel="prefetch" href="/docs/assets/js/42.a5e6d9e8.js"><link rel="prefetch" href="/docs/assets/js/43.28874788.js"><link rel="prefetch" href="/docs/assets/js/44.8d4042e3.js"><link rel="prefetch" href="/docs/assets/js/45.b148e845.js"><link rel="prefetch" href="/docs/assets/js/46.91062fd6.js"><link rel="prefetch" href="/docs/assets/js/47.2026c6cc.js"><link rel="prefetch" href="/docs/assets/js/48.b0f3d68f.js"><link rel="prefetch" href="/docs/assets/js/49.9d81175e.js"><link rel="prefetch" href="/docs/assets/js/5.1d876c62.js"><link rel="prefetch" href="/docs/assets/js/50.1a00f734.js"><link rel="prefetch" href="/docs/assets/js/51.b16e53d7.js"><link rel="prefetch" href="/docs/assets/js/52.831b9cca.js"><link rel="prefetch" href="/docs/assets/js/53.4ce4ac34.js"><link rel="prefetch" href="/docs/assets/js/54.6d7ca762.js"><link rel="prefetch" href="/docs/assets/js/55.2bb32bbd.js"><link rel="prefetch" href="/docs/assets/js/56.388173c5.js"><link rel="prefetch" href="/docs/assets/js/57.cd784d78.js"><link rel="prefetch" href="/docs/assets/js/58.d994c1a9.js"><link rel="prefetch" href="/docs/assets/js/59.0665a00b.js"><link rel="prefetch" href="/docs/assets/js/6.bc091efc.js"><link rel="prefetch" href="/docs/assets/js/60.12f3479d.js"><link rel="prefetch" href="/docs/assets/js/61.679d1273.js"><link rel="prefetch" href="/docs/assets/js/62.04ef0d26.js"><link rel="prefetch" href="/docs/assets/js/63.70e8cd2b.js"><link rel="prefetch" href="/docs/assets/js/64.c7956833.js"><link rel="prefetch" href="/docs/assets/js/65.0304095c.js"><link rel="prefetch" href="/docs/assets/js/66.f16304a7.js"><link rel="prefetch" href="/docs/assets/js/67.d0a945f4.js"><link rel="prefetch" href="/docs/assets/js/68.26e1c58d.js"><link rel="prefetch" href="/docs/assets/js/69.ac162984.js"><link rel="prefetch" href="/docs/assets/js/7.255d7d5f.js"><link rel="prefetch" href="/docs/assets/js/70.5408bf05.js"><link rel="prefetch" href="/docs/assets/js/8.2117996a.js"><link rel="prefetch" href="/docs/assets/js/9.e855c324.js">
+    <link rel="stylesheet" href="/docs/assets/css/0.styles.2f643d57.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/docs/" class="home-link router-link-active"><!----> <span class="site-name">Leibnize 个人学习笔记</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="https://github.com/rjwx60" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="https://github.com/rjwx60" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span></span> <span class="arrow down"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h4 id="_0035-search-insert-position"><a href="#_0035-search-insert-position" class="header-anchor">#</a> <a href="https://leetcode-cn.com/problems/search-insert-position/" target="_blank" rel="noopener noreferrer">0035.Search Insert Position<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></h4> <p>来源：力扣（LeetCode）</p> <p>著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。</p> <h3 id="一、content"><a href="#一、content" class="header-anchor">#</a> 一、Content</h3> <p>Given a sorted array and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order.</p> <p>You may assume no duplicates in the array.</p> <p>给定一个排序数组和一个目标值，在数组中找到目标值，并返回其索引。如果目标值不存在于数组中，返回它将会被按顺序插入的位置；</p> <p>你可以假设数组中无重复元素；</p> <h4 id="_1-1、example"><a href="#_1-1、example" class="header-anchor">#</a> 1-1、Example</h4> <div class="language- extra-class"><pre class="language-text"><code>Input: [1,3,5,6], 5
+Output: 2
+
+Input: [1,3,5,6], 2
+Output: 1
+
+Input: [1,3,5,6], 7
+Output: 4
+
+Input: [1,3,5,6], 0
+Output: 0
+</code></pre></div><h4 id="_1-2、tag"><a href="#_1-2、tag" class="header-anchor">#</a> 1-2、Tag</h4> <p>Array</p> <h3 id="二、思路与解答"><a href="#二、思路与解答" class="header-anchor">#</a> 二、思路与解答</h3> <h4 id="_2-1、思路"><a href="#_2-1、思路" class="header-anchor">#</a> 2-1、思路</h4> <h5 id="_2-1-1、自思路"><a href="#_2-1-1、自思路" class="header-anchor">#</a> 2-1-1、自思路</h5> <p>使用类似二分法的方式处理：搜寻中间值，然后比对，若大于中间值则取后半段，再取其中中间值，以此类推...</p> <ul><li>Code1 思路一开始就是对的，但边界处理没有做好，比如最先使用的是 ceil 而非 floor，就会有若 nums 只有一个元素，取中间值 0.5，使用 floor 的话就会变为 1 溢出；比如未考虑 target 为 0 的情况；但普遍行为却处理的还好，可能因为判断条件简单?</li> <li>Code1 最大的感悟是，对临界、特殊情况的掌控感不足，导致卡在这上面的时间很长(一开始还看错题，以为除了要返回插入索引还要进行插入操作)</li> <li>Code1 代码1的性能真的不忍直视…</li> <li>本题最大的关键在于使用减治(排除)思想的二分法解决，详看0000</li></ul> <h4 id="_2-2、题解"><a href="#_2-2、题解" class="header-anchor">#</a> 2-2、题解</h4> <h5 id="_2-2-1、官解"><a href="#_2-2-1、官解" class="header-anchor">#</a> 2-2-1、官解</h5> <p>https://leetcode-cn.com/problems/search-insert-position/solution/</p> <h5 id="_2-2-2、自实现"><a href="#_2-2-2、自实现" class="header-anchor">#</a> 2-2-2、自实现</h5> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number}
+ */</span>
+<span class="token keyword">var</span> <span class="token function-variable function">searchInsert</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">nums<span class="token punctuation">,</span> target</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// 特殊值</span>
+  <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span>target<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    nums<span class="token punctuation">.</span><span class="token function">unshift</span><span class="token punctuation">(</span>target<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">// 这里用了迭代导致性能低下</span>
+  <span class="token keyword">return</span> <span class="token function">shrinkArea</span><span class="token punctuation">(</span>nums<span class="token punctuation">,</span> target<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> nums<span class="token punctuation">.</span>length<span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">function</span> <span class="token function">shrinkArea</span><span class="token punctuation">(</span><span class="token parameter">nums<span class="token punctuation">,</span> target<span class="token punctuation">,</span> leftIndex<span class="token punctuation">,</span> rightIndex</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">var</span> midIndex <span class="token operator">=</span> Math<span class="token punctuation">.</span><span class="token function">floor</span><span class="token punctuation">(</span><span class="token punctuation">(</span>leftIndex <span class="token operator">+</span> rightIndex<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">var</span> value <span class="token operator">=</span> nums<span class="token punctuation">[</span>midIndex<span class="token punctuation">]</span><span class="token punctuation">;</span>
+  <span class="token keyword">if</span><span class="token punctuation">(</span>value <span class="token operator">===</span> target<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> midIndex<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">// number = 2 避免进入死循环</span>
+  <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token punctuation">(</span>rightIndex <span class="token operator">-</span> leftIndex <span class="token punctuation">)</span> <span class="token operator">===</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> target <span class="token operator">&gt;</span> nums<span class="token punctuation">[</span>leftIndex<span class="token punctuation">]</span> <span class="token operator">?</span> leftIndex <span class="token operator">+</span> <span class="token number">1</span> <span class="token operator">:</span> leftIndex<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">// numbers &gt; 2</span>
+  <span class="token keyword">if</span><span class="token punctuation">(</span>value <span class="token operator">&gt;</span> target<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> <span class="token function">shrinkArea</span><span class="token punctuation">(</span>nums<span class="token punctuation">,</span> target<span class="token punctuation">,</span> leftIndex<span class="token punctuation">,</span> midIndex<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">if</span><span class="token punctuation">(</span>value <span class="token operator">&lt;</span> target<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> <span class="token function">shrinkArea</span><span class="token punctuation">(</span>nums<span class="token punctuation">,</span> target<span class="token punctuation">,</span> midIndex<span class="token punctuation">,</span> rightIndex<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token comment">// 执行用时： 72 ms , 在所有 JavaScript 提交中击败了 50.08% 的用户 </span>
+<span class="token comment">// 内存消耗： 33.2 MB , 在所有 JavaScript 提交中击败了 100.00% 的用户</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number}
+ */</span>
+<span class="token keyword">var</span> <span class="token function-variable function">searchInsert</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">nums<span class="token punctuation">,</span> target<span class="token punctuation">,</span> leftIndex<span class="token punctuation">,</span> rightIndex</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span><span class="token punctuation">(</span>leftIndex <span class="token operator">!==</span> <span class="token keyword">undefined</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> midIndex <span class="token operator">=</span> Math<span class="token punctuation">.</span><span class="token function">floor</span><span class="token punctuation">(</span><span class="token punctuation">(</span>leftIndex <span class="token operator">+</span> rightIndex<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">var</span> value <span class="token operator">=</span> nums<span class="token punctuation">[</span>midIndex<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token comment">// number = 2 避免进入死循环</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token punctuation">(</span>rightIndex <span class="token operator">-</span> leftIndex <span class="token punctuation">)</span> <span class="token operator">===</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> target <span class="token operator">&gt;</span> nums<span class="token punctuation">[</span>leftIndex<span class="token punctuation">]</span> <span class="token operator">?</span> leftIndex <span class="token operator">+</span> <span class="token number">1</span> <span class="token operator">:</span> leftIndex<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment">// numbers &gt; 2</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>value <span class="token operator">&gt;</span> target<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token function">searchInsert</span><span class="token punctuation">(</span>nums<span class="token punctuation">,</span> target<span class="token punctuation">,</span> leftIndex<span class="token punctuation">,</span> midIndex<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span><span class="token punctuation">(</span>value <span class="token operator">&lt;</span> target<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token function">searchInsert</span><span class="token punctuation">(</span>nums<span class="token punctuation">,</span> target<span class="token punctuation">,</span> midIndex<span class="token punctuation">,</span> rightIndex<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> midIndex<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 特殊值</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span>target<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        nums<span class="token punctuation">.</span><span class="token function">unshift</span><span class="token punctuation">(</span>target<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> <span class="token function">searchInsert</span><span class="token punctuation">(</span>nums<span class="token punctuation">,</span> target<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> nums<span class="token punctuation">.</span>length<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment">// 执行用时： 64 ms , 在所有 JavaScript 提交中击败了 87.88% 的用户 </span>
+<span class="token comment">// 内存消耗： 32.8 MB , 在所有 JavaScript 提交中击败了 100.00% 的用户</span>
+
+<span class="token comment">// 思路:</span>
+<span class="token comment">// 在前面基础上的改进：由递归改为尾递归</span>
+</code></pre></div><h5 id="_2-2-3、综合实现"><a href="#_2-2-3、综合实现" class="header-anchor">#</a> 2-2-3、综合实现</h5> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// 1、暴力解法</span>
+<span class="token comment">/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number}
+ */</span>
+<span class="token keyword">var</span> <span class="token function-variable function">searchInsert</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">nums<span class="token punctuation">,</span> target</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>nums<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">&gt;</span> target<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> nums<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">&gt;=</span> target<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> i<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> nums<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment">// Runtime: 52 ms, faster than 85.47% of JavaScript online submissions for Search Insert Position.</span>
+<span class="token comment">// Memory Usage: 34.3 MB, less than 41.45% of JavaScript online submissions for Search Insert Position.</span>
+
+
+<span class="token comment">// 2、双指针</span>
+<span class="token comment">/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number}
+ */</span>
+<span class="token keyword">var</span> <span class="token function-variable function">searchInsert</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">nums<span class="token punctuation">,</span> target</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>nums<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">&gt;</span> target<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>nums<span class="token punctuation">[</span>nums<span class="token punctuation">.</span>length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">&lt;</span> target<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> nums<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">let</span> start <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  end <span class="token operator">=</span> nums<span class="token punctuation">.</span>length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token keyword">while</span> <span class="token punctuation">(</span>start <span class="token operator">&lt;=</span> end<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> mid <span class="token operator">=</span> Math<span class="token punctuation">.</span><span class="token function">round</span><span class="token punctuation">(</span><span class="token punctuation">(</span>start <span class="token operator">+</span> end<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>nums<span class="token punctuation">[</span>mid<span class="token punctuation">]</span> <span class="token operator">===</span> target<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> mid<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>nums<span class="token punctuation">[</span>mid<span class="token punctuation">]</span> <span class="token operator">&lt;</span> target<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      start <span class="token operator">=</span> mid <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      end <span class="token operator">=</span> mid <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> start<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Runtime: 76 ms, faster than 5.48% of JavaScript online submissions forSearch Insert Position.</span>
+<span class="token comment">// Memory Usage: 33.9 MB, less than 59.44% of JavaScript online submissions for Search Insert Position.</span>
+
+
+<span class="token comment">// 3、二分法</span>
+<span class="token keyword">var</span> <span class="token function-variable function">searchInsert</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">nums<span class="token punctuation">,</span> target</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">let</span> left <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  right <span class="token operator">=</span> nums<span class="token punctuation">.</span>length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token keyword">while</span> <span class="token punctuation">(</span>left <span class="token operator">&lt;=</span> right<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> mid <span class="token operator">=</span> Math<span class="token punctuation">.</span><span class="token function">round</span><span class="token punctuation">(</span><span class="token punctuation">(</span>left <span class="token operator">+</span> right<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>target <span class="token operator">===</span> nums<span class="token punctuation">[</span>mid<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> mid<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>target <span class="token operator">&lt;</span> nums<span class="token punctuation">[</span>mid<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      right <span class="token operator">=</span> mid <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      left <span class="token operator">=</span> mid <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> left<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment">// Runtime: 64 ms, faster than 22.58% of JavaScript online submissions for Search Insert Position.</span>
+<span class="token comment">// Memory Usage: 33.7 MB, less than 98.01% of JavaScript online submissions for Search Insert Position.</span>
+
+
+<span class="token comment">// 3-1、二分法优化</span>
+<span class="token keyword">var</span> <span class="token function-variable function">searchInsert</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">nums<span class="token punctuation">,</span> target</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> length <span class="token operator">=</span> nums<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+  <span class="token comment">// 优化: 边界判断</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>nums<span class="token punctuation">[</span>length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">&lt;</span> target<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> length<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>length <span class="token operator">===</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">let</span> left <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> right <span class="token operator">=</span> length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token comment">// ≤ 改为了等号</span>
+  <span class="token keyword">while</span> <span class="token punctuation">(</span>left <span class="token operator">&lt;</span> right<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 优化: 位运算，不怕大数计算，不怕溢出</span>
+    <span class="token comment">// 若 left 和 right 都很大的情况下，加和可能超过最大安全数，导致结果不精确</span>
+    <span class="token comment">// 若改成 left + (right - left) / 2，不过如果 right 很大，而 left 很小，也会溢出</span>
+    <span class="token keyword">let</span> mid <span class="token operator">=</span> <span class="token punctuation">(</span>left <span class="token operator">+</span> right<span class="token punctuation">)</span> <span class="token operator">&gt;&gt;&gt;</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token comment">// 优化: if 判断条件减少为两个，因 target === nums[mid] 的命中结果的情况很罕见，且没必要专门返回等值时的索引，返回左侧索引+1 即可，故可略去</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>target <span class="token operator">&gt;</span> nums<span class="token punctuation">[</span>mid<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      left <span class="token operator">=</span> mid <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      right <span class="token operator">=</span> mid<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> right<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment">// Runtime: 52 ms, faster than 83.92% of JavaScript online submissions for Search Insert Position.</span>
+<span class="token comment">// Memory Usage: 33.9 MB, less than 67.81% of JavaScript online submissions for Search Insert Position.</span>
+
+<span class="token comment">// 作者：joeyzhouyicheng</span>
+<span class="token comment">// 链接：https://leetcode-cn.com/problems/search-insert-position/solution/js-by-joeyzhouyicheng-4/</span>
+</code></pre></div><h3 id="三、top"><a href="#三、top" class="header-anchor">#</a> 三、Top</h3> <h4 id="_3-1、44ms"><a href="#_3-1、44ms" class="header-anchor">#</a> 3-1、44ms</h4> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">var</span> <span class="token function-variable function">searchInsert</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">nums<span class="token punctuation">,</span> target</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">let</span> i<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span>i<span class="token operator">&lt;</span>nums<span class="token punctuation">.</span>length<span class="token punctuation">;</span>i<span class="token operator">++</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token operator">&gt;=</span>target<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> i
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> nums<span class="token punctuation">.</span>length
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><h4 id="_3-2、48ms"><a href="#_3-2、48ms" class="header-anchor">#</a> 3-2、48ms</h4> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">var</span> <span class="token function-variable function">searchInsert</span> <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">nums<span class="token punctuation">,</span> target</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> index <span class="token operator">=</span> nums<span class="token punctuation">.</span><span class="token function">findIndex</span><span class="token punctuation">(</span><span class="token parameter">item</span> <span class="token operator">=&gt;</span> target <span class="token operator">===</span> item <span class="token operator">||</span> target <span class="token operator">&lt;</span> item<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>index <span class="token operator">===</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        index <span class="token operator">=</span> nums<span class="token punctuation">.</span>length
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> index
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><h3 id="四、拓展"><a href="#四、拓展" class="header-anchor">#</a> 四、拓展</h3> <h4 id="_4-1、xxx"><a href="#_4-1、xxx" class="header-anchor">#</a> 4-1、xxx</h4> <h4 id="_4-2、xxx"><a href="#_4-2、xxx" class="header-anchor">#</a> 4-2、xxx</h4></div> <footer class="page-edit"><!----> <!----></footer> <!----> </main></div><div class="global-ui"></div></div>
+    <script src="/docs/assets/js/app.cda475f7.js" defer></script><script src="/docs/assets/js/2.c902c426.js" defer></script><script src="/docs/assets/js/14.0880e743.js" defer></script>
+  </body>
+</html>

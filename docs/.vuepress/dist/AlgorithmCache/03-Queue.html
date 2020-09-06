@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>一、基本 | Leibnize 个人学习笔记</title>
+    <meta name="generator" content="VuePress 1.5.4">
+    
+    <meta name="description" content="整理自网络">
+    <link rel="preload" href="/docs/assets/css/0.styles.2f643d57.css" as="style"><link rel="preload" href="/docs/assets/js/app.cda475f7.js" as="script"><link rel="preload" href="/docs/assets/js/2.c902c426.js" as="script"><link rel="preload" href="/docs/assets/js/37.090897e6.js" as="script"><link rel="prefetch" href="/docs/assets/js/10.418fecbd.js"><link rel="prefetch" href="/docs/assets/js/11.e2c998bf.js"><link rel="prefetch" href="/docs/assets/js/12.b627468b.js"><link rel="prefetch" href="/docs/assets/js/13.682b9b92.js"><link rel="prefetch" href="/docs/assets/js/14.0880e743.js"><link rel="prefetch" href="/docs/assets/js/15.4a6c4027.js"><link rel="prefetch" href="/docs/assets/js/16.200e0299.js"><link rel="prefetch" href="/docs/assets/js/17.1c6394bc.js"><link rel="prefetch" href="/docs/assets/js/18.c0560a2b.js"><link rel="prefetch" href="/docs/assets/js/19.f63607cc.js"><link rel="prefetch" href="/docs/assets/js/20.d56d802e.js"><link rel="prefetch" href="/docs/assets/js/21.52c3ae8e.js"><link rel="prefetch" href="/docs/assets/js/22.b47add39.js"><link rel="prefetch" href="/docs/assets/js/23.a8a40e53.js"><link rel="prefetch" href="/docs/assets/js/24.a0e2af55.js"><link rel="prefetch" href="/docs/assets/js/25.1fb24116.js"><link rel="prefetch" href="/docs/assets/js/26.068130b1.js"><link rel="prefetch" href="/docs/assets/js/27.6cb72d75.js"><link rel="prefetch" href="/docs/assets/js/28.d99e5701.js"><link rel="prefetch" href="/docs/assets/js/29.4848d9ba.js"><link rel="prefetch" href="/docs/assets/js/3.be11a00a.js"><link rel="prefetch" href="/docs/assets/js/30.92ed4a03.js"><link rel="prefetch" href="/docs/assets/js/31.de402b39.js"><link rel="prefetch" href="/docs/assets/js/32.b5ca6564.js"><link rel="prefetch" href="/docs/assets/js/33.c3d91abd.js"><link rel="prefetch" href="/docs/assets/js/34.b868c98b.js"><link rel="prefetch" href="/docs/assets/js/35.4128bd9f.js"><link rel="prefetch" href="/docs/assets/js/36.8e4b22b8.js"><link rel="prefetch" href="/docs/assets/js/38.f8d5752b.js"><link rel="prefetch" href="/docs/assets/js/39.f949333a.js"><link rel="prefetch" href="/docs/assets/js/4.64176cb5.js"><link rel="prefetch" href="/docs/assets/js/40.39833f40.js"><link rel="prefetch" href="/docs/assets/js/41.a12c7b96.js"><link rel="prefetch" href="/docs/assets/js/42.a5e6d9e8.js"><link rel="prefetch" href="/docs/assets/js/43.28874788.js"><link rel="prefetch" href="/docs/assets/js/44.8d4042e3.js"><link rel="prefetch" href="/docs/assets/js/45.b148e845.js"><link rel="prefetch" href="/docs/assets/js/46.91062fd6.js"><link rel="prefetch" href="/docs/assets/js/47.2026c6cc.js"><link rel="prefetch" href="/docs/assets/js/48.b0f3d68f.js"><link rel="prefetch" href="/docs/assets/js/49.9d81175e.js"><link rel="prefetch" href="/docs/assets/js/5.1d876c62.js"><link rel="prefetch" href="/docs/assets/js/50.1a00f734.js"><link rel="prefetch" href="/docs/assets/js/51.b16e53d7.js"><link rel="prefetch" href="/docs/assets/js/52.831b9cca.js"><link rel="prefetch" href="/docs/assets/js/53.4ce4ac34.js"><link rel="prefetch" href="/docs/assets/js/54.6d7ca762.js"><link rel="prefetch" href="/docs/assets/js/55.2bb32bbd.js"><link rel="prefetch" href="/docs/assets/js/56.388173c5.js"><link rel="prefetch" href="/docs/assets/js/57.cd784d78.js"><link rel="prefetch" href="/docs/assets/js/58.d994c1a9.js"><link rel="prefetch" href="/docs/assets/js/59.0665a00b.js"><link rel="prefetch" href="/docs/assets/js/6.bc091efc.js"><link rel="prefetch" href="/docs/assets/js/60.12f3479d.js"><link rel="prefetch" href="/docs/assets/js/61.679d1273.js"><link rel="prefetch" href="/docs/assets/js/62.04ef0d26.js"><link rel="prefetch" href="/docs/assets/js/63.70e8cd2b.js"><link rel="prefetch" href="/docs/assets/js/64.c7956833.js"><link rel="prefetch" href="/docs/assets/js/65.0304095c.js"><link rel="prefetch" href="/docs/assets/js/66.f16304a7.js"><link rel="prefetch" href="/docs/assets/js/67.d0a945f4.js"><link rel="prefetch" href="/docs/assets/js/68.26e1c58d.js"><link rel="prefetch" href="/docs/assets/js/69.ac162984.js"><link rel="prefetch" href="/docs/assets/js/7.255d7d5f.js"><link rel="prefetch" href="/docs/assets/js/70.5408bf05.js"><link rel="prefetch" href="/docs/assets/js/8.2117996a.js"><link rel="prefetch" href="/docs/assets/js/9.e855c324.js">
+    <link rel="stylesheet" href="/docs/assets/css/0.styles.2f643d57.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/docs/" class="home-link router-link-active"><!----> <span class="site-name">Leibnize 个人学习笔记</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="https://github.com/rjwx60" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="https://github.com/rjwx60" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span></span> <span class="arrow down"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h3 id="一、基本"><a href="#一、基本" class="header-anchor">#</a> 一、基本</h3> <h4 id="_1-1、定义"><a href="#_1-1、定义" class="header-anchor">#</a> 1-1、定义：</h4> <p>​	<strong>队列</strong>(Queue)，是只允许在一端进行插入操作，而在另一端进行删除操作的线性表。两种操作：入队enqueue：向队列的后端位置添加实体，出队dequeue：从队列的前端位置移除实体，队列是一种操作受限的、先进先出 FIFO (first in, first out)的线性表数据结构；</p> <ul><li>补充：若使用数组实现的队列，则叫顺序队列，用链表实现的队列，则叫作链式队列；</li></ul> <img src="/Image/Algorithm/Queue/1.png" align="left" style="zoom:50%;"> <h4 id="_1-2、特点"><a href="#_1-2、特点" class="header-anchor">#</a> 1-2、特点</h4> <h5 id="_1-2-1、时间复杂度"><a href="#_1-2-1、时间复杂度" class="header-anchor">#</a> 1-2-1、时间复杂度</h5> <p>​</p> <h5 id="_1-2-2、应用"><a href="#_1-2-2、应用" class="header-anchor">#</a> 1-2-2、应用</h5> <p>​	队列应用非常广泛，特别是一些具有某些额外特性的队列，比如循环队列、阻塞队列、并发队列。它们在很多偏底层系统、框架、中间件的开发中，起着关键性作用。比如高性能队列 Disruptor、Linux 环形缓存，都用到了循环并发队列；Java concurrent 并发包利用 ArrayBlockingQueue 来实现公平锁等；</p> <h5 id="_1-2-3、场景"><a href="#_1-2-3、场景" class="header-anchor">#</a> 1-2-3、场景</h5> <p>​	实际上，对于大部分资源有限的场景，当没有空闲资源时，基本上都可以通过“队列”这种数据结构来实现请求排队</p> <h4 id="_1-3、java队列实现"><a href="#_1-3、java队列实现" class="header-anchor">#</a> 1-3、Java队列实现</h4> <p>1-3-1、顺序队列</p> <img src="/Image/Algorithm/Queue/2.png" align="left" style="zoom:50%;"> <div class="language-java extra-class"><pre class="language-java"><code><span class="token comment">// 1.基本实现-用数组实现的队列</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ArrayQueue</span> <span class="token punctuation">{</span>
+  <span class="token comment">// 数组：items，数组大小：n</span>
+  <span class="token keyword">private</span> <span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> items<span class="token punctuation">;</span>
+  <span class="token keyword">private</span> <span class="token keyword">int</span> n <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token comment">// head表示队头下标，tail表示队尾下标</span>
+  <span class="token keyword">private</span> <span class="token keyword">int</span> head <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token keyword">private</span> <span class="token keyword">int</span> tail <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// 申请一个大小为capacity的数组</span>
+  <span class="token keyword">public</span> <span class="token class-name">ArrayQueue</span><span class="token punctuation">(</span><span class="token keyword">int</span> capacity<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    items <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">[</span>capacity<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    n <span class="token operator">=</span> capacity<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 入队-将item放入队尾</span>
+  <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">enqueue</span><span class="token punctuation">(</span><span class="token class-name">String</span> item<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// tail == n表示队列末尾没有空间了</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>tail <span class="token operator">==</span> n<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// tail ==n &amp;&amp; head==0，表示整个队列都占满了</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>head <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+      <span class="token comment">// 数据搬移：</span>
+      <span class="token comment">// 当队列的 tail 指针移动到数组的最右边后</span>
+      <span class="token comment">// 若有新的数据入队，可将 head 到 tail 间数据，整体搬移到数组中 0 到 tail-head 的位置，参见下图1</span>
+      <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> head<span class="token punctuation">;</span> i <span class="token operator">&lt;</span> tail<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        items<span class="token punctuation">[</span>i<span class="token operator">-</span>head<span class="token punctuation">]</span> <span class="token operator">=</span> items<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token comment">// 搬移完之后重新更新head和tail</span>
+      tail <span class="token operator">-=</span> head<span class="token punctuation">;</span>
+      head <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    
+    items<span class="token punctuation">[</span>tail<span class="token punctuation">]</span> <span class="token operator">=</span> item<span class="token punctuation">;</span>
+    <span class="token operator">++</span>tail<span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 出队</span>
+  <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">dequeue</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 如果head == tail 表示队列为空</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>head <span class="token operator">==</span> tail<span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+    <span class="token comment">// 为了让其他语言的同学看的更加明确，把--操作放到单独一行来写了</span>
+    <span class="token class-name">String</span> ret <span class="token operator">=</span> items<span class="token punctuation">[</span>head<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token operator">++</span>head<span class="token punctuation">;</span>
+    <span class="token keyword">return</span> ret<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+
+<span class="token comment">// 2.支持动态扩容的队列</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ArrayQueue</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">E</span><span class="token punctuation">&gt;</span></span> <span class="token keyword">implements</span> <span class="token class-name">Queue</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">E</span><span class="token punctuation">&gt;</span></span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> <span class="token class-name">Array</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">E</span><span class="token punctuation">&gt;</span></span> array<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">ArrayQueue</span><span class="token punctuation">(</span><span class="token keyword">int</span> capacity<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        array <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Array</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span>capacity<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">ArrayQueue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        array <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Array</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">&gt;</span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">getSize</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> array<span class="token punctuation">.</span><span class="token function">getSize</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> array<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">getCapacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> array<span class="token punctuation">.</span><span class="token function">getCapacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">enqueue</span><span class="token punctuation">(</span><span class="token class-name">E</span> e<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        array<span class="token punctuation">.</span><span class="token function">addLast</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token class-name">E</span> <span class="token function">dequeue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> array<span class="token punctuation">.</span><span class="token function">removeFirst</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token class-name">E</span> <span class="token function">getFront</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> array<span class="token punctuation">.</span><span class="token function">getFirst</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>1-3-2、链式队列</p> <p>​	同样含两个指针：head 指针和 tail 指针，并分别指向链表的第一个结点和最后一个结点；入队时，<code>tail-&gt;next= new_node</code>, <code>tail = tail-&gt;next</code>；出队时，<code>head = head-&gt;next</code>；</p> <img src="/Image/Algorithm/Queue/3.png" align="left" style="zoom:50%;"> <p>1-3-3、循环队列</p> <p>​	用数组来实现队列的时候，在 <code>tail==n</code> 时，会有数据搬移操作，而使用循环队列可避免数据迁移；虽避免迁移但实现难度大，关键是确定好队空和队满的判定条件，用数组实现的非循环队列中，队满的判断条件是 tail == n，队空的判断条件是 head == tail，而循环队列，队列为空的判断条件仍然是 <code>head == tail</code>，而当队满时，<code>(tail+1)%n=head</code>；</p> <ul><li><p>注意：当队列满时，图中的 tail 指向的位置实际上是没有存储数据的。所以，循环队列会浪费一个数组的存储空间；</p></li> <li><img src="/Image/Algorithm/Queue/6.png" align="left" style="zoom:50%;"> <div class="language-java extra-class"><pre class="language-java"><code><span class="token comment">// 1.基本实现</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CircularQueue</span> <span class="token punctuation">{</span>
+  <span class="token comment">// 数组：items，数组大小：n</span>
+  <span class="token keyword">private</span> <span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> items<span class="token punctuation">;</span>
+  <span class="token keyword">private</span> <span class="token keyword">int</span> n <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token comment">// head表示队头下标，tail表示队尾下标</span>
+  <span class="token keyword">private</span> <span class="token keyword">int</span> head <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token keyword">private</span> <span class="token keyword">int</span> tail <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// 申请一个大小为capacity的数组</span>
+  <span class="token keyword">public</span> <span class="token class-name">CircularQueue</span><span class="token punctuation">(</span><span class="token keyword">int</span> capacity<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    items <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">[</span>capacity<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    n <span class="token operator">=</span> capacity<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 入队</span>
+  <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">enqueue</span><span class="token punctuation">(</span><span class="token class-name">String</span> item<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 队列满了</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>tail <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">%</span> n <span class="token operator">==</span> head<span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+    items<span class="token punctuation">[</span>tail<span class="token punctuation">]</span> <span class="token operator">=</span> item<span class="token punctuation">;</span>
+    tail <span class="token operator">=</span> <span class="token punctuation">(</span>tail <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">%</span> n<span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 出队</span>
+  <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">dequeue</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// 如果head == tail 表示队列为空</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>head <span class="token operator">==</span> tail<span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+    <span class="token class-name">String</span> ret <span class="token operator">=</span> items<span class="token punctuation">[</span>head<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    head <span class="token operator">=</span> <span class="token punctuation">(</span>head <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">%</span> n<span class="token punctuation">;</span>
+    <span class="token keyword">return</span> ret<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+
+<span class="token comment">// 2.基于前文 Queue 实现的循环队列</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">LoopQueue</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">E</span><span class="token punctuation">&gt;</span></span> <span class="token keyword">implements</span> <span class="token class-name">Queue</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">E</span><span class="token punctuation">&gt;</span></span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> <span class="token class-name">E</span><span class="token punctuation">[</span><span class="token punctuation">]</span> data<span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token keyword">int</span> front<span class="token punctuation">,</span> tail<span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token keyword">int</span> size<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">LoopQueue</span><span class="token punctuation">(</span><span class="token keyword">int</span> capacity<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        data <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">E</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token keyword">new</span> <span class="token class-name">Object</span><span class="token punctuation">[</span>capacity <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        front <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        tail <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        size <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token class-name">LoopQueue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">getCapacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> data<span class="token punctuation">.</span>length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> front <span class="token operator">==</span> tail<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">getSize</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> size<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">enqueue</span><span class="token punctuation">(</span><span class="token class-name">E</span> e<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token punctuation">(</span>tail <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">%</span> data<span class="token punctuation">.</span>length <span class="token operator">==</span> front<span class="token punctuation">)</span>
+            <span class="token function">resize</span><span class="token punctuation">(</span><span class="token function">getCapacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        data<span class="token punctuation">[</span>tail<span class="token punctuation">]</span> <span class="token operator">=</span> e<span class="token punctuation">;</span>
+        tail <span class="token operator">=</span> <span class="token punctuation">(</span>tail <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">%</span> data<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+        size <span class="token operator">++</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token class-name">E</span> <span class="token function">dequeue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">IllegalArgumentException</span><span class="token punctuation">(</span><span class="token string">&quot;Cannot dequeue from an empty queue.&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token class-name">E</span> ret <span class="token operator">=</span> data<span class="token punctuation">[</span>front<span class="token punctuation">]</span><span class="token punctuation">;</span>
+        data<span class="token punctuation">[</span>front<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+        front <span class="token operator">=</span> <span class="token punctuation">(</span>front <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">%</span> data<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+        size <span class="token operator">--</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>size <span class="token operator">==</span> <span class="token function">getCapacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">4</span> <span class="token operator">&amp;&amp;</span> <span class="token function">getCapacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span>
+            <span class="token function">resize</span><span class="token punctuation">(</span><span class="token function">getCapacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> ret<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token class-name">E</span> <span class="token function">getFront</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">IllegalArgumentException</span><span class="token punctuation">(</span><span class="token string">&quot;Queue is empty.&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> data<span class="token punctuation">[</span>front<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">void</span> <span class="token function">resize</span><span class="token punctuation">(</span><span class="token keyword">int</span> newCapacity<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token class-name">E</span><span class="token punctuation">[</span><span class="token punctuation">]</span> newData <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">E</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token keyword">new</span> <span class="token class-name">Object</span><span class="token punctuation">[</span>newCapacity <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span> <span class="token punctuation">;</span> i <span class="token operator">&lt;</span> size <span class="token punctuation">;</span> i <span class="token operator">++</span><span class="token punctuation">)</span>
+            newData<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> data<span class="token punctuation">[</span><span class="token punctuation">(</span>i <span class="token operator">+</span> front<span class="token punctuation">)</span> <span class="token operator">%</span> data<span class="token punctuation">.</span>length<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+        data <span class="token operator">=</span> newData<span class="token punctuation">;</span>
+        front <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        tail <span class="token operator">=</span> size<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div></li></ul> <p>1-3-4、阻塞队列</p> <p>​	即在队列基础上增加了阻塞操作。简单来说，就是在队列为空的时候，从队头取数据会被阻塞。因为此时还没有数据可取，直到队列中有了数据才能返回；如果队列已经满了，那么插入数据的操作就会被阻塞，直到队列中有空闲位置后再插入数据，然后再返回 (生产者消费者模型)；</p> <img src="/Image/Algorithm/Queue/4.png" align="left" style="zoom:50%;"> <img src="/Image/Algorithm/Queue/5.png" align="left" style="zoom:50%;"> <p>1-3-5、并发队列</p> <p>​	即线程安全的队列；最简单直接的实现方式是直接在 enqueue()、dequeue() 方法上加锁，但是锁粒度大并发度会比较低，同一时刻仅允许一个存或者取操作；实际上，基于数组的循环队列，利用 CAS 原子操作，可实现非常高效的并发队列；这也是循环队列比链式队列应用更加广泛的原因；</p> <h4 id="_1-4、js队列实现"><a href="#_1-4、js队列实现" class="header-anchor">#</a> 1-4、Js队列实现</h4> <p>1-4-1、顺序队列</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">class</span> <span class="token class-name">QueueJs</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>queue <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayJs</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 时间复杂度: O(1)</span>
+  <span class="token function">getSize</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>queue<span class="token punctuation">.</span><span class="token function">getSize</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 时间复杂度: O(1)</span>
+  <span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>queue<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token function">getCapacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>queue<span class="token punctuation">.</span><span class="token function">getCapacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 时间复杂度: O(1) 均摊</span>
+  <span class="token comment">// 尾部入队操作</span>
+  <span class="token function">enqueue</span><span class="token punctuation">(</span><span class="token parameter">element</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>queue<span class="token punctuation">.</span><span class="token function">addLast</span><span class="token punctuation">(</span>element<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 时间复杂度: O(n)</span>
+  <span class="token comment">// 头部出队操作</span>
+  <span class="token function">dequeue</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>queue<span class="token punctuation">.</span><span class="token function">removeFirst</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 时间复杂度: O(1)</span>
+  <span class="token comment">// 获取队首元素</span>
+  <span class="token function">getFront</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>queue<span class="token punctuation">.</span><span class="token function">getFirst</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>1-4-2、循环队列</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">class</span> <span class="token class-name">LoopQueueJs</span> <span class="token punctuation">{</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token parameter">capacity</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>data <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Array</span><span class="token punctuation">(</span>capacity <span class="token operator">?</span> capacity <span class="token operator">+</span> <span class="token number">1</span> <span class="token operator">:</span>  <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// 队首指针</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>front <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token comment">// 队尾指针 - 指向队尾元素的下一位置</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>tail <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>size <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token function">getCapacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>data<span class="token punctuation">.</span>length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 时间复杂度: O(1)</span>
+  <span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>front <span class="token operator">===</span> <span class="token keyword">this</span><span class="token punctuation">.</span>tail<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 时间复杂度: O(1)</span>
+  <span class="token function">getSize</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>size<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 时间复杂度: O(1) 均摊</span>
+  <span class="token comment">// 循环队列的入队操作</span>
+  <span class="token function">enqueue</span><span class="token punctuation">(</span><span class="token parameter">element</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// e.g: arr = [0, 1, 2, 3, 4] arr.length = 5;</span>
+    <span class="token comment">// 当队列满时，有两种情况:</span>
+    <span class="token comment">// 情况A: front = 0, tail = 4, (tail + 1) % length = 0 === front</span>
+    <span class="token comment">// 情况B: front = x, tail = x, (tail + 1) % length = x === front</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>tail <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token keyword">this</span><span class="token punctuation">.</span>data<span class="token punctuation">.</span>length <span class="token operator">===</span> <span class="token keyword">this</span><span class="token punctuation">.</span>front<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">resize</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getCapacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>data<span class="token punctuation">[</span><span class="token keyword">this</span><span class="token punctuation">.</span>tail<span class="token punctuation">]</span> <span class="token operator">=</span> element<span class="token punctuation">;</span>
+    <span class="token comment">// 队尾添加元素后，更新 tail 位置</span>
+    <span class="token comment">// e.g: arr = [0, 1, 2, 3, 4] arr.length = 5;</span>
+    <span class="token comment">// 情况A: </span>
+    <span class="token comment">// front = 0, tail = 4, 增加元素至arr[4]后, (tail + 1) % length = 0 (tail == front, 下次操作会先进行 resize)</span>
+    <span class="token comment">// 情况B: </span>
+    <span class="token comment">// front = 2, tail = 1, 增加元素至arr[1]后, (tail + 1) % length = 2 (tail == front, 下次操作会先进行 resize)</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>tail <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>tail <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token keyword">this</span><span class="token punctuation">.</span>data<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>size<span class="token operator">++</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 时间复杂度: O(1) 均摊</span>
+  <span class="token comment">// 循环队列的出队操作</span>
+  <span class="token function">dequeue</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">Error</span><span class="token punctuation">(</span><span class="token string">'Cannot dequeue from an empty queue.'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">var</span> ret <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>data<span class="token punctuation">[</span><span class="token keyword">this</span><span class="token punctuation">.</span>front<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token comment">// 出队后置空，不像 ArrayJava 影响整体</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>data<span class="token punctuation">[</span><span class="token keyword">this</span><span class="token punctuation">.</span>front<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+    <span class="token comment">// 取余操作是为了当 front 到达队列尾部时能还原为 0，除此以外只需理解为 front += 1</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>front <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>front <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token keyword">this</span><span class="token punctuation">.</span>data<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>size<span class="token operator">--</span><span class="token punctuation">;</span>
+    
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>size <span class="token operator">===</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getCapacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">4</span> <span class="token operator">&amp;&amp;</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getCapacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span> <span class="token operator">!==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">resize</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getCapacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> ret<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token function">resize</span><span class="token punctuation">(</span><span class="token parameter">newCapacity</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> newData <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Array</span><span class="token punctuation">(</span>newCapacity <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">var</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token keyword">this</span><span class="token punctuation">.</span>size<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      newData<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>data<span class="token punctuation">[</span><span class="token punctuation">(</span>i <span class="token operator">+</span> <span class="token keyword">this</span><span class="token punctuation">.</span>front<span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token keyword">this</span><span class="token punctuation">.</span>data<span class="token punctuation">.</span>length<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>data <span class="token operator">=</span> newData<span class="token punctuation">;</span>
+    <span class="token comment">// 重新赋值头尾指针</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>front <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>tail <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>size<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 时间复杂度: O(1)</span>
+  <span class="token comment">// 获取队首元素</span>
+  <span class="token function">getFront</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">Error</span><span class="token punctuation">(</span><span class="token string">'Queue is empty.'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>data<span class="token punctuation">[</span><span class="token keyword">this</span><span class="token punctuation">.</span>front<span class="token punctuation">]</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h3 id="二、leedcode示例"><a href="#二、leedcode示例" class="header-anchor">#</a> 二、LeedCode示例</h3> <p>补充：https://juejin.im/post/5d5b307b5188253da24d3cd1#heading-32</p> <p>补充：https://juejin.im/book/5cb42609f265da035f6fcb65/section/5cf4c699f265da1bc23f6252</p> <p>补充：https://juejin.im/book/5cb42609f265da035f6fcb65/section/5cea46f55188253a275a3a04</p> <h4 id="_2-1、题目"><a href="#_2-1、题目" class="header-anchor">#</a> 2-1、题目</h4> <h5 id="_2-1-1、任务调度器-详见0621"><a href="#_2-1-1、任务调度器-详见0621" class="header-anchor">#</a> 2-1-1、任务调度器—详见0621</h5> <h5 id="_2-1-2、设计循环队列-详见0622"><a href="#_2-1-2、设计循环队列-详见0622" class="header-anchor">#</a> 2-1-2、设计循环队列—详见0622</h5></div> <footer class="page-edit"><!----> <!----></footer> <!----> </main></div><div class="global-ui"></div></div>
+    <script src="/docs/assets/js/app.cda475f7.js" defer></script><script src="/docs/assets/js/2.c902c426.js" defer></script><script src="/docs/assets/js/37.090897e6.js" defer></script>
+  </body>
+</html>
