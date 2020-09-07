@@ -13,17 +13,17 @@ typora-root-url: ../../../BlogImgsBed/Source
 - TCP：面向连接的、可靠的、基于字节流的传输层通信协议；
 - IP：根据 IP 地址穿越网络传送数据；
 
-<img src="/Image/NetWork/tcp/2.png" style="zoom:40%;" align="center"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000714.png" style="zoom:40%;" align="center"/>
 
-<img src="/Image/NetWork/tcp/3.png" style="zoom:50%;" align="center"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000854.png" style="zoom:50%;" align="center"/>
 
-<img src="/Image/NetWork/tcp/4.png" style="zoom:40%;" align="center"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000901.png" style="zoom:40%;" align="center"/>
 
 <img src="/Image/NetWork/tcp/6.png" style="zoom:50%;" align="center"/>
 
 #### 1-2、NCP 协议：TCP/IP 协议前身 ARPA
 
-<img src="/Image/NetWork/tcp/1.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000908.png" style="zoom:50%;" align="left"/>
 
 
 

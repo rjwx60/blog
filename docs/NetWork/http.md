@@ -273,7 +273,7 @@ W3C和HTTP工作组 **<u>HTTP-WG</u>** 也在此时代创建；为满足人们�
 
 #### 2-2、报文格式
 
-<img src="/Image/NetWork/http/17.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235829.png" style="zoom:50%;" align="left"/>
 
 与TCP 的`tcp头部 + 数据部分`类似，即 `http头部(header) + 数据部分(body)`
 
@@ -298,9 +298,9 @@ W3C和HTTP工作组 **<u>HTTP-WG</u>** 也在此时代创建；为满足人们�
 - 字段名不区分大小写、不允许出现空格，不可出现下划线 `_`
 - 字段名后面必须紧跟冒号 `:` 不得空隙；
 
-<img src="/Image/NetWork/http/1.png" style="zoom:35%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235830.png" style="zoom:35%;" align="left" />
 
-<img src="/Image/NetWork/http/2.png" style="zoom:35%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235831.png" style="zoom:35%;" align="left" />
 
 ##### 2-2-3、空行
 
@@ -320,9 +320,9 @@ W3C和HTTP工作组 **<u>HTTP-WG</u>** 也在此时代创建；为满足人们�
 
 ##### 2-3-X、通用头
 
-<img src="/Image/NetWork/http/18.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235832.png" style="zoom:50%;" align="left" />
 
-<img src="/Image/NetWork/http/30.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235833.png" style="zoom:50%;" align="left" />
 
 - `Cache-Control` 控制缓存
 - `Connection` 连接管理
@@ -334,9 +334,9 @@ W3C和HTTP工作组 **<u>HTTP-WG</u>** 也在此时代创建；为满足人们�
 
 ##### 2-3-X、请求头
 
-<img src="/Image/NetWork/http/19.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235834.png" style="zoom:50%;" align="left" />
 
-<img src="/Image/NetWork/http/31.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235835.png" style="zoom:50%;" align="left" />
 
 - `Host` 请求资源所在的服务器 (唯一一个HTTP/1.1规范里要求必须出现的字段)
 - `Accept` 客户端或者代理能够处理的媒体类型
@@ -351,11 +351,11 @@ W3C和HTTP工作组 **<u>HTTP-WG</u>** 也在此时代创建；为满足人们�
 
 ##### 2-3-X、响应头
 
-<img src="/Image/NetWork/http/36.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235836.png" style="zoom:50%;" align="left" />
 
-<img src="/Image/NetWork/http/20.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235837.png" style="zoom:50%;" align="left" />
 
-<img src="/Image/NetWork/http/32.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235838.png" style="zoom:50%;" align="left" />
 
 - `Accept-Ranges` 能接受的字节范围
 - `Location` 命令客户端重定向的 URI
@@ -368,9 +368,9 @@ W3C和HTTP工作组 **<u>HTTP-WG</u>** 也在此时代创建；为满足人们�
 
 即针对请求报文和响应报文的实体部分使用首部
 
-<img src="/Image/NetWork/http/21.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235839.png" style="zoom:50%;" align="left" />
 
-<img src="/Image/NetWork/http/33.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235840.png" style="zoom:50%;" align="left" />
 
 `Allow` 资源可支持 HTTP 请求方法
 
@@ -430,7 +430,7 @@ Http1.1 规定的以下请求方法(大写)：
 
 - 详看：[HTTP｜GET 和 POST 区别](https://juejin.im/entry/597ca6caf265da3e301e64db)
 
-<img src="/Image/NetWork/http/16.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235841.png" style="zoom:50%;" align="left"/>
 
 
 
@@ -524,9 +524,9 @@ RFC 规定 HTTP 的状态码为三位数，被分为五类:
   - 504 Gateway Time-out：充当网关或代理的服务器，未及时从远端服务器获取请求；
   - 505 HTTP Version not supported：服务器不支持请求的 HTTP 协议版本，无法完成处理；
 
-<img src="/Image/NetWork/http/3.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235842.png" style="zoom:50%;" align="left"/>
 
-<img src="/Image/NetWork/http/4.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235843.png" style="zoom:50%;" align="left"/>
 
 
 
@@ -534,7 +534,7 @@ RFC 规定 HTTP 的状态码为三位数，被分为五类:
 
 此类字段用于双方确定对方可接收的 **<u>数据格式、压缩方式、支持语言和所使用的字符集</u>**：
 
-<img src="/Image/NetWork/http/6.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235844.png" style="zoom:60%;" align="left"/>
 
 <u>*注意：下述内容中，将接收端想象为客户端，将发送端想象为服务端会较好理解；*</u>
 
@@ -559,7 +559,7 @@ RFC 规定 HTTP 的状态码为三位数，被分为五类:
   - 接收端通过 Accept-Charset 表示可支持的字符集；
   - 发送端通过 Content-Type 表示可支持的字符集；
 
-<img src="/Image/NetWork/http/7.png" style="zoom:40%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235845.png" style="zoom:40%;" align="left"/>
 
 
 
@@ -661,7 +661,7 @@ server.on('request', (req, res) => {
 server.listen(8009, () => { console.log("成功启动");})
 ```
 
-<img src="/Image/NetWork/http/14.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235846.png" style="zoom:50%;" align="left"/>
 
 ```
 chunk长度(16进制的数)
@@ -907,7 +907,7 @@ min-fresh: 5
 ##### 2-X-1、URI—统一资源标识符
 
 **<u>*URI(Uniform Resource Identifie)*</u>** 包含 URL 与 URN 两部分，其作用是区分互联网上不同的资源；其只能使用 ASCII 编码，不支持显示 ASCII 以外字符，为顺利表示其他字符，URI 引入一套编码机制：将所有 **<u>非 ASCII 码字符和界定符</u>** 转为十六进制字节值，然后在前面加个 `%`；比如空格被转义成了 `%20`；URI 结构如下：
-<img src="/Image/NetWork/http/5.png" style="zoom:40%;" align="center"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235847.png" style="zoom:40%;" align="center"/>
 
 - **scheme**：协议名；诸如 `http`、 `https`、 `file` 等，须跟 `://` 连用；
 - **user:passwd@**：表示登录主机时的用户信息，不安全，不推荐使用，不常用；
@@ -981,7 +981,7 @@ TCP 向 HTTP 通讯时，须将数据交由中间层解密才能传给上层 HTT
 
 最简单的加密方式，指 **加密** 和 **解密** 使用的是 **相同的密钥**；即：客户端和服务器公用一个密匙用来对消息加解密；客户端和服务器约定好一个加密的密匙。客户端在发消息前用该密匙对消息加密，发送给服务器后，服务器再用该密匙进行解密拿到消息；
 
-<img src="/Image/NetWork/http/22.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235848.png" style="zoom:50%;" />
 
 意义：在一定程度上保证数据的安全性，但密钥一旦泄露(密钥在传输过程中被截获)，传输内容就会暴露，因此需要寻找一种更为安全传递密钥的方法；
 
@@ -991,11 +991,11 @@ TCP 向 HTTP 通讯时，须将数据交由中间层解密才能传给上层 HTT
 
 采用非对称加密，客户端和服务端均拥有一个公有密匙和一个私有密匙。公有密匙可以对外暴露，而私有密匙只有自己可见；使用公有密匙加密的消息，只有对应的私有密匙才能解开。反过来，使用私有密匙加密的消息，只有公有密匙才能解开；这样客户端在发送消息前，先用服务器的公匙对消息进行加密，服务器收到后再用自己的私匙进行解密；
 
-<img src="/Image/NetWork/http/23.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235849.png" style="zoom:50%;" />
 
 意义：虽解决由于密钥被获取而导致传输内容泄露问题，但中间人仍可用 `篡改(劫持)公钥`的方式来获取/篡改传输内容，且非对称加密的性能比对称加密的差；
 
-<img src="/Image/NetWork/http/24.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235850.png" style="zoom:50%;" />
 
 
 
@@ -1005,13 +1005,13 @@ TCP 向 HTTP 通讯时，须将数据交由中间层解密才能传给上层 HTT
 
 意义：第三方认证也未能完全解决问题，第三方认证是面向所有人，中间人也能申请证书，若中间人使用自己证书掉包原证书，客户端还是无法确认公钥真伪；
 
-<img src="/Image/NetWork/http/25.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235851.png" style="zoom:50%;" />
 
 
 
 ##### 3-2-1-4、数字签名
 
-<img src="/Image/NetWork/http/35.png" style="zoom:40%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235852.png" style="zoom:40%;" align="left"/>
 
 上述问题在于：传输过程中内容可能被篡改，证书可能被调包，为解决通信方身份遭伪装问题，验明通信方的身份；此时可引入 <u>数字签名</u>，以保证数据完整性(一旦中途被篡改即可发现)，**<u>而数字签名随数字证书的申请流程绑定，具体流程如下</u>**：
 
@@ -1105,7 +1105,7 @@ TCP 向 HTTP 通讯时，须将数据交由中间层解密才能传给上层 HTT
 
 ##### 3-4-1、TLS 握手—RSA
 
-<img src="/Image/NetWork/http/15.png" style="zoom:60%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235853.png" style="zoom:60%;" />
 
 - 首先，浏览器向服务器发送 `client_random`、TSL 版本号、加密方法套件(含 RSA)；
 - 然后，服务器接收后，给浏览器返 `server_random`、确认 TSL 版本号、加密方法套件(含 RSA)、**<u>数字证书(含公钥)</u>**；
@@ -1119,9 +1119,9 @@ TCP 向 HTTP 通讯时，须将数据交由中间层解密才能传给上层 HTT
 
 ##### 3-4-2、TLS1.2 握手—ECDHE
 
-<img src="/Image/NetWork/http/8.png" style="zoom:60%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235854.png" style="zoom:60%;" />
 
-<img src="/Image/NetWork/http/34.png" style="zoom:60%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235855.png" style="zoom:60%;" />
 
 - 首先，客户端在首次发送 HTTPS 请求时，会将以下内容发送给服务器；
   - TLS 版本号；
@@ -1265,7 +1265,7 @@ TLS1.3 废除大量有安全漏洞的加密算法，且最后只保留 5 个加�
 
 ##### 3-5-2、性能提升
 
-<img src="/Image/NetWork/http/9.png" style="zoom:60%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235856.png" style="zoom:60%;" />
 
 TLS 1.3 握手流程大体与 TLS1.2 类似，但比后者减少一个 RTT， 服务端不必等待对方验证数字证书后才能拿到 `client_params`，而是直接在首次握手时即可拿到， 拿到后由 **<u>client_random</u>**、**<u>server_random</u>**、**<u>pre_random(client_params、server_params)</u>  **立即计算 `secret`，节省大量非必需等待时间；此种握手方式亦称 **1-RTT 握手**，此外还可在此基础上进行进一步优化：
 
@@ -1300,11 +1300,11 @@ HTTPS 专注于安全提升，而 HTTP/2 则专注性能方面的提升(头部�
 
 在 HTTP/1 中，为性能考虑，会引入雪碧图、将小图内联、使用多个域名等等的方式；这一切都是因为浏览器限制了同一域名下的请求数量(Chrome-6)，当页面中需要请求很多资源时，队头阻塞（Head of line blocking）就会导致在达到最大请求数量时，剩余资源需要等待其他资源请求完成后才能发起请求(排队)；
 
-<img src="/Image/NetWork/http/29.png" style="zoom:30%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235857.png" style="zoom:30%;" />
 
 在 HTTP/2 中引入了多路复用的技术，这个技术可只通过一个 TCP 连接就可传输所有的请求数据；多路复用很好的解决了浏览器限制同一个域名下的请求数量的问题，同时也间接更容易实现全速传输，毕竟新开一个 TCP 连接都需要慢慢提升传输速度； [HTTP/1与HTTP/2 速度对比](https://http2.akamai.com/demo) ；
 
-<img src="/Image/NetWork/http/28.png" style="zoom:30%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235858.png" style="zoom:30%;" />
 
 ​	
 
@@ -1312,11 +1312,11 @@ HTTPS 专注于安全提升，而 HTTP/2 则专注性能方面的提升(头部�
 
 HTTP/2 中所有加强性能的核心点在于此。在之前的 HTTP 版本中，是通过文本的方式传输数据；但在 HTTP/2 中引入了新的编码机制，所有传输的数据都会被分割，并采用二进制格式编码；
 
-<img src="/Image/NetWork/http/26.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235859.png" style="zoom:50%;" />
 
 HTTP/2 将报文全部换成二进制格式，即全部传输`01`串，以方便机器解析，减少因字符多义性的状态问题的判断，提升解析效率；原来的 `Headers + Body` 的报文格式被分拆成<u>**二进制帧**</u>，并使用 <u>Headers帧</u> 存放头部字段，用 <u>Data帧</u> 存放请求体数据；HTTP/2 传输的二进制帧格式如下：
 
-<img src="/Image/NetWork/http/12.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235900.png" style="zoom:50%;" />
 
 每个二进制帧由 **<u>帧头—Frame Header</u>** 和 **<u>帧体—Frame Payload</u>** 组成；
 
@@ -1332,7 +1332,7 @@ HTTP/2 将报文全部换成二进制格式，即全部传输`01`串，以方便
 
 通信双方均可给对方发送二进制帧，这种二进制帧的<u>**双向传输的序列**</u>，称作 **<u>*流(Stream)*</u>**；而在 HTTP/2 请求和响应过程中，流的状态变化是通过标志位实现：
 
-<img src="/Image/NetWork/http/13.png" style="zoom:60%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235901.png" style="zoom:60%;" />
 
 - 首先，双方均未空闲状态，当客户端发送 `Headers帧` 后，开始分配 `Stream ID` ，此时客户端的 <u>流(序列)</u> 打开，而服务端在接收后也打开 <u>流(序列)</u> ，双方均打开 <u>流(序列)</u>  后，即可互相传递二进制帧；
 - 然后，当客户端需要关闭时，向服务端发送 `END_STREAM帧`，进入 `半关闭状态`，此时客户端只能接收数据，不能发送数据；
@@ -1361,7 +1361,7 @@ HTTP/1.1 及低版本中，使用文本的形式传输报文，在携带 cookie 
 - 然后，对于整数和字符串进行 <u>哈夫曼编码</u>，此编码原理是：先将所有出现的字符建立一张索引表，然后让出现次数多的字符对应的索引尽可能短，传输时也是传输这样的**索引序列**，可达到非常高的压缩率；
 - 注意：HTTP/2 废除了起始行概念，将起始行中的请求方法、URI、状态码转换成头字段，并用前缀 `:` 区分请求头；
 
-<img src="/Image/NetWork/http/10.png" style="zoom:40%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235902.png" style="zoom:40%;" />
 
 
 
@@ -1397,7 +1397,7 @@ HTTP/2 解决的是 HTTP/1.1存在的问题：
 
 而某些资源客户端是一定会请求的，这时亦可采取服务端 push 的技术，提前给客户端推送必要的资源，减少一点延迟时间；
 
-<img src="/Image/NetWork/http/11.png" style="zoom:40%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235903.png" style="zoom:40%;" />
 
 
 

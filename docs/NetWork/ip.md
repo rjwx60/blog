@@ -23,7 +23,7 @@ typora-root-url: ../../../BlogImgsBed/Source
 - 封装打包：网络层需要添加IP头部；
 - 分片：若传输层所给报文过大，超出MQ，则需进行分片；
 
-<img src="/Image/NetWork/ip/1.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000132.png" style="zoom:50%;" />
 
 IP 层是一个细腰结构：网络层只有 IP 协议，其他诸如 ARQ、ICMP 均为辅助协议；其处于核心地位，须首先关注性能；其特点如下：
 
@@ -31,7 +31,7 @@ IP 层是一个细腰结构：网络层只有 IP 协议，其他诸如 ARQ、ICM
 - 非可靠：不会使用 TCP 类似的 ACK 确认报；
 - 无确认：同上；
 
-<img src="/Image/NetWork/ip/6.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000133.png" style="zoom:50%;" />
 
 
 
@@ -44,11 +44,11 @@ IP 层是一个细腰结构：网络层只有 IP 协议，其他诸如 ARQ、ICM
 - 差错检测与处理
 - 定义物理层标准
 
-<img src="/Image/NetWork/ip/2.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000134.png" style="zoom:50%;" />
 
 #### 1-3、路由器与交换机
 
-<img src="/Image/NetWork/ip/3.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000135.png" style="zoom:50%;" />
 
 - 全球作用域
 - 组织内作用域
@@ -56,11 +56,11 @@ IP 层是一个细腰结构：网络层只有 IP 协议，其他诸如 ARQ、ICM
 - 本地链路层
 - 本机作用域
 
-<img src="/Image/NetWork/ip/4.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000136.png" style="zoom:50%;" />
 
 #### 1-4、网络传输示例
 
-<img src="/Image/NetWork/ip/5.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000137.png" style="zoom:50%;" />
 
 
 
@@ -70,29 +70,29 @@ IP 层是一个细腰结构：网络层只有 IP 协议，其他诸如 ARQ、ICM
 
 IPv4 地址用点分十进制表示，它是一个 32 位的二进制数，可表示 2^32 个地址空间，由全球各大机构层次分配与管理：
 
-<img src="/Image/NetWork/ip/7.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000138.png" style="zoom:50%;" />
 
-<img src="/Image/NetWork/ip/8.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000139.png" style="zoom:50%;" />
 
-<img src="/Image/NetWork/ip/9.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000140.png" style="zoom:50%;" />
 
 ##### 2-1-1、优缺点
 
 IPv4 分类地址是简单明了、具有 3 个级别(网络规模)的灵活性、选路(基于网络地址)简单，但缺少私有网络下的的地址灵活性：同一网络下没有地址层次，且 3 类地址块太少，无法与现实网络很好匹配；
 
-<img src="/Image/NetWork/ip/10.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000141.png" style="zoom:50%;" />
 
-<img src="/Image/NetWork/ip/11.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000142.png" style="zoom:50%;" />
 
-<img src="/Image/NetWork/ip/12.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000143.png" style="zoom:50%;" />
 
 ##### 2-1-2、特殊的 IP 地址
 
 全 0 或全 1 的特殊含义、预留的 IP 地址：
 
-<img src="/Image/NetWork/ip/16.png" style="zoom:40%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000144.png" style="zoom:40%;" />
 
-<img src="/Image/NetWork/ip/17.png" style="zoom:40%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000145.png" style="zoom:40%;" />
 
 
 
@@ -100,15 +100,15 @@ IPv4 分类地址是简单明了、具有 3 个级别(网络规模)的灵活性�
 
 子网掩码，表示方法：`A.B.C.D/N`，其中 N 的范围是 `[0, 32]`，匹配示例：
 
-<img src="/Image/NetWork/ip/13.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000146.png" style="zoom:50%;" />
 
 `71.94.0.0/15` 多级子网划分示例：
 
-<img src="/Image/NetWork/ip/14.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000147.png" style="zoom:50%;" />
 
 `208.130.29.33` 寻址历程：
 
-<img src="/Image/NetWork/ip/15.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000148.png" style="zoom:50%;" />
 
 
 
@@ -128,15 +128,15 @@ IPv4 分类地址是简单明了、具有 3 个级别(网络规模)的灵活性�
 - 广播形式请求
 - 单播形式应答
 
-<img src="/Image/NetWork/ip/18.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000149.png" style="zoom:50%;" />
 
-<img src="/Image/NetWork/ip/19.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000150.png" style="zoom:50%;" />
 
 ARP 报文格式：FrameType = 0x0806，与硬件类型与操作码(图2)：
 
-<img src="/Image/NetWork/ip/20.png" style="zoom:40%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000151.png" style="zoom:40%;" />
 
-<img src="/Image/NetWork/ip/21.png" style="zoom:40%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000152.png" style="zoom:40%;" />
 
 
 
@@ -147,13 +147,13 @@ ARP 报文格式：FrameType = 0x0806，与硬件类型与操作码(图2)：
 - 广播形式请求
 - 单播形式应答
 
-<img src="/Image/NetWork/ip/22.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000153.png" style="zoom:50%;" />
 
-<img src="/Image/NetWork/ip/23.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000154.png" style="zoom:50%;" />
 
 RARP 报文格式：FrameType = 0x8035：
 
-<img src="/Image/NetWork/ip/24.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000155.png" style="zoom:50%;" />
 
 
 
@@ -163,7 +163,7 @@ RARP 报文格式：FrameType = 0x8035：
 
 即 ARP 广播形式发出后，恶意用户主动发送 MAC 地址，且难以判断孰正孰伪，但可通过从其他途径获取 MAC 地址，然后在路由器或交换机设立 MAC 白名单来防御；
 
-<img src="/Image/NetWork/ip/25.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000156.png" style="zoom:50%;" />
 
 
 
@@ -171,9 +171,9 @@ RARP 报文格式：FrameType = 0x8035：
 
 #### 2-4、NAT(IP NetWork Address Translator) 地址转换与 LVS 负载均衡
 
-<img src="/Image/NetWork/ip/26.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000157.png" style="zoom:50%;" />
 
-<img src="/Image/NetWork/ip/27.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000158.png" style="zoom:50%;" />
 
 单纯的 IPv4 存在以下问题:
 
@@ -188,7 +188,7 @@ RARP 报文格式：FrameType = 0x8035：
 
 NAT 优点是：共享公共 IP 节约开支、扩展主机时不涉及公共地址、更换 ISP(公网IP) 不对主机产生影响、更好的安全性与隔离性(外部无法主动访问内网服务)；缺点也明显：网络管理复杂、性能下降、需重新修改校验和、客户端缺乏公网 IP 可能导致功能缺失、某些应用协议由于传递网络层信息而功能受限；此外还有 NAPT，即在 NAT 基础上转换端口，由此可接受少量 IP 支持大量设备上网；
 
-<img src="/Image/NetWork/ip/29.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000159.png" style="zoom:50%;" />
 
 注意：IPv6 亦可使用 NAT，但全部是 IPv6 则没必要使用；
 
@@ -196,15 +196,15 @@ NAT 优点是：共享公共 IP 节约开支、扩展主机时不涉及公共地
 
 ##### 2-4-1、单向(向外)转换 NAT：动态映射
 
-<img src="/Image/NetWork/ip/28.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000200.png" style="zoom:50%;" />
 
 ##### 2-4-2、双向(向外)转换 NAT：静态映射
 
-<img src="/Image/NetWork/ip/30.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000201.png" style="zoom:50%;" />
 
 
 
 ##### 2-4-3、其他：LVS(Linux Virtual Server)/ NAT 工作模式
 
-<img src="/Image/NetWork/ip/31.png" style="zoom:40%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000202.png" style="zoom:40%;" />
 

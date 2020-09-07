@@ -12,11 +12,11 @@ typora-root-url: ../../../BlogImgsBed/Source
 
 浏览器中的缓存作用分为 2 种情况，一种是需要发送 HTTP 请求(强缓)，另一种则不用(协缓)；首次缓存、非首次缓存、用户行为与缓存如下：
 
-<img src="/Image/Chromium/711.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001812.png" style="zoom:50%;" align="left"/>
 
-<img src="/Image/Chromium/712.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001813.png" style="zoom:50%;" align="left"/>
 
-<img src="/Image/Chromium/713.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001814.png" style="zoom:50%;" align="left"/>
 
 
 
@@ -63,7 +63,7 @@ Cache-Control 还有诸多属性值来对缓存作更细粒度的操作：
 
 即若强缓存失效，即资源缓存超时，浏览器在请求头中携带相应的 <u>缓存tag</u> 来向服务器发请求，服务器根据此 tag，来告知浏览器是否继续使用缓存；缓存 Tag 有两种，无分优劣， **Last-Modified**、 **ETag**
 
-<img src="/Image/Chromium/22.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001815.png" style="zoom:50%;" align="left"/>
 
 ##### 2-2-1、Last-Modified
 
@@ -87,11 +87,13 @@ Cache-Control 还有诸多属性值来对缓存作更细粒度的操作：
 
 ##### 2-2-3、两者对比
 
-- 精度上，<u>**ETag** 优于 **Last-Modified**</u>：原因是前者按照内容给资源上标识，能准确感知资源变化，而后者在某些特殊情况下无法准确感知资源变化：
-  - **<u>不该重新请求时，重新请求：</u>**编辑文件，但实际上文件内容并无变更，服务端并不清楚文件是否真正改变，仍通过最后编辑时间进行判断，此时资源再次被请求时，会被当做新资源处理，缓存作用失效；
-  - **<u>该重新请求时，无重新请求：</u>**Last-Modified 能感知的最小单位时间是秒，若文件在 1 秒内发生多次改变则无法表现出修改，具有局限性；
-- 性能上，<u>**Last-Modified** 优于 **ETag**</u>：前者仅记录时间点，而后者需要服务器根据文件具体内容生成唯一哈希值；
-- 优先上，若两种方式均支持，服务器会<u>优先考虑 **ETag 机制 (客户端接收角度为 ETag 优先，服务端接收角度为 If-None-Match 优先)**；</u>
+精度上，<u>**ETag** 优于 **Last-Modified**</u>：原因是前者按照内容给资源上标识，能准确感知资源变化，而后者在某些特殊情况下无法准确感知资源变化：
+- **<u>不该重新请求时，重新请求：</u>**编辑文件，但实际上文件内容并无变更，服务端并不清楚文件是否真正改变，仍通过最后编辑时间进行判断，此时资源再次被请求时，会被当做新资源处理，缓存作用失效；
+- **<u>该重新请求时，无重新请求：</u>**Last-Modified 能感知的最小单位时间是秒，若文件在 1 秒内发生多次改变则无法表现出修改，具有局限性；
+
+性能上，<u>**Last-Modified** 优于 **ETag**</u>：前者仅记录时间点，而后者需要服务器根据文件具体内容生成唯一哈希值；
+
+优先上，若两种方式均支持，服务器会<u>优先考虑 **ETag 机制 (客户端接收角度为 ETag 优先，服务端接收角度为 If-None-Match 优先)**；</u>
 
 
 
@@ -203,7 +205,7 @@ Push Cache 是指 HTTP2 在 server push 阶段存在的缓存，是浏览器缓�
     - 若资源更新，返回资源和  200 状态码；
     - 否则，返回 304 状态码，告诉浏览器直接从缓存获取资源；
 
-<img src="/Image/Chromium/16.png" style="zoom:40%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001816.png" style="zoom:40%;" align="left" />
 
 
 
@@ -318,14 +320,14 @@ https://www.example.com:443 === https://www.example.com
 
 #### 4-1、跨域拦截机制
 
-<img src="/Image/Chromium/5.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001817.png" style="zoom:50%;" align="left"/>
 
 
 
-- 首先，浏览器是多进程的，而 WebKit 渲染引擎 和 V8 引擎 都在渲染进程当中；所以当 `xhr.send` 被调用时(即请求准备发送时)，尚在渲染进程的处理；
+- 首先，浏览器是多进程的(渲染进程、网络进程、主进程等)，而 WebKit 渲染引擎 和 V8 引擎 都在渲染进程当中；所以当 `xhr.send` 被调用时(即请求准备发送时)，尚在渲染进程的处理；
   - 注意：为防止黑客通过脚本触碰系统资源，浏览器将每一<u>渲染进程分配进沙箱</u>，同时为防止 CPU 芯片一直存在的 <u>Spectre</u> 和  <u>Meltdown</u> 漏洞，采取 <u>站点隔离</u>  的手段，给每一<u>不同站点(一级域名不同)分配沙箱</u>，使其互不干扰；[YouTube上Chromium安全团队的演讲视频](https://www.youtube.com/watch?v=dBuykrdhK-A&feature=emb_logo)；
 - 然后，沙箱中的渲染进程无法发送网络请求(只能通过网络进程来发送)，所以就需要 **<u>进程间通信(IPC，Inter Process Communication)</u>**， 来将数据传递给浏览器主进程，主进程接收到后，才真正地发出相应网络请求；chromium  中进程间通信的源码调用顺序如下：[IPC源码地址](https://chromium.googlesource.com/chromium/src/+/refs/heads/master/ipc/)、[Chromium IPC源码解析文章](https://blog.csdn.net/Luoshengyang/article/details/47822689)；
-  - <img src="/Image/Chromium/6.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001818.png" style="zoom:50%;" align="left"/>
   - 总结：利用 `Unix Domain Socket`套接字，配合事件驱动的高性能网络并发库  `libevent` 完成进程通信 IPC 过程；
 - 最后，服务端处理完并将响应返回，主进程检查到跨域行为，且无配置 CORS 响应头，遂将响应体全部丢弃，而不会发往渲染进程，实现了拦截数据的目的；
 
@@ -795,7 +797,7 @@ app.listen(8080);
 - 正向代理服务器是帮助 **客户端**，访问自身无法访问的服务器并将结果返回客户端；
 - 反向代理服务器是帮助其他 **服务器**，获取到客户端发送请求并转交服务器；
 
-<img src="/Image/Chromium/7.png" style="zoom:40%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001819.png" style="zoom:40%;" align="left"/>
 
 Nginx 是一种高性能的反向代理服务器，可解决跨域问题：
 
@@ -813,9 +815,9 @@ Nginx 相当于是一个跳板机，域名是 `client.com`，客户端首先访�
 
 
 
-##### 4-2-4、题外话
+##### 4-2-4、其他
 
-其实还有一些不太常用的方式，大家了解即可，比如`postMessage`，当然`WebSocket`也是一种方式，但是已经不属于 HTTP 的范畴，另外一些奇技淫巧就不建议大家去死记硬背了，一方面从来不用，名字都难得记住，另一方面临时背下来，面试官也不会对你印象加分，因为看得出来是背的。当然没有背并不代表减分，把跨域原理和前面三种主要的跨域方式理解清楚，经得起更深一步的推敲，反而会让别人觉得你是一个靠谱的人。
+不太常用的方式，比如：`postMessage`、`WebSocket`；
 
 
 
@@ -835,234 +837,11 @@ Nginx 相当于是一个跳板机，域名是 `client.com`，客户端首先访�
 
 ### 五、浏览器应用
 
-#### 5-1、防抖与节流
-
-防抖与节流函数是一种最常用的 **高频触发优化方式**，均为缓解函数频繁调用、在时间轴上控制函数的执行次数、控制事件触发频率；
-
-<img src="/Image/Chromium/333.png" style="zoom:50%;" align="left"/>
+#### 5-1、图片懒加载
 
 
 
-##### 5-1-1、防抖 (debounce)
-
-基本：等待一定时间再触发，概念衍生自机械开关和继电器的 "去弹跳"(debounce)；
-
-<u>防抖，即短时间内大量触发同一事件，只会执行一次函数，将多次高频操作优化为只在最后一次执行；</u>
-
-原理：为设置一个定时器，约定在xx毫秒后再触发事件处理，每次触发事件都会重新设置计时器，直到xx毫秒内无第二次操作；
-
-场景：输入验证过滤、表单提交、滚动条的监听事件处理、只需再输入完成后做一次输入校验即可；
-
-- 按钮提交场景：防止多次提交按钮，只执行最后提交的一次、表单验证
-- 后台验证场景：表单验证需要服务端配合，只执行一段连续的输入事件的最后一次，还有搜索联想词功能类似
-- 用户窗口缩放：resize事件(如窗口停止改变大小之后重新计算布局)等，没错，这里也可以用防抖
-- 搜索输入查询：用户在输入时，没有必要不停地调用去请求服务端接口，等用户停止输入的时候，再调用，设置一个合适的时间间隔，有效减轻服务端压力
-- 更多：[input 搜索防抖处理中文输入](https://github.com/Advanced-Frontend/Daily-Interview-Question/issues/129) - <u>提示：利用 e.target.compositionstart-ed 事件</u>
-
-```js
-// 思路：每次触发事件时都取消之前的延时调用方法；
-// 思路：将多个信号合并成一个信号；防抖意味着 N 秒内函数只会被执行一次，若 N 秒内再次被触发，则重新计算延迟时间；
-// 思路：持续触发不执行、不触发一段时间后再执行；
-
-// 实现1
-function debounce(func, wait) {
-    let timeout = null
-    // 将 debounce 处理结果当做函数返回
-    return function() {
-      	// 保留调用时的 this 上下文
-        let context = this
-        // 保留调用时传入的参数
-        let args = arguments
-        // 事件触发时清除先前旧的定时器
-        if (timeout) clearTimeout(timeout)
-      	// 设立新定时器
-        timeout = setTimeout(() => {
-            func.apply(context, args)
-        }, wait)
-    }
-}
-
-// 实现2
-function debounce(fn, wait, immediate) {
-    let timer = null
-    return function() {
-        let args = arguments
-        let context = this
-        if (immediate && !timer) {
-            fn.apply(context, args)
-        }
-        if (timer) clearTimeout(timer)
-        timer = setTimeout(() => {
-            fn.apply(context, args)
-        }, wait)
-    }
-}
-
-// 实现3
-function debounce(func, wait) {
-  let timeout;
-  return function() {
-    let context = this;
-    let args = arguments;
-    if (timeout) clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      func.apply(context, args);
-    }, wait);
-  };
-}
-// 使用
-window.onscroll = debounce(function() {
-  console.log('debounce');
-}, 1000);
-// 使用2
-document.addEventListener('scroll', debounce(() => consol.log('debounce done'), 1000));
-```
-
-<img src="/Image/Chromium/334.png" style="zoom:80%;" align="left"/>
-
-
-
-##### 5-1-2、节流 (throttle)
-
-区别：防抖是延迟执行，而节流是间隔执行；防抖每次触发事件都重置定时器，而节流在定时器到时间后再清空定时器；
-
-<u>节流，即每隔一段时间就执行一次；每隔一段时间后执行一次，也就是降低频率(稀释函数的执行频率)，将高频操作优化成低频操作；</u>
-
-原理：设置一个定时器，约定xx毫秒后执行事件，若时间到了，则执行函数并重置定时器；
-
-场景：滚动条事件、resize 事件，通常每隔 100~500 ms 执行一次即可；
-
-- 拖拽场景：固定时间内只执行一次，防止超高频次触发位置变动
-- 缩放场景：监控浏览器resize
-- 动画场景：避免短时间内多次触发动画引起性能问题
-- 其他场景：按钮点击事件、拖拽事件、onScoll、计算鼠标移动的距离(mousemove)
-
-```js
-// 思路：每次触发事件时都判断当前是否有等待执行的延时函数；
-// 思路：规定在单位时间内，只能触发一次函数，若这个单位时间内触发多次函数，只有一次生效；
-// 思路：持续触发并不会执行多次，到一定时间再去执行；
-
-// 实现1
-function throttle(func, wait) {
-    let timeout = null
-    return function() {
-        let context = this
-        let args = arguments
-        if (!timeout) {
-            timeout = setTimeout(() => {
-                timeout = null
-                func.apply(context, args)
-            }, wait)
-        }
-
-    }
-}
-
-// 实现2
-// 使用两个时间戳 prev 旧时间戳和 now 新时间戳，每次触发事件都判断二者的时间差，如果到达规定时间，执行函数并重置旧时间戳
-function throttle(func, wait) {
-    var prev = 0;
-    return function() {
-        let now = Date.now();
-        let context = this;
-        let args = arguments;
-        if (now - prev > wait) {
-            func.apply(context, args);
-            prev = now;
-        }
-    }
-}
-
-
-// 实现3
-function throttle(fn, wait, immediate) {
-    let timer = null
-    let callNow = immediate
-    
-    return function() {
-        let context = this,
-            args = arguments
-
-        if (callNow) {
-            fn.apply(context, args)
-            callNow = false
-        }
-
-        if (!timer) {
-            timer = setTimeout(() => {
-                fn.apply(context, args)
-                timer = null
-            }, wait)
-        }
-    }
-}
-
-// 实现4
-function throttle(fn, delay) {
-  var prevTime = Date.now();
-  return function() {
-    var curTime = Date.now();
-    if (curTime - prevTime >= delay) {
-      fn.apply(this, arguments);
-      prevTime = curTime;
-    }
-  };
-}
-// 实现5
-function throttle(fn, delay = 500) {
-  let flag = true;
-  return function() {
-    if(!flag) return;
-    flag = false
-    setTimeout(() => {
-      fn.apply(this, arguments);
-      flag = true;
-    }, delay);
-  };
-}
-// ES6
-const throttle = (fn, delay = 500) => {
-  let flag = true;
-  return (...args) => {
-    if(!flag) return;
-    flag = false
-    setTimeout(() => {
-      fn.apply(this, args);
-      flag = true;
-    }, delay);
-  };
-}
-// 实现6
-
-
-// 使用
-var throtteScroll = throttle(function() {
-  console.log('throtte');
-}, 1000);
-window.onscroll = throtteScroll;
-```
-
-<img src="/Image/Chromium/335.png" style="zoom:50%;" align="left"/>
-
-<img src="/Image/Chromium/336.png" style="zoom:50%;" align="left"/>
-
-
-
-5-1-3、用 Throttle 来优化 Debbounce
-
-<img src="/Image/Chromium/337.png" style="zoom:50%;" align="left"/>
-
-
-
-
-
-#### 5-2、图片懒加载
-
-
-
-
-
-#### 5-3、WebWorker
+#### 5-2、WebWorker
 
 现代浏览器为 JS 创造的 **多线程环境**；可新建并将部分任务分配到`worker`线程并行运行，两个线程可 **独立运行，互不干扰**，可通过自带的 **消息机制** 相互通信；
 
@@ -1086,9 +865,11 @@ worker.onmessage = function (event) {
 
 
 
+
+
 ### 六、输入URL到展示过程
 
-- DNS 解析：通过域名查询到具体的 IP (详看 DNS 章节)
+- DNS 解析：通过域名查询到具体的 IP 
   - 操作系统会在本地缓存中查询 IP；若无则去系统配置的 DNS 服务器中查询；若无则直接去 DNS <u>根服务器查询</u>，查询会找出负责 `com` 这个一级域名的服务器；然后去 <u>一级域名服务器</u> 查询 `google` 这个二级域名，直至找到最终匹配域名 IP；
   - 上述为 DNS 迭代查询，还有种递归查询，区别是前者是由客户端发起请求，后者是由系统配置的 DNS 服务器做请求，得到结果后将数据返回给客户端；
 - TCP 三次握手；
@@ -1157,13 +938,13 @@ Server: apache
 Set-Cookie: rsv_i=f9a0SIItKqzv7kqgAAgphbGyRts3RwTg%2FLyU3Y5Eh5LwyfOOrAsvdezbay0QqkDqFZ0DfQXby4wXKT8Au8O7ZT9UuMsBq2k; path=/; domain=.google.com
 ```
 
-<img src="/Image/Chromium/15.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001820.png" style="zoom:50%;" />
 
 
 
 #### 6-X、浏览器解析渲染流程
 
-<img src="/Image/Chromium/17.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001821.png" style="zoom:50%;" />
 
 - 渲染进程将 HTML 内容转换为能够读懂的 **<u>DOM 树</u>**；
 - 渲染引擎将 CSS 样式表转化为浏览器可理解的 styleSheets，计算出 DOM 节点的样式；
@@ -1271,7 +1052,7 @@ HTML5 [规范](https://html.spec.whatwg.org/multipage/parsing.html) 详细地介
 - 然后，接收 `[a-z]` 字符，并进入 **标记名称状态**；
 - 然后，上述状态一直保持，直到遇到 `>`，表示标记名称记录完成，此时进入 **数据状态**；
 - 然后，后续的 `body`  标签做同样处理；
-- 然后，当来到 `<body>` 中的 `>`，进入**数据状态**，之后保持此状态接收后面字符 **hello sanyuan**；
+- 然后，当来到 `<body>` 中的 `>`，进入**数据状态**，之后保持此状态接收后面字符 **hello TLP**；
 - 接着，接收 `</body>`  中的 `<`，回到 **标记打开**，在接收下一个字符 `/`  时，此时会创建一个 `end tag` 的 token；
 - 随后，进入 **标记名称状态**，遇到 `>` 则回到**数据状态**；
 - 最后，以同样的样式处理 `</html>`；
@@ -1343,7 +1124,7 @@ if (t->isCloseTag(brTag) && m_document->inCompatMode()) {
 
 ##### 6-2-1-2-4、流程总结
 
-<img src="/Image/Chromium/18.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001822.png" style="zoom:50%;" align="left"/>
 
 - **转码(Bytes -> Characters)**
   - 读取接收到的 HTML 二进制数据，按指定编码格式将字节转换为 HTML 字符串；
@@ -1363,7 +1144,7 @@ if (t->isCloseTag(brTag) && m_document->inCompatMode()) {
 
 即渲染引擎将 CSS 样式表转化为浏览器可以理解的 styleSheets，计算出 DOM 节点的样式；
 
-<img src="/Image/Chromium/19.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001823.png" style="zoom:50%;" align="left"/>
 
 上图即将所有值转换为渲染引擎容易理解、标准化的计算值，此过程为 **<u>属性值标准化</u>**，处理完成后再处理样式的 **<u>继承和层叠</u>**，整一过程亦称 CSSOM 构建过程；
 
@@ -1393,7 +1174,7 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
 
 布局过程即：利用前面的 **<u>DOM 树</u>** 和 **<u>DOM 样式</u>** ，排除 `script、meta` 等功能化、非视觉节点，排除 `display: none` 的节点，并通过浏览器的布局系统 <u>计算元素位置信息</u>、<u>确定元素位置</u>，构建一棵只包含可见元素的 **<u>布局树(Layout Tree)</u>**；
 
-<img src="/Image/Chromium/20.png" style="zoom:50%;" align=""/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001824.png" style="zoom:50%;" align=""/>
 
 - 遍历生成的 **<u>DOM 树</u>** 节点，并将它们添加到 **<u>布局树</u>** 中；
 - 计算 **<u>布局树</u>** 节点的坐标位置；
@@ -1401,7 +1182,7 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
 - 注意：现在 Chrome 团队已经做了大量重构，已经没有生成 **<u>渲染树(Render Tree)</u>** 的过程(布局树的信息已非常完善，完全拥有 Render Tree 的功能)；
 - 补充：[从Chrome源码看浏览器如何layout布局](https://www.rrfed.com/2017/02/26/chrome-layout/)。
 
-<img src="/Image/Chromium/9.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001825.png" style="zoom:50%;" align="left" />
 
 
 
@@ -1420,7 +1201,7 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
 
 ​	解析阶段得到 DOM节点、样式、位置信息，但还不足以开始绘制页面，因还需考虑页面中的复杂效果与场景，比如复杂 3D 动画变换效果、页面滚动、元素含层叠上下文时的显示与隐藏、使用 z-indexing 做 z 轴排序等；而为更加方便地实现这些效果，在浏览器在构建完 **<u>布局树</u>** 后(解析阶段最后一步)，渲染引擎还需为特定的节点生成专用图层，构建一棵 **<u>图层树(Layer Tree)</u>**；
 
-<img src="/Image/Chromium/21.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001826.png" style="zoom:50%;" />
 
 ​	图层树通过显示隐式合成构建，一般情况下，节点的图层会默认属于父节点的图层(**亦称合成层**)，某些条件会触发将 **<u>多个合成层</u>** 提升为 **<u>单独合成层</u>**，可分两种情况讨论：**显式合成**、**隐式合成**
 
@@ -1444,7 +1225,7 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
   - 元素的 **will-change ** 值是指定的任意属性；([详看](https://dev.opera.com/articles/css-will-change-property/) )
 
 - 需要 <u>剪裁</u> 的地方也会被创建为图层：
-  - 比如某个翠存放巨量文字的 100 * 100 像素大小的 DIV，超出的文字部分就需要被剪裁；若出现滚动条，则滚动条会被单独提升为一个图层；
+  - 比如某个存放巨量文字的 100 * 100 像素大小的 DIV，超出的文字部分就需要被剪裁；若出现滚动条，则滚动条会被单独提升为一个图层；
 
 ##### 6-3-1-2、隐式合成
 
@@ -1457,7 +1238,7 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
 
 然后渲染引擎会将图层的绘制拆分成一个个绘制指令；比如先画背景、再描绘边框等，然后将这些指令按顺序组合成一个 **<u>待绘制列表</u>**，相当于制作一份绘制操作任务清单，可在 Chrome 开发者工具中的`Layers`面板观察绘制列表:
 
-<img src="/Image/Chromium/11.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001827.png" style="zoom:50%;" />
 
 
 
@@ -1481,7 +1262,7 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
 
 - 注意：无论是 PC 显示器还是手机屏幕，都有一个固定的刷新频率，一般是 60 HZ(60 帧、每秒更新60张图，停留 16.7 ms/图)，而每次更新的图片均来自于显卡的 **<u>前缓冲区</u>**；当显卡接收到浏览器进程传来的新的页面后，会合成相应的新图像，并将新图像保存到  <u>**后缓冲区**</u>；然后系统自动将 **<u>前缓冲区</u>** 和  **<u>后缓冲区</u>** 对换位置，如此循环更新；
 
-<img src="/Image/Chromium/10.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001828.png" style="zoom:50%;" />
 
 
 
@@ -1491,7 +1272,7 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
 
 回顾渲染流水线：
 
-<img src="/Image/Chromium/12.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001829.png" style="zoom:50%;" align="left"/>
 
 - 重绘是：当节点需要更改外观而不会影响布局的，比如改变 `color` 就叫称为重绘；
 - 回流是：布局或几何属性需要改变就称为回流；
@@ -1520,7 +1301,7 @@ CSS 样式被 <u>格式化</u> 和 <u>标准化</u> 后，便可计算每个节�
     - scrollTo()
 - 回流过程：依照下面的渲染流水线，触发重排/回流时，若 DOM 结构发生改变，则重新渲染 DOM 树，然后将后续流程(含主线程外的任务)全部走一遍；相当于将解析和合成的过程重新又走了一篇，开销巨大；
 
-<img src="/Image/Chromium/13.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001830.png" style="zoom:50%;" align="left"/>
 
 
 
@@ -1532,11 +1313,11 @@ DOM 修改导致样式发生变化，但无影响其几何属性，触发重绘�
 
 - 重绘过程：由于没有导致 DOM 几何属性变化，故元素的位置信息无需更新，从而省去布局与建图层树过程，然后继续进行分块、生成位图等后面系列操作；
 
-<img src="/Image/Chromium/14.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001831.png" style="zoom:50%;" align="left"/>
 
-- 注意：重排跳过了 <u>生成布局树</u> 和 <u>建图层树</u> 阶段，直接生成绘制列表，然后继续进行分块、生成位图等后面一系列操作；
-- 注意：重绘不一定导致回流，但回流一定发生了重绘；
-- 注意：**<u>*回流比重绘的代价要更高*</u>**；有时即使仅仅回流一个单一的元素，其父元素及任何跟随它的元素也会产生回流；为避免频繁回流导致的性能问题，现代浏览器会对频繁的回流或重绘操作进行**<u>*优化*</u>**：浏览器会维护一个 flush 队列，以存放触发回流与重绘的任务，若队列中任务数量或时间间隔达到一个阈值时，浏览器就会将此队列任务一次性出队清空，进行一次批处理，如此可将多次回流和重绘变成一次；**<u>*但当*</u>**访问一些即使属性时，为获得此时此刻的、最准确的属性值，浏览器会提前将 flush 队列的任务出队：clientwidth、clientHeight、clientTop、clientLeftoffsetwidth、offsetHeight、offsetTop、offsetLeftscrollwidth、scrollHeight、scrollTop、scrollLeftwidth、heightgetComputedStyle()、getBoundingClientRect() 
+- 注意：重绘跳过了 <u>生成布局树</u> 和 <u>建图层树</u> 阶段，直接生成绘制列表，然后继续进行分块、生成位图等后面一系列操作；
+- 注意：重绘不一定导致重排，但重排一定发生了重绘；
+- 注意：**<u>*重排比重绘的代价要更高*</u>**；有时即使仅仅重排一个单一的元素，其父元素及任何跟随它的元素也会产生重排；为避免频繁重排导致的性能问题，现代浏览器会对频繁的重排或重绘操作进行**<u>*优化*</u>**：浏览器会维护一个 flush 队列，以存放触发重排与重绘的任务，若队列中任务数量或时间间隔达到一个阈值时，浏览器就会将此队列任务一次性出队清空，进行一次批处理，如此可将多次重排和重绘变成一次；**<u>*但当*</u>**访问一些即使属性时，为获得此时此刻的、最准确的属性值，浏览器会提前将 flush 队列的任务出队：clientwidth、clientHeight、clientTop、clientLeftoffsetwidth、offsetHeight、offsetTop、offsetLeftscrollwidth、scrollHeight、scrollTop、scrollLeftwidth、heightgetComputedStyle()、getBoundingClientRect() 
 
 
 
@@ -1617,7 +1398,7 @@ JavaScript：
 
 当发生 `DOMContentLoaded` 事件后，就会生成渲染树，生成渲染树就可以进行渲染了，这一过程更大程度上和硬件有关系：
 
-<img src="/Image/Chromium/23.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001832.png" style="zoom:50%;" />
 
 
 
@@ -1639,9 +1420,7 @@ JavaScript：
 
 ##### 6-X-1、DOM 操作性能问题
 
-原因：因为 DOM 是属于渲染引擎中的东西，而 JS 又是 JS 引擎中的东西；通过 JS 操作 DOM 时，涉及到两个线程间的通信，势必会带来一些性能上的损耗。操作 DOM 次数一多，也就等同于一直在进行线程间的通信，且操作 DOM 可能还会带来重绘回流的情况，所以也就导致了性能上的问题；
-
-改进：
+原因：因为 DOM 是属于渲染引擎中的东西，而 JS 又是 JS 引擎中的东西；通过 JS 操作 DOM 时，涉及到两个线程间的通信，势必会带来一些性能上的损耗。操作 DOM 次数一多，也就等同于一直在进行线程间的通信，且操作 DOM 可能还会带来重绘回流的情况，所以也就导致了性能上的问题；改进：
 
 - `requestAnimationFrame`  方式去循环的插入 DOM；
 - 虚拟滚动 (virtualized scroller)：只渲染可视区域内的内容，非可见区域的完全不渲染，当用户在滚动的时就实时去替换渲染的内容  [react-virtualized](https://github.com/bvaughn/react-virtualized)；
@@ -1654,7 +1433,7 @@ JavaScript：
   - 优化：若想渲染快，可降低初始所需的渲染的文件 大小，并且扁平层级，优化选择器；
   - 注意：CSS 由单独的下载线程异步下载，由于 DOM 树的解析和构建此步与 css 并无关系，故并不会影响 DOM 解析，但最终布局树需要 DOM 树和 DOM 样式的，因此 CSS 会阻塞布局树的建立；
 - 然后，当浏览器在解析到  `script ` 标签时，会暂停构建 DOM，完成后才会从暂停的地方重新开始(即 script 会阻塞页面渲染)；
-  - 注意：因为 JS属于单线程，在加载 `script` 标签内容时，渲染线程会被暂停，因 `script`标签中内容可能会操作`DOM`，若加载`script`标签的同时渲染页面就会产生冲突，渲染线程(`GUI`)和 JS 引擎线程是互斥的；
+  - 因为：JS属于单线程，在加载 `script` 标签内容时，渲染线程会被暂停，因 `script`标签中内容可能会操作`DOM`，若加载`script`标签的同时渲染页面就会产生冲突，渲染线程(`GUI`)和 JS 引擎线程是互斥的；
   - 优化：若想首屏渲染快，一般而言不应在首屏时就加载 JS 文件，而将 `script` 标签放在 `body` 标签底部；
   - 优化：若想首屏渲染快，亦可给 `script` 标签添加 `defer` 或 `async` 属性：
     - `defer` 属性表示该 JS 文件会并行下载，但会放到 HTML 解析完成后顺序执行，此时的 `script` 标签可放在任意位置；
@@ -1684,7 +1463,9 @@ JavaScript：
 
 
 
-### X、打开页面需要启动的进程-简略
+### X、其他
+
+X-1、打开页面需要启动的进程-简略
 
 浏览器从关闭状态进行启动，然后新开 1 个页面至少需要 1 个网络进程、1 个浏览器进程、1 个 GPU 进程以及 1 个渲染进程，共 4 个进程；
 
@@ -1698,9 +1479,7 @@ JavaScript：
 - 网络进程：主要负责页面的网络资源加载，之前是作为一个模块运行在浏览器进程里面的，直至最近才独立出来，成为一个单独的进程；
 - 插件进程：主要是负责插件的运行，因插件易崩溃，所以需要通过插件进程来隔离，以保证插件进程崩溃不会对浏览器和页面造成影响；
 
-
-
-### Y、浏览器架构
+X-2、浏览器架构
 
 - 用户界面
 - 主进程

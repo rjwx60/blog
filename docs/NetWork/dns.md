@@ -26,9 +26,9 @@ DNS 由<u>根DNS服务器、顶级域 DNS 服务器、权威 DNS 服务器</u> �
 
 #### 1-2、域名结构
 
-<img src="/Image/NetWork/dns/1.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234809.png" style="zoom:50%;" />
 
-<img src="/Image/NetWork/dns/11.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234830.png" style="zoom:50%;" />
 
 ##### 1-2-1、根子结构
 
@@ -55,14 +55,14 @@ DNS 使用分布式的层次数据库模式缓存方法，来解决单点集中�
 
 #### 1-3、查询工具 Dig
 
-<img src="/Image/NetWork/dns/8.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234831.png" style="zoom:50%;" align="left"/>
 
 注意：资源记录：DNS 数据库中包含的 **<u>资源记录 (RR)</u>**，每个 RR 标识数据库中的特定资源；
 
 - 在建立 DNS 服务器时，常用到 SOA、NS、A 记录；
 - 在维护 DNS 服务器时，则用到 MX、CNAME 记录
 
-<img src="/Image/NetWork/dns/12.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234832.png" style="zoom:50%;" align="left"/>
 
 
 
@@ -84,15 +84,15 @@ DNS 使用分布式的层次数据库模式缓存方法，来解决单点集中�
 
 3、然后，若查询不得，则过程继续，DNS 服务器为用户发起 DNS 解析<u>*迭代*</u> 请求；
 
-<img src="/Image/NetWork/dns/10.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234833.png" style="zoom:50%;" />
 
 - 注意：DNS的域名查找，在客户端和浏览器，本地DNS之间的查询方式是递归查询；在本地DNS服务器与根域及其子域之间的查询方式是迭代查询；递归查询与迭代查询区别：
   - **递归查询-Recursive resolution (query)**：在递归解析中，如果客户机被授权使用域名，它就向第一服务器(the.edu)发送请求，否则就向下一服务器发送客户机请求，直到正确的服务器解析查询并向客户机发送应答；
-  - <img src="/Image/NetWork/dns/16.png" style="zoom:50%;" align="left"/>
-  - <img src="/Image/NetWork/dns/18.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234834.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234835.png" style="zoom:50%;" align="left"/>
   - **迭代查询-Iterative resolution**：客户端向第一个服务器发送查询，如果服务器被授权使用域名，它就会发送应答(IP 或域名) ，否则它就会发送下一个服务器的 IP 地址来解决查询。现在客户端将查询发送到第二台服务器。客户端继续这个向服务器发送查询的过程，直到查询被解析；
-  - <img src="/Image/NetWork/dns/17.png" style="zoom:50%;" align="left"/>
-  - <img src="/Image/NetWork/dns/19.png" style="zoom:30%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234836.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234837.png" style="zoom:30%;" align="left"/>
   - 综上，递归查询时客户单只发送查询到第一个服务器，然后服务器将请求发送到下一个服务器，直到查询被解析；而在迭代查询中，客户端负责将查询发送到不同的服务器，直到查询被解析；
 
 4、然后，若上述过程均解析失败，则根据本地 DNS 服务器的设置(是否设置转发器)进行查询：
@@ -116,15 +116,15 @@ DNS 使用分布式的层次数据库模式缓存方法，来解决单点集中�
 
 
 
-<img src="/Image/NetWork/dns/9.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234838.png" style="zoom:50%;" />
 
 注意：**主机向本地域名服务器的查询一般都是采用递归查询**：若主机所询问的本地域名服务器不知道被查询的域名的IP地址，则本地域名服务器就以 DNS客户身份，向其它根域名服务器继续发出查询请求报文(即替主机继续查询)，而不是让主机自己进行下一步查询。因此，递归查询返回的查询结果或者是所要查询的IP地址，或者是报错，表示无法查询到所需的IP地址；而**本地域名服务器向根域名服务器的查询的迭代查询**：当根域名服务器收到本地域名服务器发出的迭代查询请求报文时，要么给出所要查询的IP地址，要么告诉本地服务器：“下一步应当向哪个域名服务器进行查询”。然后让本地服务器进行后续的查询。根域名服务器通常是将自己知道的顶级域名服务器的IP地址告诉本地域名服务器，让本地域名服务器再向顶级域名服务器查询。顶级域名服务器在收到本地域名服务器的查询请求后，要么给出所要查询的IP地址，要么告诉本地服务器下一步应当向哪一权限域名服务器进行查询。最后，知道了所要解析的IP地址或报错，然后把这个结果返回给发起查询的主机；
 
-<img src="/Image/NetWork/dns/15.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234839.png" style="zoom:50%;" />
 
 
 
-<img src="/Image/NetWork/dns/13.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234840.png" style="zoom:50%;" />
 
 注意：查找过程中，优化点如下：
 
@@ -138,9 +138,9 @@ DNS 使用分布式的层次数据库模式缓存方法，来解决单点集中�
 
 ### 二、DNS 报文
 
-<img src="/Image/NetWork/dns/2.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234841.png" style="zoom:50%;" />
 
-<img src="/Image/NetWork/dns/3.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234842.png" style="zoom:50%;" />
 
 - 注意：请求和响应格式为同一结构，只是部分字段内容的有无；
 - 注意：query：查询域名；response：返回 IP 地址；
@@ -151,17 +151,17 @@ DNS 使用分布式的层次数据库模式缓存方法，来解决单点集中�
 
 ##### 2-1-1、Question 字段格式
 
-<img src="/Image/NetWork/dns/5.png" style="zoom:40%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234843.png" style="zoom:40%;" align="left"/>
 
-<img src="/Image/NetWork/dns/4.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234844.png" style="zoom:50%;" align="left"/>
 
 #### 2-2、DNS 响应报文
 
 ##### 2-2-1、Answer 字段格式
 
-<img src="/Image/NetWork/dns/7.png" style="zoom:40%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234845.png" style="zoom:40%;" align="left"/>
 
-<img src="/Image/NetWork/dns/6.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907234846.png" style="zoom:50%;" />
 
 
 

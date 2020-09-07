@@ -46,7 +46,7 @@ typora-root-url: ../../../BlogImgsBed/Source
 - ***<u>webpack</u>*** 处理如同生产线，经过系列处理流程后，将源文件转换成输出结果，其通过 **<u>*Tapable*</u>** 来组织这条复杂的生产线；每一流程职责单一，但多个流程之间有存在依赖关系，当且仅当当前处理完成后，才交给下一个流程处理；
   - **<u>*tapable*</u>** 原理实际就是 EventEmit，通过发布者-订阅者模式实现，部分核心代码可概括如下；
   - webpack4 重写了事件流机制，但实际使用中只需记住几个重要事件即可，[详看](https://juejin.im/post/5abf33f16fb9a028e46ec352)
-  - <img src="/Image/Engineering/22.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001239.png" style="zoom:50%;" align="left"/>
 
 - **<u>*plugin*</u>** 就像是一个插入到生产线中的一个功能，在特定的时机，对生产线上的资源做处理，*webpack* 在运行过程中会广播 **<u>*event*</u>**，*plugin* 只需要监听它所关心的事件，就能加入到这条生产线中，然后去改变生产线的运作，*Webpack* 的事件流机制保证了插件的有序性，使得整个系统扩展性很好；
 
@@ -63,7 +63,7 @@ typora-root-url: ../../../BlogImgsBed/Source
     - 调用 acorn 生成 AST；
     - 遍历 ast，其中每个语句都会触发插件，例如 parse.applyPluginBailResult('call commonjs:require:xxx', xxx, xx)；
     - 就连 require 函数添加依赖的功能也是插件完成的；
-    - <img src="/Image/Engineering/23.png" style="zoom:20%;" align="left"/>
+    - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001240.png" style="zoom:20%;" align="left"/>
   - **<u>resolver</u>**
     - 用于将路径转化为绝对路径，有 normalResolver、contextResolver、loaderResolver 三种；
     - contextResolver 用于解析 contextModule(形如require('a/' + b + '/c')这种)
@@ -92,7 +92,7 @@ webpack 本质是一种事件流机制，工作流程是：将各个插件串联
 - - 多个事件连续顺序执行、并行执行、异步执行
   - 一个接一个地执行插件，前面的输出是后一个插件的输入的瀑布流执行顺序 
   - 在允许时停止执行插件，即某个插件返回 `undefined` ，即退出执行；
-  - <img src="/Image/Engineering/26.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001241.png" style="zoom:50%;" align="left"/>
 
 
 
@@ -118,7 +118,7 @@ Tapable 1.0+ 版本发生巨变：
    } = require("tapable");
   ```
 
-- <img src="/Image/Engineering/27.png" style="zoom:40%;" align="left" />
+- <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001242.png" style="zoom:40%;" align="left" />
 
 - 插件注册数量
 - 插件注册的类型(sync, async, promise)
@@ -143,7 +143,7 @@ Tapable 1.0+ 版本发生巨变：
 - 然后，使用 `tap/tapAsync/tapPromise` 绑定钩子
 
   - tabpack 提供了 `同步` & `异步` 绑定钩子的方法，且它们均有 `绑定事件` 和 `执行事件` 对应的方法；
-  - <img src="/Image/Engineering/413.png" style="zoom:60%;" align="left" />
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001243.png" style="zoom:60%;" align="left" />
 
 - 然后，`call/callAsync` 执行绑定事件
 
@@ -159,7 +159,7 @@ Tapable 1.0+ 版本发生巨变：
     hook1.call(1,2,3)
     ```
 
-  - <img src="/Image/Engineering/414.png" style="zoom:60%;" align="left" />
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001244.png" style="zoom:60%;" align="left" />
 
 **<u>Tapable 具体使用示例：</u>**
 
@@ -364,7 +364,7 @@ cost: 2015.866ms
 
 **<u>Tapable 其他方法，可根据自己的开发需求，选择适合的同步/异步钩子</u>**
 
-<img src="/Image/Engineering/415.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001245.png" style="zoom:50%;" align="left"/>
 
 
 
@@ -391,32 +391,32 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 - - 通过调用 call、callAsync 、promise 方式调用：
   - 调用方式不同原因：为了按照一定的执行策略执行、调用 compile 方法快速编译出一个方法来执行这些插件；
 
-<img src="/Image/Engineering/28.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001246.png" style="zoom:50%;" align="left"/>
 
 - 追根溯源1：
 
-<img src="/Image/Engineering/35.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001247.png" style="zoom:50%;" align="left"/>
 
 - 追根溯源2：上图中，用以继承的 Hook 类：用以添加勾子；
 
-<img src="/Image/Engineering/30.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001248.png" style="zoom:50%;" align="left"/>
 
 - 追根溯源3：
 - 上图中，`factory` 是类 `Sync*CodeFactory` 的实例，而此类继承自 `HookCodeFactory` (下图填写 `class Sync*CodeFactory` 报错，故用 X 替代 *)
 
-<img src="/Image/Engineering/31.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001249.png" style="zoom:50%;" align="left"/>
 
 - 追根溯源4：
   - 其中 `callTapsSeries` 用于将插件列表中插件按照注册顺序遍历执行，编译生成最终执行插件的函数；
   - 其中 `create` 中调用到 `content` 方法，将按照此钩子的执行策略，调用不同的方法来执行编译 生成最终的代码；
 
-<img src="/Image/Engineering/32.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001250.png" style="zoom:50%;" align="left"/>
 
-<img src="/Image/Engineering/33.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001251.png" style="zoom:50%;" align="left"/>
 
 - 数个勾子依赖于 `HookCodeFactory` 的实现，尤其是 `content & callTapsSeries`：
 
-<img src="/Image/Engineering/34.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001252.png" style="zoom:50%;" align="left"/>
 
 
 
@@ -430,7 +430,7 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 - **编译：Entry 出发，由 Module 寻找依赖 Module，直至完全，此时会串行调用对应 Loader 转译内容为可处理文件，进行编译处理；**
 - **输出：对编译后的 Module 组合成 Chunk，把 Chunk 转换成文件，输出到文件系统**
 - **假若：开启监听模式，则流程如下：**
-  - <img src="/Image/Engineering/17.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001253.png" style="zoom:50%;" align="left"/>
 
 
 
@@ -438,7 +438,7 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 
 分为三个阶段：初始、编译、输出；
 
-<img src="/Image/Engineering/18.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001254.png" style="zoom:50%;" align="left"/>
 
 ##### 7-1-3-1、初始阶段
 
@@ -494,7 +494,7 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 
 - 优先使用目录中的 moment.js，然后才是模块；
 
-<img src="/Image/Engineering/19.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001255.png" style="zoom:50%;" align="left"/>
 
 
 
@@ -517,11 +517,11 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
     - 作用：用以模拟 Node 中的 require 语句，做了缓存优化，不会二次执行加载；
     - 因为：浏览器无法像 Node 快速加载多个模块文件，而须通过网络请求异步加载文件；
     - 所以：原多个独立模块文件，被合并到一单独 bundle.js 文件，且模块数量很多加载时间会越长，将所有模块都存放在数组中，便于执行一次网络加载；
-    - <img src="/Image/Engineering/20.png" style="zoom:50%;" align="left"/>
+    - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001256.png" style="zoom:50%;" align="left"/>
 - 最后，`emit` 阶段，所有文件的编译及转化都已经完成，包含了最终输出的资源；
   - 此阶段可在传入事件回调的 `compilation.assets` 上拿到所需数据，其中包括即将输出的资源、代码块 `Chunk` 等信息；
 
-<img src="/Image/Engineering/24.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001257.png" style="zoom:60%;" align="left"/>
 
 
 
@@ -574,7 +574,7 @@ Webpack 可认为是一种基于事件流的编程范例，内部的工作流程
 
 plugin 方法根据此类来向外暴露、而核心对象 Compiler、Compilation 等均继承于该对象；[Tapable 相关方法](https://segmentfault.com/a/1190000008060440#articleHeader1)
 
-<img src="/Image/Engineering/25.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001258.png" style="zoom:60%;" align="left"/>
 
 - entry-option：初始化 options；
 - run：开始编译；
@@ -614,9 +614,9 @@ plugin 方法根据此类来向外暴露、而核心对象 Compiler、Compilatio
 
 webpack：./webpack/lib/webpack.js
 
-<img src="/Image/Engineering/37.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001259.png" style="zoom:60%;" align="left"/>
 
-<img src="/Image/Engineering/38.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001300.png" style="zoom:60%;" align="left"/>
 
 其中 `WebpackOptionsApply` 会注册大量内部插件(图中第3个箭头)，诸如：**<u>*EntryOptionPlugin*</u>** (用以处理 entry)、`LoaderPlugin` 等；
 
@@ -640,7 +640,7 @@ webpack：./webpack/lib/webpack.js
 
 从 entry 出发：从上面提到的 **<u>*EntryOptionPlugin*</u>** 得到的类实现如下：
 
-<img src="/Image/Engineering/39.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001301.png" style="zoom:60%;" align="left"/>
 
 根据 entry 参数类型选择相应处理类，以下为其中1个处理方式 SingleEentryPlugin：
 
@@ -650,27 +650,27 @@ webpack：./webpack/lib/webpack.js
 
 输出阶段 - make 时，则调用 compilation.addEntry 方法；
 
-<img src="/Image/Engineering/40.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001302.png" style="zoom:60%;" align="left"/>
 
 compilation 是一个编译对象，会存储编译一个 entry 的所有信息，包括他的依赖，对应的配置等；
 
 compilation.addEntry 会调用 _addModuleChain 方法，其又会调用 buildModule 方法；
 
-<img src="/Image/Engineering/41.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001303.png" style="zoom:60%;" align="left"/>
 
 buildModule 中调用 module.build 方法，此法使用的是 NormalModule.js 中的 build 方法；
 
-<img src="/Image/Engineering/42.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001304.png" style="zoom:60%;" align="left"/>
 
 build 先调用 doBuild 将模块转为 JS 模块，再利用 parse 编译 Js 为 AST
 
-<img src="/Image/Engineering/43.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001305.png" style="zoom:60%;" align="left"/>
 
-<img src="/Image/Engineering/44.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001306.png" style="zoom:60%;" align="left"/>
 
 parse 调用 acorn 对JS进行语法解析，acorn 就是一个JS的 parser
 
-<img src="/Image/Engineering/45.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001307.png" style="zoom:60%;" align="left"/>
 
 [parse 阶段](https://github.com/lihongxun945/diving-into-webpack/blob/master/6-process-pipe-line.md)：比如：import 语句，经过 babel-loader 处理后，变为 require，进入 parse 阶段：
 
@@ -686,7 +686,7 @@ parse 调用 acorn 对JS进行语法解析，acorn 就是一个JS的 parser
 
 注意：此乃简化版，详看 [此文]([https://github.com/lihongxun945/diving-into-webpack/blob/master/6-process-pipe-line.md#%E6%80%BB%E7%BB%93webpack-%E6%B5%81%E7%A8%8B](https://github.com/lihongxun945/diving-into-webpack/blob/master/6-process-pipe-line.md#总结webpack-流程))
 
-<img src="/Image/Engineering/46.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001308.png" style="zoom:60%;" align="left"/>
 
 根据 `webpack` 配置，注册对应插件；
 
@@ -766,7 +766,7 @@ parse 调用 acorn 对JS进行语法解析，acorn 就是一个JS的 parser
 
 ##### 7-1-8、构建流程G
 
-<img src="/Image/Engineering/420.png" style="zoom:70%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001309.png" style="zoom:70%;" align="left"/>
 
 ##### 7-1-8-1、入口
 
@@ -1045,7 +1045,7 @@ compilation.getStats() 能得到生产文件以及 chunkhash 的一些信息等�
 
 ##### 7-1-9、构建流程H
 
-<img src="/Image/Engineering/502.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001310.png" style="zoom:50%;" align="left"/>
 
 `webpack` 的运行流程是一个串行的过程，从启动到结束会依次执行以下流程：首先会从配置文件和 `Shell` 语句中读取与合并参数，并初始化需要使用的插件和配置插件等执行环境所需要的参数；初始化完成后会调用`Compiler`的`run`来真正启动`webpack`编译构建过程，`webpack`的构建流程包括`compile`、`make`、`build`、`seal`、`emit`阶段，执行完这些阶段就完成了构建过程；
 
@@ -1243,7 +1243,7 @@ const code = step3('./src/index.js')
 console.log(code)
 ```
 
-<img src="/Image/Engineering/77.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001311.png" style="zoom:60%;" align="left"/>
 
 
 
@@ -1647,7 +1647,7 @@ export default content;
   - 红框：表示文件系统，文件修改后的变化就发生在这；
   - 青框：表示应用本身；
 
-<img src="/Image/Engineering/47.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001312.png" style="zoom:50%;" align="left"/>
 
 - 首先：**<u>*第 1 步*</u>**，webpack 进入 watch 模式，监听文件系统中的文件变化(代码层级)；
 
@@ -1685,7 +1685,7 @@ export default content;
 
 - 最后，如果 HMR 失败，则回退到 live reload 操作，也即进行刷新浏览器来获取最新打包代码；
 
-<img src="/Image/Engineering/47.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001312.png" style="zoom:50%;" align="left"/>
 
 ##### 7-3-2-1、原理演示
 
@@ -1799,7 +1799,7 @@ Server.prototype._sendStats = function (sockets, stats, force) {
 
 注意：下图中为  "<u>websocket 接收 dev-server 通过 sockjs 发送到浏览器端的消息列表</u>" 
 
-<img src="/Image/Engineering/48.png" style="zoom:35%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001313.png" style="zoom:35%;" align="left"/>
 
 然后，`webpack-dev-server/client` 根据接收到的消息的 type 作不同操作：
 
@@ -1840,7 +1840,7 @@ function reloadApp() {
 
 
 
-<img src="/Image/Engineering/47.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001312.png" style="zoom:50%;" align="left"/>
 
 **<u>*第 4 步*</u>**，webpack 接收到最新 hash 值验证并请求模块代码
 
@@ -1850,9 +1850,9 @@ function reloadApp() {
 - 然后，调用 `HMR runtime` 中的 `check` 方法，检测是否有新的更新；
   - 在 check 过程中会利用 `jsonp runtime`； 中的 2 个方法 `hotDownloadUpdateChunk` 和 `hotDownloadManifest`；
     - `hotDownloadUpdateChunk`  方法是通过 JSONP 请求最新的模块代码；
-      - <img src="/Image/Engineering/50.png" style="zoom:25%;" align="left"/>
+      - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001314.png" style="zoom:25%;" align="left"/>
     - `hotDownloadManifest` 方法是调用 AJAX 向服务端请求是否有更新的文件，若有将发更新的文件列表返回浏览器端；
-      - <img src="/Image/Engineering/49.png" style="zoom:25%;" align="left"/>
+      - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001315.png" style="zoom:25%;" align="left"/>
   - 注意：`webpack/lib/JsonpMainTemplate.runtime` 简称 `jsonp runtime`；
   - 注意： `webpack/lib/HotModuleReplacement.runtime` 简称 `HMR runtime`；
   - 注意：上述两次请求均使用上一次的 hash 值拼接的请求文件名：
@@ -1928,7 +1928,7 @@ function hotApply() {
     - 作用：用以模拟 Node 中的 require 语句，做了缓存优化，不会二次执行加载；
     - 因为：浏览器无法像 Node 快速加载多个模块文件，而须通过网络请求异步加载文件；
     - 所以：原多个独立模块文件，被合并到一 bundle.js 文件，且模块数量很多加载时间会越长，将所有模块都存放在数组中，便于执行一次网络加载；
-    - <img src="/Image/Engineering/20.png" style="zoom:50%;" align="left"/>
+    - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001256.png" style="zoom:50%;" align="left"/>
 
   
 
@@ -2065,7 +2065,7 @@ webpack 中都是模块且有唯一标识
 
 ##### 7-3-4、基本原理C
 
-<img src="/Image/Engineering/51.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001316.png" style="zoom:50%;" align="left"/>
 
 基本：代码在开发打包阶段，被编译注入到客户端的 Bundle.js 中(加塞用于 websocket 连接通讯的相关代码)，如此 bundle.js 就能与服务端建立起 websocket 连接，此后编辑器中修改代码，相应文件变化就可得到及时通知；过程如下：
 
@@ -2080,11 +2080,11 @@ webpack 中都是模块且有唯一标识
 
 ##### 7-3-5、基本原理D
 
-<img src="/Image/Engineering/52.png" style="zoom:35%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001317.png" style="zoom:35%;" align="left"/>
 
 ##### 7-3-5-1、HMR 在 Server 端的实现
 
-<img src="/Image/Engineering/53.png" style="zoom:35%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001318.png" style="zoom:35%;" align="left"/>
 
 启动位置：`webpack-dev-server/bin/webpack-dev-server.js`
 
@@ -2117,18 +2117,18 @@ server 端 HMR 流程：
 
 - webpack-dev-server.js
 
-<img src="/Image/Engineering/54.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001319.png" style="zoom:45%;" align="left"/>
 
 - webpack-dev-server/lib/Server.js
 
-<img src="/Image/Engineering/55.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001320.png" style="zoom:45%;" align="left"/>
 
 - _sendStats 会通过 websocket 给客户端发送两条消息；
 - 客户端收到消息后，会去请求一个 json 配置文件，然后根据配置请求新的JS模块代码、请求都会被 WebpackDevMiddleware 拦截：
 
-<img src="/Image/Engineering/56.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001321.png" style="zoom:45%;" align="left"/>
 
-<img src="/Image/Engineering/57.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001322.png" style="zoom:45%;" align="left"/>
 
 
 
@@ -2138,7 +2138,7 @@ webpack 在启用 HMR 后，会在 server 端(Node)监听文件改动，并且�
 
 浏览器中也会有 HMR 相关的代码，其会通过 socket 和 server 保持通信，获取新代码并进行热替换；
 
-<img src="/Image/Engineering/58.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001323.png" style="zoom:45%;" align="left"/>
 
 client 端 HMR 流程：
 
@@ -2153,32 +2153,32 @@ client 端 HMR 流程：
 
 - 启用 HMR 后，会在入口文件包裹一层，含有两个依赖：
 
-<img src="/Image/Engineering/59.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001324.png" style="zoom:45%;" align="left"/>
 
 - 其中 client/index.js 主要负责：建立socket 通信，并在收到消息后调用对应的方法；
 - 其中 dev-server.js 会调用 `module.hot.check` 方法，而最终作代码更新的，是在 `webpack/lib/HotModuleReplacement.runtime.js` 文件中；
 
-<img src="/Image/Engineering/60.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001325.png" style="zoom:45%;" align="left"/>
 
 - bundle 文件会被加入 webpack-dev-server/client.js，他会创建一个 socket 和 devserver 连接，监听事件：
 
-<img src="/Image/Engineering/61.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001326.png" style="zoom:45%;" align="left"/>
 
 - dev-server.js 中的check方法，最终会进入到这里：
 
-<img src="/Image/Engineering/62.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001327.png" style="zoom:45%;" align="left"/>
 
 - 加载JS的代码如下：
 
-<img src="/Image/Engineering/63.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001328.png" style="zoom:45%;" align="left"/>
 
 - 加载JS的代码如下：
 
-<img src="/Image/Engineering/64.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001329.png" style="zoom:45%;" align="left"/>
 
 - 得到了新模块的 JS 代码，下面要做的就是调用对应的 accept 回调，这也是在 hotApply 方法的后面部分做的：
 
-<img src="/Image/Engineering/65.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001330.png" style="zoom:45%;" align="left"/>
 
 
 
@@ -2186,42 +2186,42 @@ client 端 HMR 流程：
 
 现象：
 
-<img src="/Image/Engineering/66.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001331.png" style="zoom:45%;" align="left"/>
 
-<img src="/Image/Engineering/67.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001332.png" style="zoom:45%;" align="left"/>
 
 - 流程A：代码一旦发生改动保存就会自动重新编译打包，此系列的重新检测、编译依赖于 webpack 文件监听：
   - 在项目启动后，webpack 会通过 `Compiler` 类的 `Run` 方法开启编译构建过程，编译完成后(编译之后的文件会被写入到内存)，调用 Watch 方法监听文件变更，当文件发生变化，重新编译，编译完成之后继续监听；
   - Webpack 编译打包之后得到一个 `Compilation` ，并将 `Compilation` 传递到 `Webpack-dev-middleware` 插件中，于是`Webpack-dev-middleware` 便可通过 `Compilation` 调用 Webpack中 的 Watch 方法实时监控文件变化，并重新编译打包写入内存
-  - <img src="/Image/Engineering/68.png" style="zoom:45%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001333.png" style="zoom:45%;" align="left"/>
 
 - 流程B：页面的访问需要依赖 Web 服务器，此举通过 `Webpack-dev-middleware` 将 Webpack 编译打包之后的文件传递给 Web 服务器(即本地文件变更编译后发送给页面服务器)：
   - `Webpack-dev-middleware` 是一个封装器(wrapper)，其可以将 Webpack 处理过的文件 (通过 `memory-fs` 实现静态资源请求直接访问内存文件获取处理后的文件) 发送到一个 Server (其中 `Webpack-Dev-Server` 就是内置了 `Webpack-dev-middleware` 和 `Express` 服务器)；
 
 - 流程C：在浏览器端，每次代码变动重新编译后，浏览器会发出 `hash.hot-update.json`、`fileChunk.hash.hot-update.js` 资源请求(而 `__Webpack_hmr` 请求返回的消息包含了首次 Hash 值)
-  - <img src="/Image/Engineering/69.png" style="zoom:45%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001334.png" style="zoom:45%;" align="left"/>
 
 点开查看 `hash.hot-update.json` 请求，返回的结果中，h 是一个 hash 值，用于下次文件热更新请求的前缀，c 表示当前要热更新的文件是 main1 
 
-<img src="/Image/Engineering/70.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001335.png" style="zoom:45%;" align="left"/>
 
 继续查看 `fileChunk.hash.hot-update.js`，返回的内容是使用 `webpackHotUpdate` 标识的 fileChunk 内容：
 
-<img src="/Image/Engineering/70-1.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001336.png" style="zoom:45%;" align="left"/>
 
 问题：Webpack 服务器和浏览器端如何建立起通信？(Webpack 服务器通知更新，浏览器请求 Webpack 服务器获取更新资源)
 
 回答：通过 Webpack-hot-middleware 插件；开发时浏览器的 Network 中总是有一个 `Webpack_hmr` 的请求(请求Webpack服务器)，点开查看会看到`EventStream` 事件流，并且以 2s 的频率不停的更新消息内容(心跳请求)，而此 `__Webpack_hmr` 的配置，位于 Webpack-hot-middleware/client.js：
 
-<img src="/Image/Engineering/71.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001337.png" style="zoom:45%;" align="left"/>
 
 而继续向下查看 Client.js 代码，发现这完全就是一个只要浏览器支持就可以自发建立通信通道的客户端：
 
-<img src="/Image/Engineering/72.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001338.png" style="zoom:45%;" align="left"/>
 
 此外，除了能自发请求，还可监听内容并作出响应：在建立通信的过程中，浏览器端会初始化一个 `EventSource` 实例并通过 `onmessage` 事件监听消息。浏览器端在收到服务器发来的数据时，就会触发 `onmessage` 事件，可以通过定义 `onmessage` 的回调函数处理接收到的消息；
 
-<img src="/Image/Engineering/73.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001339.png" style="zoom:45%;" align="left"/>
 
 而监听的消息有(Client.js )：
 
@@ -2232,20 +2232,20 @@ client 端 HMR 流程：
 
 其首先调用 `module.hot.check` 方法检测是否有更新，然后进入 `HotModuleReplacement.runtime` 的 Check 阶段
 
-<img src="/Image/Engineering/74.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001340.png" style="zoom:45%;" align="left"/>
 
 - 流程D：浏览器在 Check 之后触发 `WebpackHotUpdateCallback`，具体 `HotModuleReplacement.runtime.js` 会做以下几个操作：
   - 进入 HotCheck，调用 `hotDownloadManifest` 发送 `/hash.hot-update.json` 请求；
   - 通过 Json 请求结果获取热更新文件，以及下次热更新的 Hash 标识，并进入热更新准备阶段；
 
-<img src="/Image/Engineering/75.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001341.png" style="zoom:45%;" align="left"/>
 
 - 而 `HotCheck` 确认需要热更新之后，进入 `hotAddUpdateChunk` 方法：
 - 该方法先检查 Hash 标识的模块是否已更新，若没更新则通过在 DOM 中添加 Script 标签方式，动态请求js： `/fileChunk.hash.hot-update.js`，获取最新打包的 js 内容；
 - 而最新打包的js内容如何更新的呢？
 - `HotModuleReplacement.runtime.js` 在 window 对象上定义了 `WebpackHotUpdate`方法；在这里定义了如何解析前面 `fileChunk.hash.hot-update.js` 请求返回的js内容 `webpackHotUpdate(main1, { moreModules })`，直接遍历 `moreModules`，并且执行 `hotUpdate` 方法更新；
 
-<img src="/Image/Engineering/76.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001342.png" style="zoom:45%;" align="left"/>
 
 总结：Webpack 如何实现热更新的呢？首先是建立起浏览器端和服务器端之间的通信，浏览器会接收服务器端推送的消息，如果需要热更新，浏览器发起http请求去服务器端获取打包好的资源解析并局部刷新页面；
 
@@ -2265,9 +2265,9 @@ HMRP，即 HotModuleReplacementPlugin 是 HMR 中一个非常关键的插件，�
 
 - 生成两个补丁文件：
   - **<u>*manifest*</u>(JSON)**：`上一次编译生成的hash.hot-update.json`，比如：b1f49e2fc76aae861d9f.hot-update.json
-  - <img src="/Image/Engineering/500.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001343.png" style="zoom:50%;" align="left"/>
   - <u>***updated chunk (JS)***</u>： `chunkName.上一次编译生成的hash.hot-update.js`，比如：main.b1f49e2fc76aae861d9f.hot-update.js；
-  - <img src="/Image/Engineering/501.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001344.png" style="zoom:50%;" align="left"/>
 - 在 chunk 文件中注入 HMR runtime 运行时代码：
   - 热更新客户端主要逻辑(HMR Runtime )：<u>拉取新模块代码</u>、<u>执行新模块代码</u>、<u>执行 accept 的回调实现局部更新</u>，<u>都是此插件将函数注入到 chunk 文件中</u>，而非 webpack-dev-server，WDS 只是调用了这些函数；
 - 注意：就是这个插件生成了最关键的两个文件，而非 webpack
@@ -2476,10 +2476,9 @@ webpack-dev-server，webpack-hot-middleware，webpack-dev-middleware
       },
       ```
   
-
 - webpack-dev-server：内置了 Webpack-dev-middleware 和 Express 服务器，利用 `eventSource` 实现 webpack-hot-middleware 逻辑
 - 注意： `webpack-dev-server ` 功能已封装好，除 `webpack.config` 和命令行参数之外，很难定制型开发；在搭建脚手架时，利用 `webpack-dev-middleware`和`webpack-hot-middleware`，以及后端服务，可让开发更灵活；
 
-<img src="/Image/Engineering/505.png" style="zoom:50%;" align=""/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001345.png" style="zoom:50%;" align=""/>
 
 参考：https://juejin.im/post/6844904020528594957

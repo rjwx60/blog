@@ -165,7 +165,7 @@ module.exports = function(content) {
 
   var options = loaderUtils.getOptions(this) || {};
   
-  // limit 参数，只有文件大小小于这个数值的时候我们才进行base64编码，否则将直接调用 file-loader
+  // limit 参数，只有文件大小小于这个数值时才进行base64编码，否则将直接调用 file-loader
   var limit = options.limit || (this.options && this.options.url && this.options.url.dataUrlLimit);
 
   if (limit) {
@@ -250,7 +250,7 @@ module.exports.raw = true
 
 ##### 8-1-4-3、style-loader
 
-<img src="/Image/Engineering/424.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001206.png" style="zoom:50%;" align="left"/>
 
 - css 代码会先经过 css-loader 处理，然后才送往 style-loader 处理；
 - 前者作用：处理 css 中的 @import 和 url 等的外部资源引用；
@@ -289,7 +289,7 @@ module.exports.pitch = function(request) {
 
 pitch 实际是一个特殊的 loader，默认情况下，loader 加载顺序会从右往左；而 pitch-loader 是从左往右执行；[详看](https://webpack.js.org/api/loaders/#pitching-loader)
 
-<img src="/Image/Engineering/425.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001207.png" style="zoom:50%;" align="left"/>
 
 为何，使用 pitch loader？
 
@@ -347,7 +347,7 @@ css-loader 工作原理：
 - style-loader 只负责插入 CSS，然而 CSS 中的 `@import` 和 url 语句仍需要 css-loader 去解析；
 - 另外，modules 等也是在 css-loader 上实现；
 
-<img src="/Image/Engineering/426.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001208.png" style="zoom:50%;" align="left"/>
 
 css-loader 会执行2次，因为有2个文件，每个 css 文件的处理，比如上述 style.css 的处理会包括2部分：
 
@@ -398,7 +398,7 @@ exports.locals = {
 
 其中的 toString 方法会将所有依赖 map 一遍，并合并成一个大的字符串，即 CSS 内容；
 
-<img src="/Image/Engineering/427.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001209.png" style="zoom:50%;" align="left"/>
 
 ```js
 // 自实现 css-loader
@@ -578,36 +578,36 @@ Loader 支持链式调用，所以开发上需要严格遵循“单一职责”�
 
 - Loader 参数获取
   - webpack.config.js 的 loader 的 options 内容(参数)，可用 webpack 自带插件 loader-utils 获取
-  - <img src="/Image/Engineering/400.png" style="zoom:50%;" align="left"/>
-  - <img src="/Image/Engineering/401.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001210.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001211.png" style="zoom:50%;" align="left"/>
 
 - Loader 返回值方式：return & this.callback
   - 使用后者形式导出代码而不是 return，因其可传入更多参数，更细粒度调节；
   - 注意：SourceMap 生成耗时，一般只用于开发环境，故 webpack 为 loader 提供了 this.sourceMap API 告诉当前构建环境用户是否需要 SourceMap
-  - <img src="/Image/Engineering/403.png" style="zoom:50%;" align="left"/>
-  - <img src="/Image/Engineering/404.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001212.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001213.png" style="zoom:50%;" align="left"/>
 
 - Loader 异步方案：
   - 可用 Promise + Async 方案，亦可用 Promise + 本地方案 thsi.async，图2
-  - <img src="/Image/Engineering/405.png" style="zoom:50%;" align="left"/>
-  - <img src="/Image/Engineering/406.png" style="zoom:50%;" align="left"/>
-  - <img src="/Image/Engineering/407.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001214.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001215.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001216.png" style="zoom:50%;" align="left"/>
 
 - Loader 缓存操作
   - Webpack 默认缓存所有 Loader 处理结果，故能在需要被处理的文件或其依赖的文件没有发生变化时，不会重新调用对应的 Loader 去执行转换操作；
   - 原因：某些情况下，某些转换操作需大量计算、十分耗时，若每次构建都重新执行重复的转换操作，构建将会变得非常缓慢；
   - 注意：若不缓存处理结果，则可设置：在 loader 中添加 `this.cacheable(false)` 以关闭 webpack 对 loader 执行结果的默认缓存效果；
-  - <img src="/Image/Engineering/408.png" style="zoom:50%;" align="left"/>
-  - <img src="/Image/Engineering/409.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001217.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001218.png" style="zoom:50%;" align="left"/>
 
 - Loader 二进制数据处理
   - webpack 传给 Loader 内容默认均为 UTF-8 格式编码的字符串；但某些场景需要处理二进制文件，比如 file-loader，此时需为 Loader 传入二进制数据；
-  - <img src="/Image/Engineering/410.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001219.png" style="zoom:50%;" align="left"/>
 
 - Loader 共享数据
   - 在 loader 中添加 `pitch` 函数，此函数先于所有 loader 执行，且其第三参数为同一 rule下的所有 loader 所共享
-  - <img src="/Image/Engineering/411.png" style="zoom:50%;" align="left"/>
-  - <img src="/Image/Engineering/412.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001220.png" style="zoom:50%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001221.png" style="zoom:50%;" align="left"/>
 
 - Loader Options 校验
 
@@ -862,9 +862,9 @@ module.exports = {
 };
 ```
 
-<img src="/Image/Engineering/428.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001222.png" style="zoom:50%;" align="left"/>
 
-<img src="/Image/Engineering/429.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001223.png" style="zoom:50%;" align="left"/>
 
 
 
@@ -1090,7 +1090,7 @@ module.exports = Plugin1;
 - Tapable 为 webpack 提供了统一的插件接口(钩子)类型定义，它是 webpack 的核心功能库、
 - 总结：Tapable 是 webpack 用来创建钩子的库，为 webpack 提供了 plugin 接口；
 
-<img src="/Image/Engineering/27.png" style="zoom:40%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001224.png" style="zoom:40%;" align="left" />
 
 Tapable 向外暴露了 9 个 `Hooks/钩子` 类、及 3 种注册/发布模式：tap、tapAsync、tapPromise，可用于为插件创建钩子；使用：[结合文档](https://www.webpackjs.com/api/compiler-hooks/#hooks)：比如，注册一个`compile`的钩子，根据官方文档，其属于 `SyncHook` 类型，则只能使用 `tap` 来注册；
 
@@ -1215,11 +1215,11 @@ module.exports = Plugin2;
 
 ***Compiler 对象包含了 Webpack 环境所有的的配置信息***；包含 `options`，`hook`，`loaders`，`plugins` 等信息，此对象在 `Webpack` 启动时候被实例化，它是全局唯一，可简单地把它理解为 `Webpack` 实例；
 
-<img src="/Image/Engineering/503.png" style="zoom:40%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001225.png" style="zoom:40%;" align="left" />
 
 ***Compilation 对象包含了当前的模块资源、编译生成资源、变化的文件等***；当 `Webpack` 以开发模式运行时，每当检测到一个文件变化，一次新的 `Compilation` 将被创建；`Compilation` 对象也提供了很多事件回调供插件做扩展；通过 `Compilation` 也能读取到 `Compiler` 对象；
 
-<img src="/Image/Engineering/504.png" style="zoom:40%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001226.png" style="zoom:40%;" align="left" />
 
 
 
@@ -1238,7 +1238,7 @@ webpack 官方教程 [Writing a Plugin](https://webpack.js.org/contribute/writin
 
 Plugin 常用对象如下： 
 
-<img src="/Image/Engineering/421.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001227.png" style="zoom:50%;" align="left"/>
 
 
 
@@ -1419,7 +1419,7 @@ module.exports = ShowPluginListPlugin
 
 实现功能如下：去除代码文件前的注释符合
 
-<img src="/Image/Engineering/422.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001228.png" style="zoom:50%;" align="left"/>
 
 ```js
 // 完整版
@@ -1468,7 +1468,7 @@ module.exports = MyPlugin
 
   - compilation 对象含有许多内部对象；
 
-  - <img src="/Image/Engineering/423.png" style="zoom:30%;" align="left"/>
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001229.png" style="zoom:30%;" align="left"/>
 
   - 需要关注的是 compilation 中的 assets：优化所有 chunk 资源(asset)，资源(asset)会以 key-value 形式被存储在 `compilation.assets`。
 
