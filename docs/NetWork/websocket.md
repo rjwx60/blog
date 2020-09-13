@@ -6,13 +6,11 @@ typora-root-url: ../../../BlogImgsBed/Source
 
 ### 零、问题区
 
-##### 0-1、websocket 区别
+#### 0-1、websocket 区别
 
-与 http 区别，协议层面的连接实现、心跳机制、安全防范等
+与 http 区别，协议层面的连接实现、心跳机制、安全防范等—见下方
 
-##### 0-2、websocket ⽤法
-
-
+#### 0-2、websocket ⽤法
 
 ##### 0-2-1、鉴权
 
@@ -203,8 +201,7 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
 - 较少的控制开销；连接创建后，ws客户端、服务端进行数据交换时，协议控制的数据包头部较小。在不包含头部的情况下，服务端到客户端的包头只有2~10字节（取决于数据包长度），客户端到服务端的的话，需要加上额外的4字节的掩码。而HTTP协议每次通信都需要携带完整的头部；提高信息交换效率、减轻服务端负担等；
 - 支持扩展；ws 协议定义了扩展，用户可以扩展协议，或者实现自定义的子协议。（比如支持自定义压缩算法等）
 - 无跨域问题；
-
-实现比较简单，服务端库如 `socket.io`、`ws` ，可以很好的帮助我们入门。而客户端也只需要参照 api 实现即可。
+- 实现简单，服务端库如 `socket.io`、`ws` ，而客户端也只需要参照 api 实现即可；
 
 #### 		2-2、缺点
 
@@ -264,7 +261,7 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
 
 #### 		4-1、新建连接
 
-##### 4-1-1、完成 websocket 握手
+##### 4-1-1、完成握手
 
 会话建立的第一步，即完成 websocket 握手，**<u>而握手本质是由 HTTP1.1 协议升级所得</u>**，握手 URI 格式如下图所示：
 
@@ -272,7 +269,7 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001135.png" style="zoom:40%;" align="left"/>
 
-##### 4-1-2、建立 websocket 连接
+##### 4-1-2、建立连接
 
 建立 websocket 连接时候所需消息有如下内容：
 
@@ -408,7 +405,7 @@ const body = JSON.parse(myBuf.slice(headend-headstart,bodylength).tostring())
 
 #### 		4-2、保持心跳
 
-​	心跳帧间隔**<u>可通过应用端 websocket 库的 heartbeat 设置</u>**，但除非涉及业务一般不做处理(监听、劫持)，心跳帧含有服务健康检查的功能，心跳帧可双向进行；
+心跳帧间隔**<u>可通过应用端 websocket 库的 heartbeat 设置</u>**，但除非涉及业务一般不做处理(监听、劫持)，心跳帧含有服务健康检查的功能，心跳帧可双向进行；
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001138.png" style="zoom:50%;" align="left"/>
 
@@ -418,14 +415,14 @@ const body = JSON.parse(myBuf.slice(headend-headstart,bodylength).tostring())
 
 #### 		4-3、关闭连接
 
-​	4-3-1、websocket 为双向传输协议，关闭时需双向关闭，且因其承载在 TCP 协议之上，故需在 TCP 关闭前，先关闭 websocket 会话，可基于关闭帧关闭(也是双向的)，关闭会话的方式有2种：
+websocket 为双向传输协议，关闭时需双向关闭，且因其承载在 TCP 协议之上，故需在 TCP 关闭前，先关闭 websocket 会话，可基于关闭帧关闭(也是双向的)，关闭会话的方式有2种：
 
 - 控制帧中的关闭帧，在 TCP 连接之上的双向关闭；
   - 发送关闭帧后，不能再发送任何数据；
   - 接收到关闭帧后，不再接收任何到达的数据；
 - TCP 连接意外中断；
 
-4-3-2、关闭帧格式与错误码及示例
+关闭帧格式与错误码及示例
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001140.png" style="zoom:80%;" align="left"/>
 
@@ -439,21 +436,26 @@ const body = JSON.parse(myBuf.slice(headend-headstart,bodylength).tostring())
 
 #### 		5-1、代理污染攻击与掩码防御
 
-- 问题：
-  - 首先，存在实现不当的代理服务器 (无法识别 websocket 协议)
-  - 然后，黑客构建恶意服务器与恶意页面，并试图建立与上述服务器的 websocket 连接
-  - 然后，恶意页面与恶意服务器建立 websocket 连接(实际通过 http1.1长连接实现)，此时恶意页面伪造 GET 请求，此请求改变 host 为被攻击的服务器，恶意服务器伪造被攻击服务器的响应，期间代理服务器缓存了虚假的结果；
-  - 最后，当正常用户访问被攻击服务器时，则实际返回的是缓存中的内容；
-  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001143.png" style="zoom:50%;" align="left" />
-- 本质：代理服务器问题(无法识别 websocket 协议会将握手请求识别为 HTTP1.1请求，并将当前连接识别为 HTTP1.1长连接)、浏览器问题；
-- 解决：浏览器须对客户端发送内容均做掩码 (frame-masking-key) 处理，使其无法伪造，强制合法；以减少针对代理服务器的缓存处理攻击风险；
+问题：
+- 首先，存在实现不当的代理服务器 (无法识别 websocket 协议)
+- 然后，黑客构建恶意服务器与恶意页面，并试图建立与上述服务器的 websocket 连接
+- 然后，恶意页面与恶意服务器建立 websocket 连接(实际通过 http1.1长连接实现)，此时恶意页面伪造 GET 请求，此请求改变 host 为被攻击的服务器，恶意服务器伪造被攻击服务器的响应，期间代理服务器缓存了虚假的结果；
+- 最后，当正常用户访问被攻击服务器时，则实际返回的是缓存中的内容；
+- <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001143.png" style="zoom:50%;" align="left" />
+
+本质：代理服务器问题(无法识别 websocket 协议会将握手请求识别为 HTTP1.1请求，并将当前连接识别为 HTTP1.1长连接)、浏览器问题；
+
+解决：浏览器须对客户端发送内容均做掩码 (frame-masking-key) 处理，使其无法伪造，强制合法；以减少针对代理服务器的缓存处理攻击风险；
+
 - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001144.png" style="zoom:70%;" align="left"/>
 - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001145.png" style="zoom:70%;" align="left"/>
-- 总结：虽代理无法识别 websocket 而会建立长连接，但目的是建立长连接后伪造 HTTP GET 请求，伪造请求后恶意服务器伪造响应，迷惑代理服务器并使其缓存结果，从而让用户无法访问正确服务器；
-- 补充：
-  - 虽可模仿浏览器绕开浏览器自动强制生成掩码这一安全机制实施攻击，但模仿成本高(还需大范围铺开供用户使用)，故攻击成本高，情况罕见；
-  - 代理缓存污染攻击成本低(只需铺开恶意页面即可)，而之所以加掩码即可防御，是因为 JS 无法获取掩码内容，确保了唯一性；
-  - 浏览器强制执行加密、自动生成掩码是 websocket 特性；
+
+总结：虽代理无法识别 websocket 而会建立长连接，但目的是建立长连接后伪造 HTTP GET 请求，伪造请求后恶意服务器伪造响应，迷惑代理服务器并使其缓存结果，从而让用户无法访问正确服务器；
+
+补充：
+- 虽可模仿浏览器绕开浏览器自动强制生成掩码这一安全机制实施攻击，但模仿成本高(还需大范围铺开供用户使用)，故攻击成本高，情况罕见；
+- 代理缓存污染攻击成本低(只需铺开恶意页面即可)，而之所以加掩码即可防御，是因为 JS 无法获取掩码内容，确保了唯一性；
+- 浏览器强制执行加密、自动生成掩码是 websocket 特性；
 
 
 
