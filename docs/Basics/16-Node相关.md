@@ -70,13 +70,13 @@ CPU 密集型：
 
 #### 1-4、结构
 
-<img src="/Image/Chromium/3.png" style="zoom:50%;" align="center"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200918140135.png" style="zoom:50%;" align="center"/>
 
 - V8：谷歌开源项目，目的是在浏览器之外执行 JS 代码；V8 为 Node 提供底层网络访问，并帮助 Node 处理并发性问题等的各个方面；此项目中 70% 的代码是用 C++ 编写，另外 30% 则是用 JS 编写；
 - libuv：libuv 是位于 libeio、 libev、 c-ares (用于DNS)和 iocp (用于 windows asynchronous-io)顶部的抽象层；libuv 执行、维护和管理事件池中的所有 I/O操作和事件；(如果是 libeio 线程池)；它允许 JS 代码执行 I/O 操作(无论是网络操作还是文件操作等)；该库执行所有 TCP 级别的连接和文件/系统操作；此库完全由 C++ 编写；
 - 注意：NodeJs 只是作为编写的 JS 代码，与其他用 JS 或 C++ 编写的代码 (***<u>V8和 libuv</u>***)间的接口；这使得 JS 开发者不必直接与 C++ 代码交互，并将应用程序的 JS 部分同运行在计算机中的实际 C++ 代码相关联起来，以编译和执行 JS 代码；此外 NodeJS 还提供了系列包装器和统一的 API，以供在项目中使用，比如库模块，如 http，fs，crypto，path 等非常一致的 API，用户不能直接访问 C++ 编写的代码，而只需使用 JS 函数，函数最终调用 node.js libuv 项目；
 
-<img src="/Image/Chromium/4.png" style="zoom:50%;" align="center"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200918140136.png" style="zoom:50%;" align="center"/>
 
 
 
@@ -174,7 +174,7 @@ Node 借鉴 CommonJS 的 Modules 规范实现自身模块系统；
   - 若无，则将 index 作为默认文件名，依次查找 `index.js  index.json index.node；`
 - 最后，若还是没有成功定位任何文件，则继续查找下一个模块路径，直至路径数组遍历完毕，若依然没有找到，则向上抛出查找失败错误；
 - 示例：
-  - <img src="/Image/Chromium/1.png" style="zoom:50%;" align="left" />
+  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200918140137.png" style="zoom:50%;" align="" />
 
 
 
@@ -193,7 +193,7 @@ Node 借鉴 CommonJS 的 Modules 规范实现自身模块系统；
 
 - 最后，对象执行后，将模块的 `exports` 属性返回给调用方，此后属性上的方法 & 属性，均可被外部调用，但其余变量则不可直接调用；
 
-- <img src="/Image/Chromium/2.png" style="zoom:50%;" align="left" />
+- <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200918140138.png" style="zoom:50%;" align="" />
 
 
 
@@ -349,7 +349,7 @@ fs.readFile('/test.txt', function (err, data) {
 - 然后，Node <u>核心模块调用内建模块</u> node_file.cc，创建对应的文件 **<u>I/O观察者对象</u>**
 - 最后，根据不同平台，<u>内建模块</u> 通过 **<u>libuv 中间层</u>** 进行系统调用(此处是利用 uv_fs_open()  实现)；
 
-<img src="/Image/Chromium/30.png" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200918140139.png" style="zoom:50%;" />
 
 
 

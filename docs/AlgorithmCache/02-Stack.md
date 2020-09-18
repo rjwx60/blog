@@ -10,7 +10,7 @@ typora-root-url: ../../../BlogImgsBed/Source
 
 - 补充：若使用数组实现的栈，则叫顺序栈，用链表实现的栈，则叫作链式栈；
 
-<img src="/Image/Algorithm/Stack/1.png" style="zoom:40%;" align="left"/>
+<img src="/Image/Algorithm/Stack/1.png" style="zoom:40%;" align=""/>
 
 补充：内存中的堆栈和数据结构堆栈不是一个概念，可以说内存中的堆栈是真实存在的物理区，数据结构中的堆栈是抽象的数据存储结构。内存空间在逻辑上分为三部分：代码区、静态数据区、动态数据区，动态数据区又分为栈区和堆区。
 
@@ -32,7 +32,7 @@ typora-root-url: ../../../BlogImgsBed/Source
 
 - A：表达式求值：一个保存操作数的栈，另一个是保存运算符的栈。我们从左向右遍历表达式，当遇到数字，我们就直接压入操作数栈；当遇到运算符，就与运算符栈的栈顶元素进行比较。如果比运算符栈顶元素的优先级高，就将当前运算符压入栈；如果比运算符栈顶元素的优先级低或者相同，从运算符栈中取栈顶运算符，从操作数栈的栈顶取 2 个操作数，然后进行计算，再把计算完的结果压入操作数栈，继续比较；
 
-  - <img src="/Image/Algorithm/Stack/2.png" style="zoom:50%;" align="left"/>
+  - <img src="/Image/Algorithm/Stack/2.png" style="zoom:50%;" align=""/>
 
 - B：函数调用栈-略
 

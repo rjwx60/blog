@@ -42,8 +42,8 @@ Array、多维数组
 - 不要复杂化，单一问题单一解决，这样会容易理解和清晰的多；
 - 将打印一圈拆解为四部: 第一步：从左到右打印一行、第二步：从上到下打印一列、第三步：从右到左打印一行、第四步：从下到上打印一列；
 - 最后一圈很有可能出现几种异常情况,打印矩阵最里面一圈可能只需三步、两步、甚至一步；
-- <img src="../../../../BlogImgsBed/Source/Image/Algorithm/Array/6.png" style="zoom:30%;" align="left"/>
-- <img src="../../../../BlogImgsBed/Source/Image/Algorithm/Array/7.png" style="zoom:50%;" align="left"/>
+- <img src="../../../../BlogImgsBed/Source/Image/Algorithm/Array/6.png" style="zoom:30%;" align=""/>
+- <img src="../../../../BlogImgsBed/Source/Image/Algorithm/Array/7.png" style="zoom:50%;" align=""/>
 
 
 

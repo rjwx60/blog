@@ -23,7 +23,7 @@ typora-root-url: ../../../BlogImgsBed/Source
 
 #### 1-2、NCP 协议：TCP/IP 协议前身 ARPA
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000908.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000908.png" style="zoom:50%;" align=""/>
 
 
 
@@ -72,7 +72,7 @@ typora-root-url: ../../../BlogImgsBed/Source
 
 ##### 2-1-1、与 UDP 区别
 
-<img src="/Image/NetWork/tcp/189.png" style="zoom:50%;" align="left"/>
+<img src="/Image/NetWork/tcp/189.png" style="zoom:50%;" align=""/>
 
 UDP 具有 <u>面向无连接</u>、<u>不可靠性</u>、<u>高效</u> 的特点，拥有单播，多播，广播的功能，适用于直播、游戏、实时性要求高的场景；
 
@@ -135,7 +135,7 @@ UDP 具有 <u>面向无连接</u>、<u>不可靠性</u>、<u>高效</u> 的特�
 - 注意：源地址、目的地址即源IP、目的IP，在 IP 层处理，TCP 层只需记录端口；
 - 注意：对于 IPv4 地址，单主机最大 TCP 连接数为 2^(32+16+32+16)；
 - 注意：并非都得通过四元组标识连接，还可使用 QUIC 协议标识；
-- <img src="/Image/NetWork/tcp/11.png" style="zoom:50%;" align="left"/>
+- <img src="/Image/NetWork/tcp/11.png" style="zoom:50%;" align=""/>
 
 ##### 2-3-3-2、Seq、Ack
 
@@ -205,20 +205,20 @@ UDP 具有 <u>面向无连接</u>、<u>不可靠性</u>、<u>高效</u> 的特�
     - 计算 ***<u>往返时延 RTT(Round-Trip Time)</u>***；
     - <u>防止序列号回绕</u>；
   - 作用A：计算往返时延 RTT(Round-Trip Time)；
-    - <img src="/Image/NetWork/tcp/29.png" style="zoom:50%;" align="left" />
+    - <img src="/Image/NetWork/tcp/29.png" style="zoom:50%;" align="" />
     - 问题：<u>若采用首次发包，则 RTT 偏大；若采用最近一次发包，则 RTT 偏小</u>，即<u>无法使用发包时间作为计算准确 RTT 的依据；</u>
     - 解决：引入时间戳：比如：A 向 B 站发送报文 s1，B 站回复  A 一个 ACK 报文 s2 ，则：
       - **首先:**  A 向 B 站发送时，`timestamp` 中存放 A 主机发送时的内核时刻 `tA-1`；
       - **然后:**  B 站向 A 回复 s2 报文时，`timestamp` 中存放 B 站主机时刻 `tB-1`，而 `timestamp echo` 存放从 s1 报文中解析出来的 `tA-1`；
       - **最后:**  A 收到 B站 s2 报文后，假设此时 A 主机内核时刻为 tA-2，则可从 s2 报文中的 `timestamp echo` 选项得到 `tA-1` 值，也即 s2 对应报文最初发送时刻；然后直接将 tA-2 和 tA-1相减即可得到准确的 RTT 值；
   - 作用B：防止序列号回绕；
-    - <img src="/Image/NetWork/tcp/30.png" style="zoom:50%;" align="left" />
+    - <img src="/Image/NetWork/tcp/30.png" style="zoom:50%;" align="" />
     - 问题：正如上文 2-3-3-2 SequenceNumber 的介绍一样，序列号是有值范围的(0~2^32-1)，若超出范围就会重新由 0 开始计算，但假若某序号报文滞留在网络中，当发生序列号回绕时，发出与滞留报文序列号相同的报文，此时网络中就会存在2个序号相同的报文，继而就会产生接收方的消息混乱；
     - 解决：引入时间戳；因每次发包时均将发包机器当前内核时间记录在报文中，则即使2次发包序列号相同，时间戳也不可能相同，如此即可区分数据报，解决回绕问题；
 - **<u>*MSS：握手时发送端告知可接收最大报文段大小 / TCP 数据部分(不含头)最大值*</u>**；
   - 描述：种类2，长度4字节，仅指 TCP 承载数据，不包含 TCP 头部，默认大小 536 字节 (默认 MTU—IP数据包最大值，576 字节，含 20字节 IP 头部，含 20字节 TCP 头部)，MSS 在握手阶段协商，可进一步细分为：
   - **发送方最大报文段SMSS(SENDER MAXIMUM SEGMENT SIZE)**、**接收方最大报文段 RMSS (RECEIVER MAXIMUM SEGMENT SIZE)**
-  - <img src="/Image/NetWork/tcp/57.png" style="zoom:40%;" align="left"/>
+  - <img src="/Image/NetWork/tcp/57.png" style="zoom:40%;" align=""/>
   - <u>作用A：尽量让每个 Segment 报文段携带更多数据，减少头部空间占用比率；</u>
   - <u>作用B：防止 Segment 被某个设备的 IP 层基于 MTU 分层</u>；
     - 原因：TCP 面向字节流，不限传输长度，但发送报文时，所使用内存有限，TCP 下的网络层和数据链路层会限制报文长度；故 TCP 须将其从上层接收的、任意长度的字节流按 MSS (最大报文段大小)和流控(接收端能力) 拆分成许多 Segment 段；若不进行分层，则 IP 层一定会基于 MTU 进行拆分，而基于 MTU 拆分报文一旦丢失某一段就要重传所有报文，效率低下，故要避免；
@@ -315,15 +315,15 @@ Client -> ACK -> Server
 
 - 一次握手：SYN 报文：
   - 描述：将 TCP 头部的 Flag 中的第7位置 1 即表示 SYN，在 Sequence 中填入客户端的序列号码 ISN：
-  - <img src="/Image/NetWork/tcp/15.png" style="zoom:50%;" align="left"/>
-  - <img src="/Image/NetWork/tcp/18.png" style="zoom:50%;" align="left"/>
+  - <img src="/Image/NetWork/tcp/15.png" style="zoom:50%;" align=""/>
+  - <img src="/Image/NetWork/tcp/18.png" style="zoom:50%;" align=""/>
 - 二次握手：SYN/ACK 报文
   - 描述：将 TCP  头部的 Flag 中的第 7 位置 1 即表示 SYN，将第 4 位置 1 即表示 ACK，在 Sequence 中填入服务端的序列号码ISN，在 Acknowlage number 中填入 (客户端 ISN+1)表示确认收到：
-  - <img src="/Image/NetWork/tcp/16.png" style="zoom:50%;" align="left"/>
-  - <img src="/Image/NetWork/tcp/19.png" style="zoom:50%;" align="left"/>
+  - <img src="/Image/NetWork/tcp/16.png" style="zoom:50%;" align=""/>
+  - <img src="/Image/NetWork/tcp/19.png" style="zoom:50%;" align=""/>
 - 三次握手：ACK 报文
   - 描述：将 TCP 头部的 Flag 中第4位置1表示 ACK，在 Acknowlage number 中填入 (服务端 ISN+1)表示确认收到；
-  - <img src="/Image/NetWork/tcp/17.png" style="zoom:50%;" align="left"/>
+  - <img src="/Image/NetWork/tcp/17.png" style="zoom:50%;" align=""/>
 
 
 
@@ -340,7 +340,7 @@ Client -> ACK -> Server
 
 ##### 3-1-6、性能优化—三次握手
 
-<img src="/Image/NetWork/tcp/24.png" style="zoom:40%;" align="left"/>
+<img src="/Image/NetWork/tcp/24.png" style="zoom:40%;" align=""/>
 
 描述：三次握手前，服务端状态从`CLOSED`变为`LISTEN`，同时在内部创建2个队列：
 
@@ -476,7 +476,7 @@ net.ipv4.tcp_synack_retries
   - 此段期间若无收到服务端的重发请求，则表示 ACK 成功到达，挥手结束，否则客户端重发 ACK;
 - 注意：等待 2MSL 原因：
   
-  - <img src="/Image/NetWork/tcp/54.png" style="zoom:50%;" align="left"/>
+  - <img src="/Image/NetWork/tcp/54.png" style="zoom:50%;" align=""/>
     - 保证 TCP 协议全双工连接可靠关闭
       - 若客户端回送 ACK 后直接 CLOSED，此时，若出现网络原因导致 ACK 报文丢失，服务端则会在超时后重发 FIN，此时若客户端在原有端口上已建立别的连接，就会造成信息混乱；
     - 保证至少一次报文往返时间内端口不可复用；
@@ -604,7 +604,7 @@ TCP 重传与确认思想，在后续演化为滑动窗口，并再演化为后�
 - 注意：因涉及重传，RTT 计算复杂，精准测量需通过数据包中的 Timestamp 选项 (Timestamp 会将发送时间、接收时间一并存放)；
 - 注意：严格说 RTT 针对的是网络特性，并不局限于 TCP，在需要测量报文往返时间的场景都会用到，HTTP/3 开始关注传输层和网络层，也可能引入RTT；
 
-<img src="/Image/NetWork/tcp/81.png" style="zoom:50%;" align="left" />
+<img src="/Image/NetWork/tcp/81.png" style="zoom:50%;" align="" />
 
 ##### 4-2-1、RTO 计算
 
@@ -761,7 +761,7 @@ RTO = max(srtt + max(G, 4(rttvar)), 1000);
 
 描述：包含已发送且已确认、已发送但未确认、未发送但可以发送、未发送也不可以发送；
 
-<img src="/Image/NetWork/tcp/90.png" style="zoom:50%;" align="left" />
+<img src="/Image/NetWork/tcp/90.png" style="zoom:50%;" align="" />
 
 - 发送窗口：已发送但未确认部分 + 未发送但可以发送部分；
 - 可用窗口：未发送但可以发送部分，大小为 `SND.UNA + SND.WND - SND.NXT`
@@ -770,7 +770,7 @@ RTO = max(srtt + max(G, 4(rttvar)), 1000);
   - UNA 即 `unacknowledged`，表示未被确认
   - NXT 即 `next`，表示下一个发送的位置
 
-<img src="/Image/NetWork/tcp/91.png" style="zoom:50%;" align="left" />
+<img src="/Image/NetWork/tcp/91.png" style="zoom:50%;" align="" />
 
 ##### 5-3-2、接收端窗口
 
@@ -780,7 +780,7 @@ RTO = max(srtt + max(G, 4(rttvar)), 1000);
 - NXT 表示下一个接收的位置
 - WND 表示接收窗口大小
 
-<img src="/Image/NetWork/tcp/92.png" style="zoom:50%;" align="left" />
+<img src="/Image/NetWork/tcp/92.png" style="zoom:50%;" align="" />
 
 
 
@@ -806,9 +806,9 @@ RTO = max(srtt + max(G, 4(rttvar)), 1000);
 注意：下图中发送与接收窗口大小不变，实际中，两窗口所存放字节数均存放在系统缓冲区中，系统会自动对缓冲区进行调整，或应用程序不及时处理也会对其造成影响；
 
 - 应用层没有及时读取缓存，导致发送停滞
-  - <img src="/Image/NetWork/tcp/96.png" style="zoom:50%;" align="left"/>
+  - <img src="/Image/NetWork/tcp/96.png" style="zoom:50%;" align=""/>
 - 收缩窗口导致丢包：应先收缩窗口，再减少缓存；并在窗口关闭后，定时探测窗口大小
-  - <img src="/Image/NetWork/tcp/97.png" style="zoom:50%;" align="left"/>
+  - <img src="/Image/NetWork/tcp/97.png" style="zoom:50%;" align=""/>
 
 飞行中报文的适合数量 = 最大接收窗口 = BPS *  RTT` ，相同带宽下，若 RTT 越大，接收窗口越大，应配置更大滑动窗口：
 
@@ -838,11 +838,11 @@ net.ipv4.tcp_moderate_rcvbuf = 1
 
 - 策略1：**<u>*SWS避免算法*</u>**：
   - 等待服务端，使其有时间处理缓冲区内容，避免频繁、值也愈发小的窗口大小调整，从而提升效率；
-  - <img src="/Image/NetWork/tcp/100.png" style="zoom:40%;" align="left"/>
+  - <img src="/Image/NetWork/tcp/100.png" style="zoom:40%;" align=""/>
 - 策略2：**<u>*TCP delayed acknowledgment 延迟确认*</u>**
-  - <img src="/Image/NetWork/tcp/101.png" style="zoom:40%;" align="left"/>
+  - <img src="/Image/NetWork/tcp/101.png" style="zoom:40%;" align=""/>
   - 问题：上述策略共用存在问题：前者Nagle 发送后，后者 Delay 延迟确认，导致 Nagle 无法及时发送剩余消息；解决：关闭其中一个；
-  - <img src="/Image/NetWork/tcp/102.png" style="zoom:40%;" align="left"/>
+  - <img src="/Image/NetWork/tcp/102.png" style="zoom:40%;" align=""/>
 
 - 策略3：**<u>*TCP_CORK*</u>**，Nagle 允许有一个已发送但未确认小报文，而 <u>***TCP_CORK***</u> 要求所有必须大报文，但要求结合 `sendfile` 零拷贝技术实现；
   - 普通场景：文件从磁盘拷贝到内存，再从内存发给 Linux Core TCP缓冲区，经过发送窗口再发往用户;
@@ -898,7 +898,7 @@ TCP 窗口管理可能受到多种攻击，主要形式为资源耗尽，而较�
 
 注意：若无丢包情况下(无拥塞)，**<u>*拥塞窗口*</u>** 大小是会以指数方式快速变大；
 
-- <img src="/Image/NetWork/tcp/111.png" style="zoom:50%;" align="left"/>
+- <img src="/Image/NetWork/tcp/111.png" style="zoom:50%;" align=""/>
 
 
 
@@ -985,7 +985,7 @@ cwnd += SMSS * SMSS / cwnd
 - 当 cwnd = ssthresh 时，可使用慢启动算法，亦可使用拥塞避免算法；
 - 当 cwnd > ssthresh 时，使用拥塞避免算法；
 
-<video src="/Image/NetWork/tcp/120.mov" style="zoom:50%;" align="left"></video>
+<video src="/Image/NetWork/tcp/120.mov" style="zoom:50%;" align=""></video>
 
 
 
@@ -1271,27 +1271,27 @@ net.ipv4.tcp_keepalive_intvl = 75
 ​	TCP 是面向字节流的不定长的协议，较难实现 TCP 多路复用，但可从编程层面实现 TCP 多路复用；
 
 - 多路复用：在一个信道上传输多路信号或数据流的过程和技术
-- <img src="/Image/NetWork/tcp/183.png" style="zoom:50%;" align="left"/>
+- <img src="/Image/NetWork/tcp/183.png" style="zoom:50%;" align=""/>
 - HTTP2 的多路复用是基于 TCP 连接上的多路复用
-- <img src="/Image/NetWork/tcp/184.png" style="zoom:50%;" align="left"/>
+- <img src="/Image/NetWork/tcp/184.png" style="zoom:50%;" align=""/>
 
 ##### 7-2-2、编程实现
 
 - 1、非阻塞 socket：同时处理多个 TCP 连接
 
-<img src="/Image/NetWork/tcp/185.png" style="zoom:50%;" align="left"/>
+<img src="/Image/NetWork/tcp/185.png" style="zoom:50%;" align=""/>
 
 - 2、epoll + 非阻塞 socket
 
-<img src="/Image/NetWork/tcp/186.png" style="zoom:50%;" align="left"/>
+<img src="/Image/NetWork/tcp/186.png" style="zoom:50%;" align=""/>
 
 - 2-1、红黑树存放所有连接，(发生变化)事件触发，存放队列中；
 
-<img src="/Image/NetWork/tcp/187.png" style="zoom:50%;" align="left"/>
+<img src="/Image/NetWork/tcp/187.png" style="zoom:50%;" align=""/>
 
 - 3、epoll + 非阻塞 socket + 同步编程 = 协程
 
-<img src="/Image/NetWork/tcp/188.png" style="zoom:50%;" align="left"/>
+<img src="/Image/NetWork/tcp/188.png" style="zoom:50%;" align=""/>
 
 
 

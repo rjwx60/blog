@@ -10,7 +10,7 @@ typora-root-url: ../../../BlogImgsBed/Source
 
 - 补充：若使用数组实现的队列，则叫顺序队列，用链表实现的队列，则叫作链式队列；
 
-<img src="/Image/Algorithm/Queue/1.png" style="zoom:50%;" align="left"/>
+<img src="/Image/Algorithm/Queue/1.png" style="zoom:50%;" align=""/>
 
 #### 1-2、特点
 
@@ -32,7 +32,7 @@ typora-root-url: ../../../BlogImgsBed/Source
 
 1-3-1、顺序队列
 
-<img src="/Image/Algorithm/Queue/2.png" style="zoom:50%;" align="left"/>
+<img src="/Image/Algorithm/Queue/2.png" style="zoom:50%;" align=""/>
 
 ```java
 // 1.基本实现-用数组实现的队列
@@ -131,7 +131,7 @@ public class ArrayQueue<E> implements Queue<E> {
 
 ​	同样含两个指针：head 指针和 tail 指针，并分别指向链表的第一个结点和最后一个结点；入队时，`tail->next= new_node`, `tail = tail->next`；出队时，`head = head->next`；
 
-<img src="/Image/Algorithm/Queue/3.png" style="zoom:50%;" align="left"/>
+<img src="/Image/Algorithm/Queue/3.png" style="zoom:50%;" align=""/>
 
 1-3-3、循环队列
 
@@ -139,7 +139,7 @@ public class ArrayQueue<E> implements Queue<E> {
 
 - 注意：当队列满时，图中的 tail 指向的位置实际上是没有存储数据的。所以，循环队列会浪费一个数组的存储空间；
 
-- <img src="/Image/Algorithm/Queue/6.png" style="zoom:50%;" align="left" />
+- <img src="/Image/Algorithm/Queue/6.png" style="zoom:50%;" align="" />
 
   ```java
   // 1.基本实现
@@ -257,9 +257,9 @@ public class ArrayQueue<E> implements Queue<E> {
 
 ​	即在队列基础上增加了阻塞操作。简单来说，就是在队列为空的时候，从队头取数据会被阻塞。因为此时还没有数据可取，直到队列中有了数据才能返回；如果队列已经满了，那么插入数据的操作就会被阻塞，直到队列中有空闲位置后再插入数据，然后再返回 (生产者消费者模型)；
 
-<img src="/Image/Algorithm/Queue/4.png" style="zoom:50%;" align="left" />
+<img src="/Image/Algorithm/Queue/4.png" style="zoom:50%;" align="" />
 
-<img src="/Image/Algorithm/Queue/5.png" style="zoom:50%;" align="left" />
+<img src="/Image/Algorithm/Queue/5.png" style="zoom:50%;" align="" />
 
 
 

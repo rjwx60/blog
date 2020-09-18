@@ -207,7 +207,7 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
 
 ​		兼容问题(对旧式等不支持 websocket 的浏览器须作系列兼容处理)、宽带与耗电问题(ping/pong机制-已有相应优化)、可伸缩性较差、操作复杂：
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001127.png" style="zoom: 33%;" align="left"  />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001127.png" style="zoom: 33%;" align=""  />
 
 ​	如上图所示：普通连接实现较websocket简单，websocket则较复杂，上述图中的消息分发系统可能是 Kafaka、Redis、RMQ；
 
@@ -229,7 +229,7 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
 
 3-1-1、消息与帧的区别：
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001131.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001131.png" style="zoom:50%;" align="" />
 
 ​	消息由一或多个数据帧组成时的字段区别：
 
@@ -241,19 +241,19 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
 - 示例2：一个消息由一个数据帧组成；
   - op大于0，FIN=1；
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001132.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001132.png" style="zoom:50%;" align="" />
 
 3-1-3、消息内容长度-Payload len
 
 ​	消息内容长度，描述应用消息和扩展数据的总长度，因历史原因，不得大于127字节，且会根据消息内容长度的不同采用不同的格式，若小于125字节，则只使用 payloadLen，其他情况则相应处理，如下图所示：
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001133.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001133.png" style="zoom:50%;" align=""/>
 
 #### 		3-2、ABNF 描述的帧格式
 
 ​	较上面一种更为完整和标准：
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001134.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001134.png" style="zoom:50%;" align=""/>
 
 
 
@@ -267,7 +267,7 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
 
 - 注意：除子协议、扩展协议、CORS跨域三字段外均为必选项：
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001135.png" style="zoom:40%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001135.png" style="zoom:40%;" align=""/>
 
 ##### 4-1-2、建立连接
 
@@ -306,13 +306,13 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
   - 最后，进行 Base64混淆；
 
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001136.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001136.png" style="zoom:50%;" align=""/>
 
 ##### 4-1-3、示例
 
 使用 HTTP 建立 websocket 握手示例：
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001137.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001137.png" style="zoom:50%;" align=""/>
 
 ##### 4-1-X、实现
 
@@ -407,9 +407,9 @@ const body = JSON.parse(myBuf.slice(headend-headstart,bodylength).tostring())
 
 心跳帧间隔**<u>可通过应用端 websocket 库的 heartbeat 设置</u>**，但除非涉及业务一般不做处理(监听、劫持)，心跳帧含有服务健康检查的功能，心跳帧可双向进行；
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001138.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001138.png" style="zoom:50%;" align=""/>
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001139.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001139.png" style="zoom:50%;" align=""/>
 
 
 
@@ -424,11 +424,11 @@ websocket 为双向传输协议，关闭时需双向关闭，且因其承载在 
 
 关闭帧格式与错误码及示例
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001140.png" style="zoom:80%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001140.png" style="zoom:80%;" align=""/>
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001141.png" style="zoom:80%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001141.png" style="zoom:80%;" align=""/>
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001142.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001142.png" style="zoom:50%;" align=""/>
 
 
 
@@ -441,14 +441,14 @@ websocket 为双向传输协议，关闭时需双向关闭，且因其承载在 
 - 然后，黑客构建恶意服务器与恶意页面，并试图建立与上述服务器的 websocket 连接
 - 然后，恶意页面与恶意服务器建立 websocket 连接(实际通过 http1.1长连接实现)，此时恶意页面伪造 GET 请求，此请求改变 host 为被攻击的服务器，恶意服务器伪造被攻击服务器的响应，期间代理服务器缓存了虚假的结果；
 - 最后，当正常用户访问被攻击服务器时，则实际返回的是缓存中的内容；
-- <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001143.png" style="zoom:50%;" align="left" />
+- <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001143.png" style="zoom:50%;" align="" />
 
 本质：代理服务器问题(无法识别 websocket 协议会将握手请求识别为 HTTP1.1请求，并将当前连接识别为 HTTP1.1长连接)、浏览器问题；
 
 解决：浏览器须对客户端发送内容均做掩码 (frame-masking-key) 处理，使其无法伪造，强制合法；以减少针对代理服务器的缓存处理攻击风险；
 
-- <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001144.png" style="zoom:70%;" align="left"/>
-- <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001145.png" style="zoom:70%;" align="left"/>
+- <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001144.png" style="zoom:70%;" align=""/>
+- <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001145.png" style="zoom:70%;" align=""/>
 
 总结：虽代理无法识别 websocket 而会建立长连接，但目的是建立长连接后伪造 HTTP GET 请求，伪造请求后恶意服务器伪造响应，迷惑代理服务器并使其缓存结果，从而让用户无法访问正确服务器；
 

@@ -76,7 +76,7 @@ typora-root-url: ../../../BlogImgsBed/Source
 
 - **<u>多项式阶</u>**：随数据规模的增长，算法的执行时间和空间占用，按照多项式的比例增长；包括：O(1)(常数阶-Constant)、O(logn)(对数阶-Logarithmic)、O(n)(线性阶-Linear)、O(nlogn)(线性对数阶-LinearLog)、O(n^2)(平方阶-Square)、O(n^3)(立方阶)
 - **<u>非多项式阶</u>**：随数据规模的增长，算法执行时间与空间占用增加，此类算法性能极差；包括：O(2^n)(指数阶-Exponential Growth)、O(n!)、阶乘阶-Factorial
-  - <img src="/Image/Algorithm/Algorithm/1.png" style="zoom:50%;" align="left"/>
+  - <img src="/Image/Algorithm/Algorithm/1.png" style="zoom:50%;" align=""/>
 
 **<u>*复杂度分析法则*</u>**
 
@@ -278,9 +278,9 @@ function init(n) {
 
 **线性表**(List)：零或多个数据元素的*有限* *序列*；线性表元素的个数 n (n≥0) 定义为线性表的长度，当 n =  0  时，称为空表。每个线性表上的数据最多只有前和后两个方向；链表、队列、栈等也是线性表结构，与之相对的是非线性表，数据之间并不是简单的前后关系，比如二叉树、堆、图等；
 
-<img src="/Image/Algorithm/Array/1.png" style="zoom:50%;" align="left"/>
+<img src="/Image/Algorithm/Array/1.png" style="zoom:50%;" align=""/>
 
-<img src="/Image/Algorithm/Array/2.png" style="zoom:50%;" align="left" />
+<img src="/Image/Algorithm/Array/2.png" style="zoom:50%;" align="" />
 
 **线性表的顺序存储结构**：指的是用一段地址连续的存储单元依次存储线性表的数据元素；
 

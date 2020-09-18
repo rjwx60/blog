@@ -21,7 +21,7 @@ Output:  [1,2,4,7,5,3,6,8,9]
 Explanation:
 ```
 
-<img src="/Users/rjwx60/Documents/FE/Github/Blog/Source/Image/Algorithm/Algorithm/0498.png" style="zoom:50%;" align="left" />
+<img src="/Users/rjwx60/Documents/FE/Github/Blog/Source/Image/Algorithm/Algorithm/0498.png" style="zoom:50%;" align="" />
 
 #### Note：
 

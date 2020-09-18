@@ -41,7 +41,7 @@ Array、多维数组
 ##### 2-1-1、自思路
 
 - 注意到 B[i] = A组每元素乘积 / A[i], 即效果图如下
-  - <img src="../../../../BlogImgsBed/Source/Image/Algorithm/Array/5.png" style="zoom:50%;" align="left"/>
+  - <img src="../../../../BlogImgsBed/Source/Image/Algorithm/Array/5.png" style="zoom:50%;" align=""/>
 - 考察抽象空间思维与边界值的处理
 
 

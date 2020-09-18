@@ -273,7 +273,7 @@ W3C和HTTP工作组 **<u>HTTP-WG</u>** 也在此时代创建；为满足人们�
 
 #### 2-2、报文格式
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235829.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235829.png" style="zoom:50%;" align=""/>
 
 与TCP 的`tcp头部 + 数据部分`类似，即 `http头部(header) + 数据部分(body)`
 
@@ -298,9 +298,9 @@ W3C和HTTP工作组 **<u>HTTP-WG</u>** 也在此时代创建；为满足人们�
 - 字段名不区分大小写、不允许出现空格，不可出现下划线 `_`
 - 字段名后面必须紧跟冒号 `:` 不得空隙；
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235830.png" style="zoom:35%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235830.png" style="zoom:35%;" align="" />
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235831.png" style="zoom:35%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235831.png" style="zoom:35%;" align="" />
 
 ##### 2-2-3、空行
 
@@ -320,9 +320,9 @@ W3C和HTTP工作组 **<u>HTTP-WG</u>** 也在此时代创建；为满足人们�
 
 ##### 2-3-X、通用头
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235832.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235832.png" style="zoom:50%;" align="" />
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235833.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235833.png" style="zoom:50%;" align="" />
 
 - `Cache-Control` 控制缓存
 - `Connection` 连接管理
@@ -334,9 +334,9 @@ W3C和HTTP工作组 **<u>HTTP-WG</u>** 也在此时代创建；为满足人们�
 
 ##### 2-3-X、请求头
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235834.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235834.png" style="zoom:50%;" align="" />
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235835.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235835.png" style="zoom:50%;" align="" />
 
 - `Host` 请求资源所在的服务器 (唯一一个HTTP/1.1规范里要求必须出现的字段)
 - `Accept` 客户端或者代理能够处理的媒体类型
@@ -351,11 +351,11 @@ W3C和HTTP工作组 **<u>HTTP-WG</u>** 也在此时代创建；为满足人们�
 
 ##### 2-3-X、响应头
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235836.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235836.png" style="zoom:50%;" align="" />
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235837.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235837.png" style="zoom:50%;" align="" />
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235838.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235838.png" style="zoom:50%;" align="" />
 
 - `Accept-Ranges` 能接受的字节范围
 - `Location` 命令客户端重定向的 URI
@@ -368,9 +368,9 @@ W3C和HTTP工作组 **<u>HTTP-WG</u>** 也在此时代创建；为满足人们�
 
 即针对请求报文和响应报文的实体部分使用首部
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235839.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235839.png" style="zoom:50%;" align="" />
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235840.png" style="zoom:50%;" align="left" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235840.png" style="zoom:50%;" align="" />
 
 `Allow` 资源可支持 HTTP 请求方法
 
@@ -430,7 +430,7 @@ Http1.1 规定的以下请求方法(大写)：
 
 - 详看：[HTTP｜GET 和 POST 区别](https://juejin.im/entry/597ca6caf265da3e301e64db)
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235841.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235841.png" style="zoom:50%;" align=""/>
 
 
 
@@ -524,9 +524,9 @@ RFC 规定 HTTP 的状态码为三位数，被分为五类:
   - 504 Gateway Time-out：充当网关或代理的服务器，未及时从远端服务器获取请求；
   - 505 HTTP Version not supported：服务器不支持请求的 HTTP 协议版本，无法完成处理；
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235842.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235842.png" style="zoom:50%;" align=""/>
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235843.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235843.png" style="zoom:50%;" align=""/>
 
 
 
@@ -534,7 +534,7 @@ RFC 规定 HTTP 的状态码为三位数，被分为五类:
 
 此类字段用于双方确定对方可接收的 **<u>数据格式、压缩方式、支持语言和所使用的字符集</u>**：
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235844.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235844.png" style="zoom:60%;" align=""/>
 
 <u>*注意：下述内容中，将接收端想象为客户端，将发送端想象为服务端会较好理解；*</u>
 
@@ -559,7 +559,7 @@ RFC 规定 HTTP 的状态码为三位数，被分为五类:
   - 接收端通过 Accept-Charset 表示可支持的字符集；
   - 发送端通过 Content-Type 表示可支持的字符集；
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235845.png" style="zoom:40%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235845.png" style="zoom:40%;" align=""/>
 
 
 
@@ -661,7 +661,7 @@ server.on('request', (req, res) => {
 server.listen(8009, () => { console.log("成功启动");})
 ```
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235846.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235846.png" style="zoom:50%;" align=""/>
 
 ```
 chunk长度(16进制的数)
@@ -1011,7 +1011,7 @@ TCP 向 HTTP 通讯时，须将数据交由中间层解密才能传给上层 HTT
 
 ##### 3-2-1-4、数字签名
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235852.png" style="zoom:40%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200907235852.png" style="zoom:40%;" align=""/>
 
 上述问题在于：传输过程中内容可能被篡改，证书可能被调包，为解决通信方身份遭伪装问题，验明通信方的身份；此时可引入 <u>数字签名</u>，以保证数据完整性(一旦中途被篡改即可发现)，**<u>而数字签名随数字证书的申请流程绑定，具体流程如下</u>**：
 

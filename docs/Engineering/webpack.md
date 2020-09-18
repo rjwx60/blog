@@ -41,7 +41,7 @@ Webpack 实际上为每个模块创造了一个可导出和导入的环境，但
 
 示例如：配置文件基本配置如下：
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001506.png" style="zoom:45%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001506.png" style="zoom:45%;" align=""/>
 
 
 
@@ -57,7 +57,7 @@ Webpack 实际上为每个模块创造了一个可导出和导入的环境，但
 
 entry 用于指定打包入口；<u>**单入口是字符串形式，单页应用、多入口是键值对形式、多页应用；**</u>
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001507.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001507.png" style="zoom:50%;" align=""/>
 
 - 注意：其中插件：`npm i html-webpack-plugin --save-dev`
 - 注意：若提示 `command not found`，请手动输入上述命令；
@@ -71,7 +71,7 @@ entry 用于指定打包入口；<u>**单入口是字符串形式，单页应用
 
 output 用于指定编译结果输出位置(磁盘)；
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001508.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001508.png" style="zoom:50%;" align=""/>
 
 - 注意：多入口输出时需通过占位符确保文件名称的唯一和区分，比如上面的 [name]；
 
@@ -292,7 +292,7 @@ Mode 乃 Webpack4 新概念，用以指定当前构建环境，以使用相对�
 
 Mode 的内置函数功能与选项：production(默认)、development、none；
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001509.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001509.png" style="zoom:50%;" align=""/>
 
 
 
@@ -667,7 +667,7 @@ module.export = {
 }
 ```
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001510.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001510.png" style="zoom:60%;" align=""/>
 
 
 
@@ -675,13 +675,13 @@ module.export = {
 
 使用 webpack-dev-middleware，适用于更为灵活适合定制场比如 koa、express：WDM 将 webpack 输出的文件传输给服务器
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001511.png" style="zoom:60%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001511.png" style="zoom:60%;" align=""/>
 
 
 
 ##### 2-3-5-3、热更新原理与过程
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001512.png" style="zoom:70%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001512.png" style="zoom:70%;" align=""/>
 
 - 其中：Bundle Server 作用示例，在浏览器通过 localhost 访问文件；
 - 其中：HMR Runtime 由初次编译时一并打包进浏览器端的 bundlejs (注入)，如此浏览器端的 bundlejs 可通过 webSocket 与 webpack dev Server 进行连接通信，发生变化时及时改变；
@@ -697,19 +697,19 @@ module.export = {
 
 补充：[webpack-dev-server 相关配置 及 proxy 配置使用](https://github.com/chimurai/http-proxy-middleware#http-proxy-middleware-options) ，及 webpack-dev-serve 配置问题，请看[问题十一](https://blog.csdn.net/sinat_17775997/article/details/61924901)
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001513.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001513.png" style="zoom:50%;" align=""/>
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001514.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001514.png" style="zoom:50%;" align=""/>
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001515.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001515.png" style="zoom:50%;" align=""/>
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001516.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001516.png" style="zoom:50%;" align=""/>
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001517.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001517.png" style="zoom:50%;" align=""/>
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001518.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001518.png" style="zoom:50%;" align=""/>
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001519.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001519.png" style="zoom:50%;" align=""/>
 
 
 
@@ -719,7 +719,7 @@ module.export = {
 
 作用：用于版本管理、修改文件替换，未修改文件则使用浏览器缓存、也可用于控制版本更新；
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001520.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001520.png" style="zoom:50%;" align=""/>
 
 **<u>*策略：chunkhash、contenthash、hash：*</u>**
 

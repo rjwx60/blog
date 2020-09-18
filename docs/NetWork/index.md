@@ -41,7 +41,7 @@ CDN 作用是减少传播时延，寻找到最近的节点，是典型的"以空
 
 #### 2-2、CDN 访问过程
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000114.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000114.png" style="zoom:50%;" align=""/>
 
 - 首先，用户点击网站页面上的内容 URL，经过本地 DNS 系统解析，DNS 系统会最终将域名的解析权交给 CNAME 指向的 CDN 专用 DNS 服务器；
 - 然后，CDN 的 DNS 服务器将 CDN 的全局负载均衡设备 IP 地址返回用户；
@@ -74,4 +74,4 @@ OSS  全称 Object Storage Service，对象存储服务，其将数据通道(需
 
 <u>*区别：OSS 核心是存储及计算能力，CDN 核心是分发，本身不提供存储的接口，所以一般情况下是两者配合使用：对象存储中存储资源文件，并使用 CDN 加速*</u>；
 
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000115.png" style="zoom:50%;" align="left"/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908000115.png" style="zoom:50%;" align=""/>

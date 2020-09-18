@@ -192,7 +192,7 @@ function binaryFind(arr, target) {
 ##### 1-X-1、重复计算
 
 - 注意：一些问题使用递归考虑，思路是非常清晰的，但却不推荐使用递归，比如下面几个问题，使用递归都有一个共同的缺点，那就是包含大量的重复计算，若递归层次较深，则会直接会导致 JS 进程崩溃：
-  - <img src="/Image/Algorithm/Recursion/2.png" style="zoom:30%;" align="left"/>
+  - <img src="/Image/Algorithm/Recursion/2.png" style="zoom:30%;" align=""/>
   - [斐波拉契数列](http://www.conardli.top/docs/algorithm/递归和循环/斐波拉契数列.html)
   - [跳台阶](http://www.conardli.top/docs/algorithm/递归和循环/跳台阶.html)
   - [矩形覆盖](http://www.conardli.top/docs/algorithm/递归和循环/矩形覆盖.html)

@@ -40,13 +40,13 @@ typora-root-url: ../../../BlogImgsBed/Source
 
     - 时间复杂度：最坏情况下，在数组开头插入元素，此时最坏时间复杂度是 O(n)，一般情况下，向每个位置插入元素的概率是一样的，故平均情况时间复杂度为 (1+2+…n)/n=O(n)；
     - 性能优化：上述为有序数组插入，若数组无序，仅作为存储数据的集合，则可通过将被插入位置的数组搬移到数组末尾，而原位置由新数据代替的方式提升效率，此时时间复杂度为O(1)，此种思想，在快排也有体现；
-    - <img src="/Image/Algorithm/Array/3.png" style="zoom:50%;" align="left"/>
+    - <img src="/Image/Algorithm/Array/3.png" style="zoom:50%;" align=""/>
 
   - 低效删除：
 
     - 时间复杂度：同插入，也为O(n)；
     - 性能优化：实际上，在某些特殊场景下，并不一定非得追求数组中数据连续性，若将多次删除操作集中在一起执行，可大大提升处理效率，比如可先记录下已删除的数据，然后每次的删除操作并非真正地搬移数据，只是记录数据已经被删除，当数组没有更多空间存储数据时，再触发执行一次真正的删除操作，此种思想，即 JVM 标记清除垃圾回收算法的核心思想；
-    - <img src="/Image/Algorithm/Array/4.png" style="zoom:50%;" align="left"/>
+    - <img src="/Image/Algorithm/Array/4.png" style="zoom:50%;" align=""/>
 
 - 补充：越界访问、容器ArrayList、数组从0开始编号、补充自：https://time.geekbang.org/column/article/40961 评论区更精彩
 
@@ -70,7 +70,7 @@ typora-root-url: ../../../BlogImgsBed/Source
 - `pears` 的索引为 `3`，计算该元素的内存地址为 `2008 + 3 = 2011`；
 - 计算机直接通过该地址访问到数组中索引为 `3` 的元素；
 
-<img src="/Image/Algorithm/Array/8.png" style="zoom:50%;" align="left"/>
+<img src="/Image/Algorithm/Array/8.png" style="zoom:50%;" align=""/>
 
 
 

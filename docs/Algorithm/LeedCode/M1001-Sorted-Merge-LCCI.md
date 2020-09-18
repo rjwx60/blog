@@ -117,7 +117,7 @@ const merge = (nums1, m, nums2, n) => {
 // 注意: 后序遍历是因为先比较较大的数，只需要把大的数放到数组 nums1 的后面即可，若先从小的比较，需要把数组 nums1 的所有数往后挪一位，时间复杂度较高
 ```
 
-<img src="/Users/rjwx60/Documents/FE/Github/Blog/Source/Image/Algorithm/Algorithm/M1001.png" style="zoom:50%;" align="left"/>
+<img src="/Users/rjwx60/Documents/FE/Github/Blog/Source/Image/Algorithm/Algorithm/M1001.png" style="zoom:50%;" align=""/>
 
 
 
