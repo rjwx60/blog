@@ -1,26 +1,20 @@
----
-typora-root-url: ../../../BlogImgsBed/Source
----
+# 三、基本介绍
 
-
-
-### 一、基本介绍
-
-#### 1-1、基本
+## 3-1、基本
 
 webpack 是一个现代 JavaScript 应用程序的静态模块打包器(module bundler)。当 webpack 处理应用程序时，它会递归地构建一个依赖关系图(dependency graph)，其中包含应用程序需要的每个模块，然后将所有这些模块打包成一个或多个 bundle。
 
 webpack 是 JS 的 **模块打包工具** (module bundler)，通过分析模块间的依赖，最终将所有模块打包成一份或者多份代码包 (bundler)，供 HTML 直接引用。实质上，Webpack 仅仅提供了 **打包功能** 和一套 **文件处理机制**，然后通过生态中的各种 Loader 和 Plugin 对代码进行预编译和打包；因此 Webpack 具有高度的可拓展性，能更好的发挥社区生态的力量。
 
-#### 1-2、模块打包原理
+## 3-2、模块打包原理
 
 Webpack 实际上为每个模块创造了一个可导出和导入的环境，但本质上并没有修改 代码的执行逻辑，代码执行顺序与模块加载顺序也完全一致；
 
 
 
-### 二、基础用法
+# 三-1、基础用法
 
-#### 2-1、环境搭建与配置
+## 3-1、环境搭建与配置
 
 初始化：`npm init -y`；
 
@@ -51,9 +45,9 @@ Webpack 实际上为每个模块创造了一个可导出和导入的环境，但
 
 
 
-#### 2-2、核心概念
+## 3-2、核心概念
 
-##### 2-2-1、entry
+### 3-2-1、entry
 
 entry 用于指定打包入口；<u>**单入口是字符串形式，单页应用、多入口是键值对形式、多页应用；**</u>
 
@@ -67,7 +61,7 @@ entry 用于指定打包入口；<u>**单入口是字符串形式，单页应用
 
 
 
-##### 2-2-2、output
+### 3-2-2、output
 
 output 用于指定编译结果输出位置(磁盘)；
 
@@ -77,7 +71,7 @@ output 用于指定编译结果输出位置(磁盘)；
 
 
 
-##### 2-2-3、loaders
+### 3-2-3、loaders
 
  loader 使得 webpack 有能力调用外部的脚本或工具，实现对不同格式的文件的处理；
 
@@ -133,7 +127,7 @@ module：{
 
 
 
-##### 2-2-4、plugin
+### 3-2-4、plugin
 
 plugin 用于增强 webpack 功能，常用于打包输出的 JS 文件优化、资源管理、环境变量的注入，loader 无法实现 plugin 均可实现；
 
@@ -164,7 +158,7 @@ plugin 用于增强 webpack 功能，常用于打包输出的 JS 文件优化、
 - speed-measure-webpack-plugin: 可以看到每个 Loader 和 Plugin 执行耗时 (整个打包耗时、每个 Plugin 和 Loader 耗时)
 - webpack-bundle-analyzer: 可视化 Webpack 输出文件的体积 (业务组件、依赖第三方模块)
 
-##### 2-2-4-1、HtmlWebpackPlugin
+### 3-2-4-1、HtmlWebpackPlugin
 
 会自动在 `dist` 文件夹下生成 `index.html`，并将输出的 `js` 都引入进去；而配置 template 后，会依据所配置的 index.html 模板，生成一个自动引用打包后 JS 文件的新 index.html(此举常用于为文件添加 hash 值)；在编译过程中，插件会依据此模板生成最终的 html 页面，会自动添加所依赖的 css, js，favicon等文件；
 
@@ -232,7 +226,7 @@ module.exports = {
 };
 ```
 
-##### 2-2-4-2、BannerPlugin
+### 3-2-4-2、BannerPlugin
 
 ```js
 // 版权提示插件；
@@ -241,7 +235,7 @@ plugins：[
 ]
 ```
 
-##### 2-2-4-3、CleanWebpackPlugin
+### 3-2-4-3、CleanWebpackPlugin
 
 安装：`npm i --save-dev clean-webpack-plugin`
 
@@ -280,13 +274,13 @@ module.exports = {
 
 
 
-##### 2-2-4-X、其他
+### 3-2-4-X、其他
 
 待定整理，备忘录…
 
 
 
-##### 2-2-5、mode
+### 3-2-5、mode
 
 Mode 乃 Webpack4 新概念，用以指定当前构建环境，以使用相对应的内置函数、参数；
 
@@ -296,9 +290,9 @@ Mode 的内置函数功能与选项：production(默认)、development、none；
 
 
 
-#### 2-3、基础相关
+## 3-3、基础相关
 
-##### 2-3-1、解析 JSX、ES6
+### 3-3-1、解析 JSX、ES6
 
 首先安装解析包：`npm i babel-loader @babel/core @babel/preset-env -D`
 
@@ -363,7 +357,7 @@ module：{
 
 
 
-##### 2-3-2、解析 Css、Sass、Less
+### 3-3-2、解析 Css、Sass、Less
 
 首先安装解析包：`npm i style-loader css-loader less less-loader sass sass-loader -D`；[补充](https://segmentfault.com/a/1190000006178770#articleHeader5) 和 [深入](https://github.com/css-modules/css-modules)
 
@@ -403,7 +397,7 @@ module：{
 
 
 
-##### 2-3-2-1、模块 Css Modules
+### 3-3-2-1、模块 Css Modules
 
 CSS modules 不是将 CSS 改造成编程语言，而只是加入 <u>局部作用域</u> 和 <u>模块依赖</u>，即将 JS 模块化思想引入 CSS 中，通过 CSS 模块，所有的类名，动画名默认都只作用于当前模块；可保证某个组件的样式，不会影响到其他组件；
 
@@ -534,7 +528,7 @@ module.exports = {
 
 
 
-##### 2-3-3、解析 Image、Font
+### 3-3-3、解析 Image、Font
 
 首先安装解析包：`npm i file-loader -D`；
 
@@ -589,7 +583,7 @@ module：{
 
 
 
-##### 2-3-4、文件监听
+### 3-3-4、文件监听
 
 文件监听即当发现源码发生变化时，自动重新构建出新的输出文件；
 
@@ -624,7 +618,7 @@ module.export = {
 
 
 
-##### 2-3-5、热更新机制
+### 3-3-5、热更新机制
 
 即 webpack-dev-server—WDS，安装：`npm install --save-dev webpack-dev-server`
 
@@ -642,7 +636,7 @@ module.export = {
 
 
 
-##### 2-3-5-1、监听方式A
+### 3-3-5-1、监听方式A
 
 配合 HotModuleReplacementPlugin 插件使用，补充：
 
@@ -671,7 +665,7 @@ module.export = {
 
 
 
-##### 2-3-5-2、监听方式B
+### 3-3-5-2、监听方式B
 
 使用 webpack-dev-middleware，适用于更为灵活适合定制场比如 koa、express：WDM 将 webpack 输出的文件传输给服务器
 
@@ -679,7 +673,7 @@ module.export = {
 
 
 
-##### 2-3-5-3、热更新原理与过程
+### 3-3-5-3、热更新原理与过程
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001512.png" style="zoom:70%;" align=""/>
 
@@ -693,7 +687,7 @@ module.export = {
 
 
 
-##### 2-3-5-4、WDS 相关配置及 proxy 使用
+### 3-3-5-4、WDS 相关配置及 proxy 使用
 
 补充：[webpack-dev-server 相关配置 及 proxy 配置使用](https://github.com/chimurai/http-proxy-middleware#http-proxy-middleware-options) ，及 webpack-dev-serve 配置问题，请看[问题十一](https://blog.csdn.net/sinat_17775997/article/details/61924901)
 
@@ -713,7 +707,7 @@ module.export = {
 
 
 
-##### 2-3-6、文件指纹策略(hash)
+### 3-3-6、文件指纹策略(hash)
 
 文件指纹即打包后输出的文件名的后缀；
 
@@ -738,7 +732,7 @@ module.export = {
 
 
 
-##### 2-3-6-1、JS 文件指纹设置
+### 3-3-6-1、JS 文件指纹设置
 
 使用 [chunkhash]，设置 output filename
 
@@ -775,7 +769,7 @@ module.export = {
 
 
 
-##### 2-3-6-2、图片文件指纹设置
+### 3-3-6-2、图片文件指纹设置
 
 占位符名称及含义
 
@@ -825,7 +819,7 @@ module.export = {
 
 
 
-##### 2-3-6-3、CSS 文件指纹设置
+### 3-3-6-3、CSS 文件指纹设置
 
 安装：`npm i mini-css-extract-plugin -D`；
 
@@ -869,13 +863,13 @@ module.export = {
 
 
 
-##### 2-3-7、代码压缩
+### 3-3-7、代码压缩
 
 注意：webpack4 已内置压缩插件 uglifyjs-webpack-plugin，故无需手动进行 JS 压缩；
 
 注意：但亦可单独下载 UglifyJsPlugi 插件，以使用个性化设置；
 
-##### 2-3-7-1、CSS 压缩
+### 3-3-7-1、CSS 压缩
 
 使用：通过配置 css-loader 的 minify 参数压缩，安装：`npm i optimize-css-assets-webpack-plugin cssnano -D`
 
@@ -897,7 +891,7 @@ module.export = {
 
 
 
-##### 2-3-7-3、HTML 压缩
+### 3-3-7-3、HTML 压缩
 
 使用：强大插件：html-webpack-plugin、空格、换行符、注释均可处理，安装：`npm i html-webpack-plugin -D`
 
@@ -945,7 +939,7 @@ module.export = {
 
 
 
-##### 2-3-7-3、JS 压缩
+### 3-3-7-3、JS 压缩
 
 参考：https://juejin.im/post/5a068c2b5188255851322b8c#heading-10
 
@@ -965,19 +959,19 @@ module.export = {
 
 
 
-### 三、进阶用法
+# 三-2、进阶用法
 
 
 
-### 四、可维护配置
+# 三-3、可维护配置
 
 
 
-### 五、构建优化策略
+# 三-4、构建优化策略
 
 更多优化请参考 [官网](https://www.webpackjs.com/)、 [官网-构建性能](https://www.webpackjs.com/guides/build-performance/)
 
-#### 5-1、优化分析
+## 3-1、优化分析
 
 `size-plugin`：监控资源体积变化，尽早发现问题；
 
@@ -989,15 +983,15 @@ module.export = {
 
 
 
-#### 5-2、优化配置
+## 3-2、优化配置
 
 全局优化：使用`高版本`的 Webpack 和 Node.js
 
 
 
-##### 5-2-1、开发体验优化
+### 3-2-1、开发体验优化
 
-##### 5-2-1-1、优化 loader 配置
+### 3-2-1-1、优化 loader 配置
 
 Loader 对文件的转换操作很耗时，可通过下列方式 **<u>加快编译处理速度</u>**：
 
@@ -1049,7 +1043,7 @@ module：{
 
 
 
-##### 5-2-1-2、exclude & resolve & ignore & module
+### 3-2-1-2、exclude & resolve & ignore & module
 
 - resolve.modules：指明第三方模块的绝对路径，避免层层查找祖先目录 (减少不必要的查找)
 - resolve.mainFields：只采用 main 字段作为入口文件描述字段 (减少搜索步骤，需要考虑到所有运行时依赖的第三方模块的入口文件描述字段)；
@@ -1059,7 +1053,7 @@ module：{
 
 
 
-##### 5-2-1-2-1、优化 resolve.modules 配置
+### 3-2-1-2-1、优化 resolve.modules 配置
 
 resolve.modules 默认值是 `['node_modules']`，含义是先去当前目录的 `node_modules` 目录下去寻找模块，如果没找到就去上一级目录 `../node_modules` 中找，再没有就去 `../../node_modules` 中找，以此类推；与 Node 模块寻找机制相似；
 
@@ -1084,7 +1078,7 @@ module.exports = {
 
 
 
-##### 5-2-1-2-2、优化 resolve.mainFields 配置
+### 3-2-1-2-2、优化 resolve.mainFields 配置
 
 安装的第三方模块中，都会有一个 `package.json` 文件，用于描述模块属性与依赖，其中可能存在多个入口文件的字段描述，原因是<u>某些模块可同时用于多种环境，针对不同运行环境需要使用不同代码</u>；resolve.mainFields 默认值与当前 target 配置有关，对应关系如下：
 
@@ -1115,7 +1109,7 @@ module.exports = {
 
 
 
-##### 5-2-1-2-3、优化 resolve.alias 配置
+### 3-2-1-2-3、优化 resolve.alias 配置
 
 resolve.alias 配置项可设置别名，来将原导入路径映射成一个新的导入路径；
 
@@ -1155,7 +1149,7 @@ module.exports = {
 
 
 
-##### 5-2-1-2-4、优化 resolve.extensions 配置
+### 3-2-1-2-4、优化 resolve.extensions 配置
 
 若导入的语句无带文件后缀，Webpack 会自动带上后缀去尝试询问文件是否存在；若此列表越长或正确后缀越往后，就会造成尝试次数越多；
 
@@ -1187,7 +1181,7 @@ module.exports = {
 
 
 
-##### 5-2-1-2-5、优化 module.noParse 配置
+### 3-2-1-2-5、优化 module.noParse 配置
 
 module.noParse 配置项可 **<u>让 Webpack 忽略对部分无采用模块化的文件的递归解析处理</u>**，提高构建性能；
 
@@ -1201,7 +1195,7 @@ module.exports = {
 
 
 
-##### 5-2-1-2-6、Ignore 多余包
+### 3-2-1-2-6、Ignore 多余包
 
 使用 webpack 自带插件 IgnorePlugin 防止在 `import` 或 `require` 调用时，生成以下正则表达式匹配的模块：
 
@@ -1225,7 +1219,7 @@ import 'moment/locale/zh-cn';
 
 
 
-##### 5-2-1-3、使用 HardSourceWebpackPlugin / DLL
+### 3-2-1-3、使用 HardSourceWebpackPlugin / DLL
 
 作用等同过去的 DLLPlugin 和 DLLReferencePlugin，其用某种方法实现了拆分 bundles，即 **<u>利用动态链接库减少编译</u>**，大大提升了构建的速度；
 
@@ -1318,7 +1312,7 @@ const plugins = [
 
 
 
-##### 5-2-1-4、使用 HappyPack/Thread-loader
+### 3-2-1-4、使用 HappyPack/Thread-loader
 
 Webpack 是单线程模型，即需要一个一个地处理任务，不能同时处理多个任务；
 
@@ -1429,7 +1423,7 @@ threadLoader.warmup({
 
 
 
-##### 5-2-1-5、内容物压缩
+### 3-2-1-5、内容物压缩
 
 JS：webpack 默认提供 UglifyJS 插件来压缩 JS 代码，但其使用的是单线程压缩代码，也即对于多个 JS 文件则需一个一个文件地进行压缩；这在正式环境中打包压缩代码速度非常慢，(因压缩代码前须先将代码解析成 AST，然后再去应用各种规则分析和处理，导致过程耗时非常大)；
 
@@ -1468,7 +1462,7 @@ Image：
 
 
 
-##### 5-2-1-6、优化文件监听的性能
+### 3-2-1-6、优化文件监听的性能
 
 在开启监听模式时，默认情况下会监听配置的 Entry 文件、与所有 Entry 递归依赖的文件，在这些文件中会有很多存在于 `node_modules` 下，因如今的 Web 项目会依赖大量的第三方模块， 所以大多数情况下都不可能去编辑 `node_modules` 下的文件，所以此时可 **<u>忽略监听 node_modules 下的文件</u>**，采用此方法优化后， Webpack 消耗的内存和 CPU 将会大大减少；
 
@@ -1485,9 +1479,9 @@ module.export = {
 
 
 
-##### 5-2-2、输出质量优化
+### 3-2-2、输出质量优化
 
-##### 5-2-2-1、实现 CDN 的接入
+### 3-2-2-1、实现 CDN 的接入
 
 构建需要实现以下几点:
 
@@ -1497,7 +1491,7 @@ module.export = {
 
 
 
-##### 5-2-2-2、使用 Tree Shaking
+### 3-2-2-2、使用 Tree Shaking
 
 即打包过程中检测工程中没有引用过的模块并进行标记，在资源压缩时将它们从最终的bundle中去掉；但Tree Shaking 正常工作前提：提交给 Webpack 的 JS 代码须采用 ES6 的模块化语法，**<u>因 摇树优化 的实现依赖于 ES6 模块化的静态语法</u>**，可进行静态分析；
 
@@ -1548,7 +1542,7 @@ module.exports = {
 
 
 
-##### 5-2-2-3、提取公共代码 SplitChunks
+### 3-2-2-3、提取公共代码 SplitChunks
 
 大型网站通常由多个页面组成，每个页面都是一个独立的单页应用，但由于所有页面都采用同样的技术栈及同一套样式代码，这就导致页面间有很多相同代码；过去(版本3)通过 CommonsChunkPlugin 实现，现在通过(版本4) SplitChunks 实现；
 
@@ -1637,7 +1631,7 @@ splitChunks: {
 
 
 
-##### 5-2-2-4、分割代码以按需加载/懒加载
+### 3-2-2-4、分割代码以按需加载/懒加载
 
 Webpack 支持两种动态代码拆分技术：
 
@@ -1779,9 +1773,9 @@ Vue.component(Button.name, Button);
 
 
 
-#### 5-X、高效插件
+## 3-X、高效插件
 
-##### 5-X-1、webpack --watch
+### 3-X-1、webpack --watch
 
 观察者模式, 只需要在`package.json`里配置一个脚本命令:
 
@@ -1795,7 +1789,7 @@ Vue.component(Button.name, Button);
 
 
 
-##### 5-X-2、webpack-dev-server
+### 3-X-2、webpack-dev-server
 
 此插件是 watch 模式的改进，无需手动刷新浏览器；每次修改了本地代码之后, 都会重新自动编译, 并刷新页面
 
@@ -1822,7 +1816,7 @@ Vue.component(Button.name, Button);
 
 
 
-##### 5-X-3、webpack-dev-middle
+### 3-X-3、webpack-dev-middle
 
 安装：`npm i --save-dev webpack-dev-middleware express`
 
@@ -1900,7 +1894,7 @@ app.listen(3000, function () {
 
 
 
-##### 5-X-4、webpack-merge 
+### 3-X-4、webpack-merge 
 
 安装：`npm i --save-dev webpack-merge`
 
@@ -1988,13 +1982,13 @@ module.exports = merge(commonConfig, {
 
 
 
-##### 5-X-5、process.env.NODE_ENV
+### 3-X-5、process.env.NODE_ENV
 
 `process.env.NODE_ENV`是 Node.js 暴露给执行脚本的系统环境变量，其主要作用声明当前环境是：开发环境(development)亦或是生产环境(production)；
 
 可在任何 `src` 本地代码中引用：`process.env.NODE_ENV`，但注意在 `webpack.config.js` 中却无法获取；
 
-##### 5-X-5-1、webpack.DefinePlugin 
+### 3-X-5-1、webpack.DefinePlugin 
 
 鉴于上述问题，可通过 webpack 内置的 webpack.DefinePlugin 插件在 webpack.config.js 内部修改/指定 `NODE_ENV` 值
 
@@ -2024,7 +2018,7 @@ module.exports = merge(commonConfig, {
 });
 ```
 
-##### 5-X-5-2、命令行配置模式mode
+### 3-X-5-2、命令行配置模式mode
 
 除使用 `webpack.DefinePlugin` 插件来修改环境变量，还可在命令行中 `--mode` 变量设置：`webpack --mode=production 或 webpack --mode=development`
 
@@ -2032,7 +2026,7 @@ module.exports = merge(commonConfig, {
 
 - 注意：若同时设置，则 webpack.definePlugin 优先级高于 mode 设置；
 
-##### 5-X-5-3、命令行传递环境变量
+### 3-X-5-3、命令行传递环境变量
 
 可通过命令行的 `--env` 参数设置能**<u>*在 webpack.config.js 配置中访问到*</u>** 的值；
 
@@ -2119,7 +2113,7 @@ module.exports = env => {
 
 
 
-#### 5-Y、性能监控
+## 3-Y、性能监控
 
 对 bundle 体积进行监控和分析：
 
@@ -2135,5 +2129,5 @@ module.exports = env => {
 
 
 
-### 六、大型项目配置
+# 六、大型项目配置
 

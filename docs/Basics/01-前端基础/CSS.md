@@ -1,154 +1,8 @@
----
-typora-root-url: ../../../BlogImgsBed/Source
----
+# 二、CSS
 
+## 2-1、盒模型
 
-
-https://juejin.im/post/6844903962529759239
-
-https://juejin.im/post/6844903896473665550
-
-
-
-### 一、HTML
-
-#### 1-1、HTML5
-
-- 标签：
-  - 新增语义化标签(`aside / figure / section / header / footer / nav`等)
-  - 增加多媒体标签 `video` 和 `audio`，使样式和结构更加分离；
-- 属性：
-  - 增强表单，主要是增强了`input`的 type 属性；
-  - `meta`增加charset以设置字符集；
-  - `script`增加async以异步加载脚本
-- 存储：
-  - 增加 `localStorage`、`sessionStorage` 和 `indexedDB`；
-  - 引入 `application cache` 对 web 和 应用进行缓存；
-- API：
-  - 增加 `拖放API`、`地理定位`、`SVG绘图`、`canvas绘图`、`Web Worker`、`WebSocket`
-
-
-
-#### 1-2、doctype
-
-声明文档类型，告知浏览器用什么文档标准解析这个文档：
-
-- 怪异模式：浏览器使用自己的模式解析文档，不加doctype时默认为怪异模式
-- 标准模式：浏览器以W3C的标准解析文档
-
-
-
-#### 1-3、href 与 src
-
-- **<u>href(hyperReference) 即超文本引用</u>**：当浏览器遇到 href 时，会并行的地下载资源，不会阻塞页面解析；
-  - 比如使用 `<link>` 引入CSS，浏览器会并行地下载 CSS 而不阻塞页面解析. 因此在引入CSS时建议使用 `<link>` 而不是 `@import`
-
-```html
-<link href="style.css" rel="stylesheet" />
-```
-
-- `src(resource` 即资源，当浏览器遇到 src 时会暂停页面解析，直到该资源下载或执行完毕，此亦 script 标签之所以放底部的原因；
-
-```html
-<script src="script.js"></script>
-```
-
-
-
-#### 1-4、meta 标签
-
-<u>meta 标签用于描述网页的 元信息；比如网站作者、描述、关键词；</u>
-
-meta 通过 `name=xxx` 和 `content=xxx` 形式定义信息，常用设置如下：
-
-- charset：定义HTML文档的字符集
-
-```html
- <meta charset="UTF-8" >
-```
-
-- http-equiv：可用于模拟http 请求头、设置过期时间、缓存、刷新
-
-```html
-＜meta http-equiv="expires" content="Wed, 20 Jun 2019 22:33:00 GMT"＞
-```
-
-- viewport：视口，用于控制页面宽高及缩放比例
-
-```html
-<meta  name="viewport"  content="width=device-width, initial-scale=1, maximum-scale=1">
-```
-
-- **<u>将 http 请求转为 https 请求</u>**
-
-```html
-<meta http-equiv ="Content-Security-Policy" content="upgrade-insecure-requests">
-```
-
-
-
-##### 1-4-1、viewport
-
-- width/height，宽高，默认宽度 980px
-- initial-scale，初始缩放比例，1~10
-- maximum-scale/minimum-scale，允许用户缩放的最大/小比例
-- user-scalable，用户是否可以缩放 (yes/no)
-
-
-
-##### 1-4-2、http-equive
-
-- expires，指定过期时间
-- progma，设置no-cache可以禁止缓存
-- refresh，定时刷新
-- set-cookie，可以设置cookie
-- X-UA-Compatible，使用浏览器版本
-- apple-mobile-web-app-status-bar-style，针对WebApp全屏模式，隐藏状态栏/设置状态栏颜色
-
-
-
-##### 1-4-X、综合示例
-
-**<u>做响应式网站时，一定要在页面头部加入如下 meta 声明：</u>**
-
-```html
-<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"> 
-```
-
-- width = device-width：宽度等于当前设备的宽度
-- initial-scale：初始的缩放比例（默认设置为1.0）
-- minimum-scale：允许用户缩放到的最小比例（默认设置为1.0）
-- maximum-scale：允许用户缩放到的最大比例（默认设置为1.0）
-- user-scalable：用户是否可以手动缩放（默认设置为 no，因不希望用户放大缩小页面）
-
-此段 meta 所表示的作用如下：
-
-- **<u>设备浏览器根据设定的尺寸来显示页面，且比例是1，不可通过手势放大缩小；</u>** 
-- 否则，移动客户端的浏览器真的会以它的 1px 来显示你设定的 1px；最终效果是被缩放的效果，字小小的那种；
-
-
-
-
-
-#### 1-5、a 标签
-
-link→visited→hover→active
-
-- `a:link`：未访问时的样式，一般省略成a
-
-- `a:visited`：已经访问后的样式
-
-- `a:hover`：鼠标移上去时的样式
-
-- `a:active`：鼠标按下时的样式
-
-
-
-### 二、CSS
-
-#### 2-1、盒模型
-
-##### 2-1-1、问题
+### 2-1-1、问题
 
 不加声明：浏览器自身理解，IE 使用 IE盒子模型；
 
@@ -160,7 +14,7 @@ link→visited→hover→active
 - 盒子范围：margin、border、padding、content (内容宽高 - width、height)
 - 导致 content-box 情况下，宽高设置与实际表现不符 (设置的是内容宽高，但想要效果为元素宽高)
 
-##### 2-1-2、解决 CSS3 - box-sizing 
+### 2-1-2、解决
 
 `box-sizing: content-box`：W3C盒模型，又名标准盒模型，元素的宽高大小表现为内容的大小；
 
@@ -171,13 +25,13 @@ link→visited→hover→active
 - padding-box：计算 content + padding 宽高；(整体宽高不随后期 border 值改变而改变)
 - border-box：计算 content + padding + border 宽高；(整体宽高不随后期 padding、border 值改变而改变)
 
-##### 2-1-3、注意事项
+### 2-1-3、注意事项
 
 - 盒子高度，使用百分比，则总会采用盒子内容高度；
 - 盒子背景，由颜色、图像组成，可通过 background 引入，还可通过 background-clip 设置画布；
 - 盒子轮廓，outline 不属于盒模型一部分，在盒子的上面一层，ouline 是画在边界框之外，外边距区域之内；
 
-##### 2-1-X、display 补充
+### 2-1-X、display 补充
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200912151258.png" style="zoom:50%;" align=""/>
 
@@ -185,7 +39,7 @@ link→visited→hover→active
 
 
 
-#### 2-2、层叠上下文
+## 2-2、层叠上下文
 
 <u>**层叠上下文是元素提升为一个比较特殊的图层(GPU加速，效率提升)，在三维空间中 (z轴) 高普通元素一等；**</u>
 
@@ -210,7 +64,7 @@ link→visited→hover→active
 
 
 
-##### 2-2-1、z-index 
+### 2-2-1、z-index 
 
 **<u>z-index 深度属性：默认值auto = 0；</u>**
 
@@ -258,7 +112,7 @@ subbottom 设置 relative，z-index层级为>100
 
 
 
-##### 2-2-2、position
+### 2-2-2、position
 
 **<u>*absolute*</u>** ：**<u>含义：生成绝对定位的元素，相对于 static 定位以外的第1个父元素进行位移、不占位、默认相对于 html 元素；</u>**
 
@@ -300,9 +154,9 @@ fixed 与 absolute 区别：前者固定为浏览器窗口，后者可设置相�
 
 
 
-#### 2-3、浮动
+## 2-3、浮动
 
-##### 2-3-1、浮动初衷
+### 2-3-1、浮动初衷
 
 **<u>初衷是用于文字环绕，即在图文混排时可很好的使文字环绕在图片周围；</u>**
 
@@ -310,7 +164,7 @@ fixed 与 absolute 区别：前者固定为浏览器窗口，后者可设置相�
 
 
 
-##### 2-3-2、浮动特性
+### 2-3-2、浮动特性
 
 破坏性：**<u>*浮动元素脱离普通流(引起高度塌陷)*</u>**，且 display 值变为 block ；
 
@@ -322,7 +176,7 @@ fixed 与 absolute 区别：前者固定为浏览器窗口，后者可设置相�
 
 
 
-##### 2-3-3、闭合浮动
+### 2-3-3、闭合浮动
 
 - **<u>*添加额外标签*</u>**
 
@@ -339,6 +193,7 @@ fixed 与 absolute 区别：前者固定为浏览器窗口，后者可设置相�
     ```
 
 - **<u>*触发 BFC*</u>**：
+
   - FD元素父级 + overflowHidden/Auto 触发 BFC；IE6 则加 zoom 触发 hasLayout；
 
   - FD元素父级 + displayTable 触发 BFC；
@@ -413,7 +268,7 @@ fixed 与 absolute 区别：前者固定为浏览器窗口，后者可设置相�
 
 
 
-##### 2-3-X、BFC
+### 2-3-X、BFC
 
 含义：Block Formatting Context—**<u>BFC 块级格式上下文、页面盒模型布局中的一种 CSS 渲染模式、隔离的渲染区域；</u>**
 
@@ -458,7 +313,7 @@ fixed 与 absolute 区别：前者固定为浏览器窗口，后者可设置相�
 
 
 
-##### 2-3-Y、IFC
+### 2-3-Y、IFC
 
 含义：Inline Formatting Context—IFC 内联格式化上下文，我理解为 4 种内联盒子：
 
@@ -522,7 +377,7 @@ text-bottom：与父级元素content area的低端对齐，不受行高以及周
 
 
 
-##### 2-3-G、区别
+### 2-3-G、区别
 
 **<u>*BFC、IFC、GFC 和 FFC 区别*</u>**
 
@@ -548,14 +403,14 @@ text-bottom：与父级元素content area的低端对齐，不受行高以及周
 
 
 
-##### 2-3-Z、margin 塌陷 + 负值
+### 2-3-Z、margin 塌陷 + 负值
 
 - 常用：margin: 0 auto 居中
 - margin 在空间有剩余的同时，若左右margin为auto，将会均分剩余空间，但若上下margin为auto，其计算值为0
 
 
 
-##### 2-3-Z-1、margin 塌陷
+### 2-3-Z-1、margin 塌陷
 
 定义：普通文档流中，相邻块级元素的垂直外边距合并(非缺陷，段落相邻需要塌陷)；问题如下：
 
@@ -573,7 +428,7 @@ text-bottom：与父级元素content area的低端对齐，不受行高以及周
 
 
 
-##### 2-3-Z-2、margin 负值
+### 2-3-Z-2、margin 负值
 
 - 静止元素负值 margin(left/top)，元素向 left/top 位移；
 - 静止元素负值 margin(right/bottom)，元素却不向 right/bottom 位移，而会减少自身供 CSS 读取的高度，影响下方元素位置；
@@ -586,7 +441,7 @@ text-bottom：与父级元素content area的低端对齐，不受行高以及周
 
 
 
-#### 2-4、布局
+## 2-4、布局
 
 水平居中
 
@@ -611,7 +466,7 @@ text-bottom：与父级元素content area的低端对齐，不受行高以及周
 
 
 
-##### 2-4-1、经典布局
+### 2-4-1、经典布局
 
 DIV+CSS 布局
 
@@ -624,7 +479,7 @@ DIV+CSS 布局
 
 
 
-##### 2-4-1-1、垂直居中
+### 2-4-1-1、垂直居中
 
 - verticalAlignMiddle
 - verticalAlignMiddle+displayInlineBlock+伪元素
@@ -691,7 +546,7 @@ DIV+CSS 布局
 
 
 
-##### 2-4-1-2、水平居中
+### 2-4-1-2、水平居中
 
 - 不限元素：text-align:center + display:inline-block；
 - 单个元素：margin: 0 auto + 定宽且宽度小于父级的宽；
@@ -744,7 +599,7 @@ DIV+CSS 布局
 
 
 
-##### 2-4-1-3、垂直水平居中
+### 2-4-1-3、垂直水平居中
 
 <u>flex布局：</u>
 
@@ -804,9 +659,9 @@ table布局
 
 
 
-##### 2-4-2、常见布局
+### 2-4-2、常见布局
 
-##### 2-4-2-1、多列布局
+### 2-4-2-1、多列布局
 
 flex 实现
 
@@ -824,9 +679,9 @@ Grid 实现
 
 - 。。。
 
-##### 2-4-2-2、两列布局
+### 2-4-2-2、两列布局
 
-##### 2-4-2-2-1、左列定宽+右列自适应
+### 2-4-2-2-1、左列定宽+右列自适应
 
 普通布局：
 
@@ -875,7 +730,7 @@ grid 布局
 - 双 float 实现
   - 。。。
 
-##### 2-4-2-2-2、左列自适应+右列固定
+### 2-4-2-2-2、左列自适应+右列固定
 
 布局1：
 
@@ -900,9 +755,9 @@ grid 布局
 
 
 
-##### 2-4-2-3、三列布局
+### 2-4-2-3、三列布局
 
-##### 2-4-2-3-1、左中定宽+右侧自适应
+### 2-4-2-3-1、左中定宽+右侧自适应
 
 flex 实现：
 
@@ -928,7 +783,7 @@ Grid 实现：
 
 
 
-##### 2-4-2-3-2、左右定宽+中间自适应
+### 2-4-2-3-2、左右定宽+中间自适应
 
 **<u>*左右浮动+margin正值*</u>**
 
@@ -976,7 +831,7 @@ Grid 实现：
 
 - 。。。
 
-##### 2-4-2-3-3、双飞和圣杯布局区别
+### 2-4-2-3-3、双飞和圣杯布局区别
 
 - 解决一致：左右定宽，中间自适应，中间栏要在放在文档流前面以优先渲染；
 - 思路相似：
@@ -991,7 +846,7 @@ Grid 实现：
 
 
 
-##### 2-4-X、Flex
+### 2-4-X、Flex
 
 Flex 结构由 Container & Item 组成；
 
@@ -1004,11 +859,11 @@ Flex 结构由 Container & Item 组成；
 
 
 
-##### 2-4-X-1、容器属性
+### 2-4-X-1、容器属性
 
 使用在flex布局容器上的属性
 
-##### 2-4-X-1-1、flex-direction
+### 2-4-X-1-1、flex-direction
 
 决定横着排还是竖着排列
 
@@ -1019,7 +874,7 @@ Flex 结构由 Container & Item 组成；
 }
 ```
 
-##### 2-4-X-1-2、flex-wrap
+### 2-4-X-1-2、flex-wrap
 
 控制换行
 
@@ -1030,7 +885,7 @@ Flex 结构由 Container & Item 组成；
 }
 ```
 
-##### 2-4-X-1-3、flex-flow
+### 2-4-X-1-3、flex-flow
 
 前两者的复合属性
 
@@ -1041,7 +896,7 @@ Flex 结构由 Container & Item 组成；
 }
 ```
 
-##### 2-4-X-1-4、justify-content
+### 2-4-X-1-4、justify-content
 
 用于控制行内项目分布情况(定义子元素在主轴(横轴)上的对齐方式)；
 
@@ -1052,7 +907,7 @@ Flex 结构由 Container & Item 组成；
 }
 ```
 
-##### 2-4-X-1-5、align-items
+### 2-4-X-1-5、align-items
 
 用于控制列内项目的分布情况(定义项目在交叉轴(竖轴)上对齐方式)；
 
@@ -1063,7 +918,7 @@ Flex 结构由 Container & Item 组成；
 }
 ```
 
-##### 2-4-X-1-6、align-content
+### 2-4-X-1-6、align-content
 
 定义多根轴线的对齐方式；
 
@@ -1076,11 +931,11 @@ Flex 结构由 Container & Item 组成；
 
 
 
-##### 2-4-X-2、项目属性
+### 2-4-X-2、项目属性
 
 使用在容器内子元素上的属性
 
-##### 2-4-X-2-1、flex-grow
+### 2-4-X-2-1、flex-grow
 
 **<u>*用于定义项目放大比例*</u>**，若均为1，则均分空间，以此类推，如下所示；
 
@@ -1095,7 +950,7 @@ Flex 结构由 Container & Item 组成；
 }
 ```
 
-##### 2-4-X-2-2、flex-shrink
+### 2-4-X-2-2、flex-shrink
 
 **<u>*用于定义项目的缩小比例*</u>**；
 
@@ -1109,7 +964,7 @@ Flex 结构由 Container & Item 组成；
 }
 ```
 
-##### 2-4-X-2-3、flex-basis
+### 2-4-X-2-3、flex-basis
 
 定义在分配多余空间之前，项目占据的主轴空间，作用看计算规则；
 
@@ -1125,7 +980,7 @@ Flex 结构由 Container & Item 组成；
 }
 ```
 
-##### 2-4-X-2-4、flex
+### 2-4-X-2-4、flex
 
 前三者的复合属性；`<flex-grow> || <flex-shrink> || <flex-basis>`；
 
@@ -1155,7 +1010,7 @@ flex 值的其他表示意思：
 - flex: 一个百分比值如20% -->> flex: 1 1 20%;
 - flex: 一个非负+一个长度值或百分比值如8 50px/20% -->> flex: 8 1 50px/20%;
 
-##### 2-4-X-2-5、align-self
+### 2-4-X-2-5、align-self
 
 定义单个子元素的排列方式；
 
@@ -1171,7 +1026,7 @@ flex 值的其他表示意思：
 
 
 
-##### 2-4-X-2-6、order
+### 2-4-X-2-6、order
 
 定义项目的排列顺序；数值越小，排列越靠前，默认为 0
 
@@ -1183,11 +1038,11 @@ flex 值的其他表示意思：
 
 
 
-##### 2-4-X-3、计算规则
+### 2-4-X-3、计算规则
 
 **<u>*flex 计算规则相关属性：margin，flex-grow，flex-shrink，flex-basis；*</u>**
 
-##### 2-4-X-3-1、margin 计算属性
+### 2-4-X-3-1、margin 计算属性
 
 - 注意：Flex 容器每行宽度 = 所有子容器宽度 + 子容器左右 margin 值；
 - 故而：所有子容纳器宽度 = Flex 容器每行宽度 - 子容器左右 margin 值：400 - 2 * 50；
@@ -1196,9 +1051,9 @@ flex 值的其他表示意思：
 
 
 
-##### 2-4-X-3-2、其他计算属性
+### 2-4-X-3-2、其他计算属性
 
-##### 3-4-X-3-2-1、flex-grow
+### 3-4-X-3-2-1、flex-grow
 
 **<u>*不足容器大小时的伸张比例*</u>**
 
@@ -1210,7 +1065,7 @@ flex 值的其他表示意思：
 - 比如：容器宽度 400，2子均为 300，超出容器宽度，此时 flex-grow 就失效，而2子以均为 200 被限定在 400 内；
 - 而若：完整显示 300 宽度：则可设置 flex-wrap：wrap 换行显示、亦可设置 flex-shrink 为 0 禁止压缩；
 
-##### 3-4-X-3-2-2、flex-shrink
+### 3-4-X-3-2-2、flex-shrink
 
 **<u>*超过容器大小时的压缩比例 - 默认1*</u>**
 
@@ -1219,7 +1074,7 @@ flex 值的其他表示意思：
 - 若设置1个 flex-shrink 为 0，另 1 个为 1，则将剩余空间全部给取值为 1 项目，即：300 - 200 = 100px；
 - 若分别设置 flex-shrink为 2 和 8，则分别为：300 + (-40) = 260、300 + (-160) = 140；
 
-##### 3-4-X-3-2-3、flex-basis 
+### 3-4-X-3-2-3、flex-basis 
 
 **<u>*结合 flex-basis 的真实计算过程 <<flex原理>>*</u>**
 
@@ -1255,7 +1110,7 @@ flex 值的其他表示意思：
 
 
 
-##### 2-4-X-4、示例
+### 2-4-X-4、示例
 
 示例A：
 
@@ -1311,11 +1166,11 @@ Item3：400 - 600 * (400 * 2)/4000 = 280
 
 
 
-##### 2-4-Y、Grid 
+### 2-4-Y、Grid 
 
 
 
-##### 2-4-Z、特殊布局
+### 2-4-Z、特殊布局
 
 - **<u>*多个元素、宽高已知、实现垂直水平居中、间隔等距布局*</u>**
   - flex思路一：
@@ -1433,9 +1288,9 @@ Item3：400 - 600 * (400 * 2)/4000 = 280
 
 
 
-##### 2-4-K、自适应与响应式
+### 2-4-K、自适应与响应式
 
-##### 2-4-K-1、自适应(AWD)
+### 2-4-K-1、自适应(AWD)
 
 不同设备上，网站样式风格、内容、网址、数据库、模板不同或部分相同；
 
@@ -1453,7 +1308,7 @@ Item3：400 - 600 * (400 * 2)/4000 = 280
 
 
 
-##### 2-4-K-2、响应式(RWD)
+### 2-4-K-2、响应式(RWD)
 
 不同设备上，网站样式风格、内容、网址、数据库、模板相互一致
 
@@ -1475,7 +1330,7 @@ Item3：400 - 600 * (400 * 2)/4000 = 280
 
 
 
-##### 2-4-K-3、渐进增强 & 优雅降级
+### 2-4-K-3、渐进增强 & 优雅降级
 
 - 前者构建完整功能，随后逐步添加新式浏览器才支持的功能
 - 前者因为用户在PC上用过一个功能，但是在手机上怎么都找不到，用户体验极差
@@ -1484,11 +1339,11 @@ Item3：400 - 600 * (400 * 2)/4000 = 280
 
 
 
-#### 2-5、布局适配方案
+## 2-5、布局适配方案
 
-##### 2-5-1、CSS 单位
+### 2-5-1、CSS 单位
 
-##### 2-5-1-1、相对绝对单位
+### 2-5-1-1、相对绝对单位
 
 相对单位值不固定：
 
@@ -1509,7 +1364,7 @@ Item3：400 - 600 * (400 * 2)/4000 = 280
 
 
 
-##### 2-5-1-2、百分比单位
+### 2-5-1-2、百分比单位
 
 position 各属性值的%值：
 
@@ -1559,7 +1414,7 @@ vertical-align 的%值：
 
 
 
-##### 2-5-1-3、视口单位
+### 2-5-1-3、视口单位
 
 问题：各布局的不足：
 
@@ -1592,7 +1447,7 @@ vertical-align 的%值：
 
 
 
-##### 2-5-1-4、注意事项
+### 2-5-1-4、注意事项
 
 **<u>*1、增加大小限制：*</u>**
 
@@ -1616,9 +1471,9 @@ vertical-align 的%值：
 
 
 
-##### 2-5-2、像素比
+### 2-5-2、像素比
 
-##### 2-5-2-1、概念区分
+### 2-5-2-1、概念区分
 
 设备像素：亦称物理像素，生产即决定的值、固定值；
 
@@ -1637,7 +1492,7 @@ CSS像素：类似于在设备上的一层布，CSS像素并不总等于物理�
 
 
 
-##### 2-5-2-2、高PPI问题与解决
+### 2-5-2-2、高PPI问题与解决
 
 问题：高密度分辨率屏幕（高清屏）会带来以上的适配问题
 
@@ -1669,7 +1524,7 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 
 
 
-##### 2-5-X、初始化根元素字体大小
+### 2-5-X、初始化根元素字体大小
 
 页面开头处引入下面这段代码，用于动态计算`font-size`：
 
@@ -1705,9 +1560,9 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 
 
 
-#### 2-6、隐藏
+## 2-6、隐藏
 
-##### 2-6-1、文字总结
+### 2-6-1、文字总结
 
 常规法:
 
@@ -1727,7 +1582,7 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 
 
 
-##### 2-6-2、实例总结
+### 2-6-2、实例总结
 
 - 能否点击：涉及变形、裁剪、定位移动、VisibilityHidden、高度控制均不可点击；透明度控制可点击；
 - 是否占据空间：仅相对定位、透明度控制、VisibilityHidden 占据空间 ；
@@ -1792,9 +1647,9 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200912155602.png" alt="截屏2020-09-12 下午3.55.51" style="zoom:50%;" align="" />
 
-##### 2-6-3、隐藏属性对比
+### 2-6-3、隐藏属性对比
 
-##### 2-6-3-1、opacity: 0;
+### 2-6-3-1、opacity: 0;
 
 - DOM 结构：渲染树保留、不可见、可点；
 - 事件监听：可进行 DOM 事件监听；
@@ -1804,7 +1659,7 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 - 无障碍：
 - 场景：跟transition搭配、自定义图片上传按钮
 
-##### 2-6-3-2、visibility: hidden;
+### 2-6-3-2、visibility: hidden;
 
 - DOM 结构：渲染树保留、不可见、不可点；
 - 事件监听：无法进行 DOM 事件监听；
@@ -1814,7 +1669,7 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 - 无障碍：读屏器会读取 visibility: hidden 元素内容
 - 场景：显示不会导致页面结构发生变动；
 
-##### 2-6-3-3、display: none;
+### 2-6-3-3、display: none;
 
 - DOM 结构：渲染树不保留、不可见、不可点；
 - 事件监听：无法进行 DOM 事件监听；
@@ -1832,16 +1687,16 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 
 
 
-#### 2-7、边框
+## 2-7、边框
 
-##### 2-7-1、border
+### 2-7-1、border
 
 - 属性：复合属性：宽度、种类、颜色；
 - 位置：略、占据空间、影响布局；
 
 
 
-##### 2-7-1-1、border-radius
+### 2-7-1-1、border-radius
 
 - 单一赋值：border-top-left-radius….；
 - 表现形式1：左上 右上 右下 左下；
@@ -1851,13 +1706,13 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 
 
 
-##### 2-7-1-2、border-image
+### 2-7-1-2、border-image
 
 [border-image](http://www.w3school.com.cn/css/css_border.asp)、[border-image-xxx](https://developer.mozilla.org/zh-CN/docs/Learn/CSS/Styling_boxes/Borders)
 
 
 
-##### 2-7-1-3、border 实现多边形
+### 2-7-1-3、border 实现多边形
 
 圆角胶囊：https://www.cnblogs.com/pigtail/archive/2013/02/17/2914119.html
 
@@ -1879,7 +1734,7 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 
 
 
-##### 2-7-2、outline
+### 2-7-2、outline
 
 - 属性：复合属性
 - 位置：边框边缘外围、不占据空间、不影响布局；
@@ -1892,7 +1747,7 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 
 
 
-##### 2-7-3、box-shadow
+### 2-7-3、box-shadow
 
 - 属性：复合属性：水平偏移(+右-左)  垂直偏移(+下-上)  模糊半径(0+)  扩展半径(∞)  颜色 阴影(默认和inset)；
 - 兼容性：IE9+、FF3.5+、Chrome2.0+、Opera10.6+、Safari4+；注：IE9-使用看3-3：
@@ -1913,7 +1768,7 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 - IE9-兼容解决：
   - 方法1：使用 IE shadow阴影滤镜实现 (须配合背景属性使用)：
   - filter: progid:DXImageTransform*.Microsoft*.Shadow(color=’颜色值’, Direction=阴影角度(数值), Strength=阴影半径(数值));
-  - ![截屏2020-09-12 下午5.14.02](https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200912171405.png)
+  - ![截屏2020-09-12 下午5.14.02](https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200918143310.png)
   - 方法2：使用 JQ、JQ 插件: 
   - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200912171434.png" alt="截屏2020-09-12 下午5.14.30" style="zoom:50%;" align=""/>
 
@@ -1921,7 +1776,7 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 
 
 
-#### 2-10、动画
+## 2-10、动画
 
 动画属性: 尽量使用动画属性进行动画，能拥有较好的性能表现
 
@@ -1936,7 +1791,7 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 
 
 
-##### 2-10-1、Transition
+### 2-10-1、Transition
 
 - `transition-property`: 属性
 - `transition-duration`: 间隔
@@ -1946,7 +1801,7 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 
 
 
-##### 2-10-2、Animation
+### 2-10-2、Animation
 
 animation / keyframes：animation: name duration timing-function delay iteration-count direction;
 
@@ -1980,7 +1835,7 @@ animation / keyframes：animation: name duration timing-function delay iteration
 
 
 
-##### 2-10-2-1、逐帧动画
+### 2-10-2-1、逐帧动画
 
 **<u>*实现一：动作分割，百分比设置：*</u>**
 
@@ -2011,20 +1866,20 @@ steps(number, position)
 
 
 
-##### 2-10-2-2、cubic-bezier 
+### 2-10-2-2、cubic-bezier 
 
 
 
 
 
-#### 2-X、其他
+## 2-X、其他
 
-##### 2-X-1、CSS 选择器优先级
+### 2-X-1、CSS 选择器优先级
 
 - `!important` > 行内样式 > `#id` > `.class` > `tag` > * > 继承 > 默认
 - 选择器 **从右往左** 解析
 
-##### 2-X-2、link 与 @import
+### 2-X-2、link 与 @import
 
 `link` 功能较多，可以定义 RSS，定义 Rel 等作用，而`@import`只能用于加载 css
 
@@ -2034,7 +1889,7 @@ steps(number, position)
 
 `link` 可使用 js 动态引入，`@import`不行
 
-##### 2-X-3、CSS 单位
+### 2-X-3、CSS 单位
 
 - `em`：**<u>定义字体大小时以父级的字体大小为基准；定义长度单位时以当前字体大小为基准；</u>**
   - 比如：父级 `font-size: 14px`，则子级 `font-size: 1em;` 为 `font-size: 14px;`；
@@ -2051,157 +1906,6 @@ steps(number, position)
 - `ex 和 ch`：`ex` 以字符  `"x" ` 的高度为基准；`ch` 以数字 `"0"` 的宽度为基准；
   - 比如：`1ex` 表示和字符 `"x"` 一样长；
   - 比如：`2ch` 表示和2个数字`"0"`一样长；
-
-
-
-### 三、DOMBOM
-
-```js
-const text = document.getElementById('text');
-text.onclick = function (e) {
-  console.log('onclick')
-}
-text.onfocus = function (e) {
-  console.log('onfocus')
-}
-text.onmousedown = function (e) {
-  console.log('onmousedown')
-}
-text.onmouseenter = function (e) {
-  console.log('onmouseenter')
-}
-'onmouseenter'
-'onmousedown'
-'onfocus'
-'onclick'
-```
-
-
-
-#### 3-X、事件
-
-##### 3-X-1、事件冒泡&捕获
-
-冒泡：当给某个目标元素绑定了事件后，此事件会依次在其父级元素中被触发；
-
-捕获：从上层向下层传递，与冒泡相反；
-
-```html
-<!-- 会依次执行 button li ul -->
-<ul onclick="alert('ul')">
-  <li onclick="alert('li')">
-    <button onclick="alert('button')">点击</button>
-  </li>
-</ul>
-<script>
-  window.addEventListener('click', function (e) {
-    alert('window')
-  })
-  document.addEventListener('click', function (e) {
-    alert('document')
-  })
-</script>
-// 冒泡结果：button > li > ul > document > window
-// 捕获结果：window > document > ul > li > button
-```
-
-注意：并非所有的事件都有冒泡：
-
-- `onblur`
-- `onfocus`
-- `onmouseenter`
-- `onmouseleave`
-
-
-
-##### 3-X-2、事件代理
-
-
-
-##### 3-X-X、addEventListener 
-
-第三个参数涉及到冒泡和捕获，是`true`时为捕获，是`false`则为冒泡；
-
-或是一个对象 `{passive: true}`，针对的是`Safari`浏览器，禁止/开启使用滚动的时候要用到；
-
-
-
-##### 3-X-Y、自定义事件
-
-- 使用`Event`
-
-```js
-let myEvent = new Event('event_name');
-```
-
-- 使用 `customEvent` (可传参数)
-
-```js
-let myEvent = new CustomEvent('event_name', {
-	detail: {
-		// 将需要传递的参数放到这里
-		// 可以在监听的回调函数中获取到：event.detail
-	}
-})
-```
-
-- 使用 `document.createEvent('CustomEvent')和initEvent()`
-  - `createEvent`：创建一个事件
-  - `initEvent`：初始化一个事件
-
-```js
-// 创建
-// 注意这里是为'CustomEvent'
-let myEvent = document.createEvent('CustomEvent');
-// 初始化
-myEvent.initEvent(
-	// 1. event_name: 事件名称
-	// 2. canBubble: 是否冒泡
-	// 3. cancelable: 是否可以取消默认行为
-)
-```
-
-自定义事件的监听与触发：
-
-```js
-// 与普通事件的一样，使用 addEventListener 监听
-button.addEventListener('event_name', function (e) {})
-// 触发自定义事件使用 dispatchEvent
-dispatchEvent(myEvent)
-```
-
-自定义事件案例：
-
-```js
-let myEvent = document.createEvent('CustomEvent');
-myEvent.initEvent('myEvent', true, true)
-
-let btn = document.getElementsByTagName('button')[0]
-btn.addEventListener('myEvent', function (e) {
-  console.log(e)
-  console.log(e.detail)
-})
-
-setTimeout(() => {
-  btn.dispatchEvent(myEvent)
-}, 2000)
-```
-
-
-
-
-
-#### 3-Y、其他
-
-##### 3-Y-1、层级关系
-
-```
-window > document > html > body
-```
-
-- `window` 是 `BOM` 核心对象，它一方面用来获取或设置浏览器的属性和行为，另一方面作为一个全局对象；
-- `document`对象是一个跟文档相关的对象，拥有一些操作文档内容的功能；
-- `html` 元素对象和 `body` 元素对象是属于 `html` 文档的`DOM`对象，可认为就是`html`源代码中那些标签所化成的对象；
 
 
 

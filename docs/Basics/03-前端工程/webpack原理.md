@@ -1,10 +1,4 @@
----
-typora-root-url: ../../../BlogImgsBed/Source
----
-
-
-
-### 七、Webpack 工作原理
+# 四、Webpack 工作原理
 
 传统问题：
 
@@ -21,11 +15,11 @@ typora-root-url: ../../../BlogImgsBed/Source
 
 
 
-#### 7-1、构建原理
+## 4-1、构建原理
 
-##### 7-1-1、基础概念
+### 4-1-1、基础概念
 
-##### 7-1-1-1、核心概念
+### 4-1-1-1、核心概念
 
 - **<u>*Entry*</u>**：入口文件，Webpack 会从该文件开始进行分析与编译；
 
@@ -41,7 +35,7 @@ typora-root-url: ../../../BlogImgsBed/Source
 
   
 
-##### 7-1-1-2、核心基本
+### 4-1-1-2、核心基本
 
 - ***<u>webpack</u>*** 处理如同生产线，经过系列处理流程后，将源文件转换成输出结果，其通过 **<u>*Tapable*</u>** 来组织这条复杂的生产线；每一流程职责单一，但多个流程之间有存在依赖关系，当且仅当当前处理完成后，才交给下一个流程处理；
   - **<u>*tapable*</u>** 原理实际就是 EventEmit，通过发布者-订阅者模式实现，部分核心代码可概括如下；
@@ -70,7 +64,7 @@ typora-root-url: ../../../BlogImgsBed/Source
 
 
 
-##### 7-1-1-3、Tapbale
+### 4-1-1-3、Tapbale
 
 webpack 本质是一种事件流机制，工作流程是：将各个插件串联并处理，而实现这一切的核心就是 [Tapable](https://link.juejin.im/?target=https%3A%2F%2Fgithub.com%2Fwebpack%2Ftapable)；
 
@@ -79,7 +73,7 @@ webpack 本质是一种事件流机制，工作流程是：将各个插件串联
 
 
 
-##### 7-1-1-3-1、Tapable 1.0-
+### 4-1-1-3-1、Tapable 1.0-
 
 [Tapable 1.0-](https://segmentfault.com/a/1190000008060440：)，如同 Node 中 `EventEmitter`，提供对事件的注册和触发，提供以下等功能/接口：
 
@@ -96,7 +90,7 @@ webpack 本质是一种事件流机制，工作流程是：将各个插件串联
 
 
 
-##### 7-1-1-3-2、Tapable 1.0+
+### 4-1-1-3-2、Tapable 1.0+
 
 Tapable 1.0+ 版本发生巨变：
 
@@ -121,14 +115,18 @@ Tapable 1.0+ 版本发生巨变：
 - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001242.png" style="zoom:40%;" align="" />
 
 - 插件注册数量
+
 - 插件注册的类型(sync, async, promise)
+
 - 调用的方式(sync, async, promise)
+
 - 实例钩子的时候参数数量
+
 - 是否使用了interception
 
 
 
-##### 7-1-1-3-2-1、Tapable 使用方法
+### 4-1-1-3-2-1、Tapable 使用方法
 
 - 首先，new Hook 新建钩子
 
@@ -370,7 +368,7 @@ cost: 2015.866ms
 
 
 
-##### 7-1-1-3-2-2、Tapable 源码分析
+### 4-1-1-3-2-2、Tapable 源码分析
 
 Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#heading-2)，而由下图知：
 
@@ -424,7 +422,7 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 
 
 
-##### 7-1-2、构建流程A
+### 4-1-2、构建流程A
 
 - **初始：启动、构建、读取、合并配置参数，加载 Plugin，实例化 Compiler；**
 - **编译：Entry 出发，由 Module 寻找依赖 Module，直至完全，此时会串行调用对应 Loader 转译内容为可处理文件，进行编译处理；**
@@ -434,13 +432,13 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 
 
 
-##### 7-1-3、构建流程B
+### 4-1-3、构建流程B
 
 分为三个阶段：初始、编译、输出；
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001254.png" style="zoom:50%;" align=""/>
 
-##### 7-1-3-1、初始阶段
+### 4-1-3-1、初始阶段
 
 - 初始化参数： 从配置文件 & Shell 语句中， 读取与合并参数，得出最终参数 、执行配置文件中的插件实例化语句 new Plugin()
 - 开始编译前： 使用前述参数，**<u>*实例化 Compiler 对象 ，加载所有配置插件*</u>**；
@@ -452,7 +450,7 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
   - 事件 - after-plugins：调用完所有内置的和配置的插件的 apply 方法；
   - 事件 - after-resolvers：根据配置初始化完 resolver，resolver 负责在文件系统中寻找指定路径的文件；
 
-##### 7-1-3-2、编译阶段
+### 4-1-3-2、编译阶段
 
 - 开始编译 ： 执行 Compiler 对象 run 方法，开始执行编译；
 
@@ -477,7 +475,7 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 
   - 事件 - invalid：文件不存在或编译错误等异常时触发，但不会导致 Webpack 退出；
 
-##### 7-1-3-3、输出阶段
+### 4-1-3-3、输出阶段
 
 - 输出资源： **<u>*根据入口 & 模块间的依赖关系，组装成数个包含多个模块的 Chunk，再将每个 Chunk 根据其对应类型，使用对应模板，转换成单独文件，并加入输出列表 (可修改的最后机会)*</u>**；
 - 输出完成： **<u>*根据插件，确定输出内容，根据配置文件，确定输出路径 & 文件名，将内容写入文件系统*</u>**；
@@ -490,7 +488,7 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 
 
 
-##### 7-1-3-4、其他补充
+### 4-1-3-4、其他补充
 
 - 优先使用目录中的 moment.js，然后才是模块；
 
@@ -502,7 +500,7 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 
 
 
-##### 7-1-4、构建流程C
+### 4-1-4、构建流程C
 
 初始化配置参数 -> 绑定事件钩子回调 -> 确定 Entry 逐一遍历 -> 使用 loader 编译文件 -> 输出文件；
 
@@ -525,7 +523,7 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 
 
 
-##### 7-1-4-1、输出结果分析
+### 4-1-4-1、输出结果分析
 
 [输出结果分析(大段代码-很好)](https://juejin.im/post/5badd0c5e51d450e4437f07a#heading-6)，webpack 在浏览器实现模块化的本质：将所有的代码都注入到同一个JS文件中；
 
@@ -533,7 +531,7 @@ Tapable 1.0+ [实现分析](https://juejin.im/post/5aa3d2056fb9a028c36868aa#head
 
 
 
-##### 7-1-4-2、构建流程小结
+### 4-1-4-2、构建流程小结
 
 整个构建过程主要花费时间的部分也就是递归遍历各个 entry 然后寻找依赖逐个编译的过程；
 
@@ -568,7 +566,7 @@ module.exports = {
 
 
 
-##### 7-1-5、构建流程D
+### 4-1-5、构建流程D
 
 Webpack 可认为是一种基于事件流的编程范例，内部的工作流程都是基于插件机制串接，而串接的实现是通过 webpack 自身实现的基础类 [Tapable](https://github.com/webpack/tapable/blob/master/lib/Tapable.js)
 
@@ -591,7 +589,7 @@ plugin 方法根据此类来向外暴露、而核心对象 Compiler、Compilatio
 
 
 
-##### 7-1-6、构建流程E
+### 4-1-6、构建流程E
 
 在浏览器调试 webpack：
 
@@ -605,12 +603,12 @@ plugin 方法根据此类来向外暴露、而核心对象 Compiler、Compilatio
 
 
 
-##### 7-1-6-1、入口
+### 4-1-6-1、入口
 
 - 在函数中引入：入口 -> lib/webpack.js；
 - 在 shell 中执行：入口 -> ./bin/webpack.js；
 
-##### 7-1-6-2、主体
+### 4-1-6-2、主体
 
 webpack：./webpack/lib/webpack.js
 
@@ -636,7 +634,7 @@ webpack：./webpack/lib/webpack.js
 
 
 
-##### 7-1-6-3、源码分析
+### 4-1-6-3、源码分析
 
 从 entry 出发：从上面提到的 **<u>*EntryOptionPlugin*</u>** 得到的类实现如下：
 
@@ -682,7 +680,7 @@ parse 调用 acorn 对JS进行语法解析，acorn 就是一个JS的 parser
 
 
 
-##### 7-1-6-4、构建流程小结
+### 4-1-6-4、构建流程小结
 
 注意：此乃简化版，详看 [此文]([https://github.com/lihongxun945/diving-into-webpack/blob/master/6-process-pipe-line.md#%E6%80%BB%E7%BB%93webpack-%E6%B5%81%E7%A8%8B](https://github.com/lihongxun945/diving-into-webpack/blob/master/6-process-pipe-line.md#总结webpack-流程))
 
@@ -702,9 +700,9 @@ parse 调用 acorn 对JS进行语法解析，acorn 就是一个JS的 parser
 
 
 
-##### 7-1-7、构建流程F
+### 4-1-7、构建流程F
 
-##### 7-1-7-1、综合解释F-1
+### 4-1-7-1、综合解释F-1
 
 1. 读取配置文件，按命令 **<u>初始化</u>** 配置参数，创建 Compiler 对象；
 2. 调用插件的 apply 方法 **<u>挂载插件</u>** 监听，然后从入口文件开始执行编译；
@@ -764,11 +762,11 @@ parse 调用 acorn 对JS进行语法解析，acorn 就是一个JS的 parser
 
 
 
-##### 7-1-8、构建流程G
+### 4-1-8、构建流程G
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001309.png" style="zoom:70%;" align=""/>
 
-##### 7-1-8-1、入口
+### 4-1-8-1、入口
 
 webpack入口，对应图中：**<u>*webpack.config.js+shell options*</u>**
 
@@ -777,7 +775,7 @@ webpack入口，对应图中：**<u>*webpack.config.js+shell options*</u>**
 - 每次在命令行输入 webpack 后，操作系统都会去调用 `./node_modules/.bin/webpack` 这个 shell 脚本；
 - 脚本会去调用 `./node_modules/webpack/bin/webpack.js`  并追加输入参数，如 -p , -w ；
 
-##### 7-1-8-2、参数解析
+### 4-1-8-2、参数解析
 
 用 yargs 参数解析，对应图中 **<u>*optimist*</u>**；[源码](https://github.com/webpack/webpack-cli/blob/master/bin/cli.js#L210)
 
@@ -786,7 +784,7 @@ webpack入口，对应图中：**<u>*webpack.config.js+shell options*</u>**
 yargs.parse(process.argv.slice(2), (err, argv, output) => {})
 ```
 
-##### 7-1-8-3、初始化
+### 4-1-8-3、初始化
 
 webpack 初始化，对应图中 **<u>*new webpack()*</u>**
 
@@ -819,7 +817,7 @@ webpack 初始化，对应图中 **<u>*new webpack()*</u>**
     compiler.options = new WebpackOptionsApply().process(options, compiler);
     ```
 
-##### 7-1-8-4、编译
+### 4-1-8-4、编译
 
 run 开始编译，分下述两种情况 [源码](https://github.com/webpack/webpack-cli/blob/master/bin/cli.js#L495)，对应图中 **<u>*run()*</u>**
 
@@ -841,7 +839,7 @@ if (firstOptions.watch || options.watch) {
 } else compiler.run(compilerCallback);
 ```
 
-##### 7-1-8-5、触发 compiler
+### 4-1-8-5、触发 compiler
 
 在 run() 方法中，触发了 compiler，对应图中 ***<u>compile()</u>***
 
@@ -885,7 +883,7 @@ compile(callback) {
 }
 ```
 
-##### 7-1-8-6、addEntry
+### 4-1-8-6、addEntry
 
 compile中触发 `make` 事件并调用 `addEntry`，对应图中 ***<u>addEntry()</u>***
 
@@ -958,7 +956,7 @@ compiler.hooks.entryOption.tap("DllPlugin", (context, entry) => {
 
 其实 addEntry 方法，存在很多入口，SingleEntryPlugin 也注册了 compiler.hooks.make.tapAsync 钩子 
 
-##### 7-1-8-7、构建模块
+### 4-1-8-7、构建模块
 
 回到 addEntry，compilation.addEntry 中执行 `_addModuleChain()`方法，而方法主要做了两件事： 
 
@@ -1000,7 +998,7 @@ addEntry(context, entry, name, callback) {
 }
 ```
 
-##### 7-1-8-8、封装结果 
+### 4-1-8-8、封装结果 
 
 封装构建结果，即 seal，webpack 会监听 seal 事件，并调用各插件对构建后的结果进行封装，并逐次对每个 module 和 chunk 进行整理，生成编译后的源码，合并，拆分，生成 hash ；**<u>注意：此步是在开发时进行代码优化和功能添加的关键环节</u>**；
 
@@ -1010,11 +1008,11 @@ addEntry(context, entry, name, callback) {
 template.getRenderMainfest.render()
 ```
 
-##### 7-1-8-9、输出资源
+### 4-1-8-9、输出资源
 
 即 emit，将 Assets 输出到 output 的 path 中；
 
-##### 7-1-8-10、流程总结
+### 4-1-8-10、流程总结
 
 webpack 是一个插件合集，由 tapable 控制各插件在 webpack 事件流上运行，主要依赖 compilation 对象的编译模块和封装；
 
@@ -1043,7 +1041,7 @@ compilation.getStats() 能得到生产文件以及 chunkhash 的一些信息等�
 
 
 
-##### 7-1-9、构建流程H
+### 4-1-9、构建流程H
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001310.png" style="zoom:50%;" align=""/>
 
@@ -1068,7 +1066,7 @@ compilation.getStats() 能得到生产文件以及 chunkhash 的一些信息等�
 
 
 
-##### 7-1-10、构建流程I
+### 4-1-10、构建流程I
 
 Webpack 的运行流程是一个串行的过程，从启动到结束会依次执行以下流程：
 
@@ -1094,9 +1092,9 @@ Webpack 的运行流程是一个串行的过程，从启动到结束会依次执
 
 
 
-#### 7-2、构建自实现
+## 4-2、构建自实现
 
-##### 7-2-1、自实现1
+### 4-2-1、自实现1
 
 此实现为探究 webpack 实现原理的简易版；
 
@@ -1251,7 +1249,7 @@ console.log(code)
 
 
 
-##### 7-2-1、自实现2
+### 4-2-1、自实现2
 
 ```
 |-- forestpack
@@ -1544,7 +1542,7 @@ new Compiler(options).run();
 
 
 
-#### 7-3、HMR 原理
+## 4-3、HMR 原理
 
 **<u>*过去*</u>**：使用文件监听，在发现源码发生变化时，自动重新构建出新的输出文件；缺点：每次需要手动刷新浏览器；Webpack 有两种开启监听模式的方式：
 
@@ -1615,7 +1613,7 @@ export default content;
 
 
 
-##### 7-3-1、疑问
+### 4-3-1、疑问
 
 疑问1：webpack 可将不同的模块打包成 bundle 文件或者几个 chunk 文件，但 dist 目录并无发现？<u>参考第A-1步</u>；
 
@@ -1636,7 +1634,7 @@ export default content;
 
 
 
-##### 7-3-2、基本原理A
+### 4-3-2、基本原理A
 
 原理：webpack 配合 `webpack-dev-server` 进行应用开发的模块热更新流程图：
 
@@ -1687,9 +1685,9 @@ export default content;
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001312.png" style="zoom:50%;" align=""/>
 
-##### 7-3-2-1、原理演示
+### 4-3-2-1、原理演示
 
-##### 7-3-2-1-1、环境准备
+### 4-3-2-1-1、环境准备
 
 - 示例结构如下
 
@@ -1728,7 +1726,7 @@ module.exports = {
 "start"："webpack-dev-server --hot --open"
 ```
 
-##### 7-3-2-1-2、HMR 流程演示
+### 4-3-2-1-2、HMR 流程演示
 
 - 修改 hello 代码
 
@@ -1971,9 +1969,9 @@ if(module.hot) {
 
 
 
-##### 7-3-3、基本原理B
+### 4-3-3、基本原理B
 
-##### 7-3-3-1、综合解释B-1
+### 4-3-3-1、综合解释B-1
 
 - 当修改一或多个文件时；
 - 文件系统接收更改并通知 webpack (webpack监听)；
@@ -1981,14 +1979,14 @@ if(module.hot) {
 - HMR Server 使用 websocket 通知 HMR runtime 需要更新，HMR runtime 通过 Ajax 请求、JSONP 分别获取更新文件列表与更新模块代码；
 - HMR runtime 根据配置决定更新替换旧模块亦或刷新页面，若替换出错则回退刷新页面；
 
-##### 7-3-3-2、综合解释B-2
+### 4-3-3-2、综合解释B-2
 
 `hot-module-replacement-plugin` 包给 `webpack-dev-server(WDS)` 提供了热更新的能力，它们两者是结合使用的，单独写两个包目的是使功能解耦；
 
 - `WDS` 作用是：提供 `bundle server` 的能力，即生成的 `bundle.js` 文件可通过 `localhost://xxx` 形式访问，并提供浏览器的自动刷新—livereload；
 - `hot-module-replacement-plugin` 作用是：提供 `HMR runtime`，并且将 `runtime` 注入到 `bundle.js` 代码中；一旦磁盘文件发生修改，则 `HMR server` 将有修改的 JS 模块信息通过 `websocket` 发送给 `HMR runtime`，然后 `HMR runtime` 去局部更新页面的代码，实现无刷新浏览器更新；
 
-##### 7-3-3-3、综合解释B-3
+### 4-3-3-3、综合解释B-3
 
 首先，webpack-dev-server(WDS) 主要包含了三个部分：
 
@@ -2007,7 +2005,7 @@ if(module.hot) {
 - 然后，Client 获取到新的 JS 模块后，会更新 modules tree 并替换掉现有的模块；
 - 最后，调用 module.hot.accept() 完成热更新(业务代码)；
 
-##### 7-3-3-4、综合解释B-4
+### 4-3-3-4、综合解释B-4
 
 webpack 中都是模块且有唯一标识
 
@@ -2063,7 +2061,7 @@ webpack 中都是模块且有唯一标识
 
 
 
-##### 7-3-4、基本原理C
+### 4-3-4、基本原理C
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001316.png" style="zoom:50%;" align=""/>
 
@@ -2078,11 +2076,11 @@ webpack 中都是模块且有唯一标识
 
 
 
-##### 7-3-5、基本原理D
+### 4-3-5、基本原理D
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001317.png" style="zoom:35%;" align=""/>
 
-##### 7-3-5-1、HMR 在 Server 端的实现
+### 4-3-5-1、HMR 在 Server 端的实现
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001318.png" style="zoom:35%;" align=""/>
 
@@ -2132,7 +2130,7 @@ server 端 HMR 流程：
 
 
 
-##### 7-3-5-2、HMR 在 Client 端的实现
+### 4-3-5-2、HMR 在 Client 端的实现
 
 webpack 在启用 HMR 后，会在 server 端(Node)监听文件改动，并且一旦发生变动就把新的代码编译后发送到浏览器；
 
@@ -2182,7 +2180,7 @@ client 端 HMR 流程：
 
 
 
-##### 7-3-6、基本原理E
+### 4-3-6、基本原理E
 
 现象：
 
@@ -2253,13 +2251,13 @@ client 端 HMR 流程：
 
 
 
-#### 7-4、HMR 自实现
+## 4-4、HMR 自实现
 
-##### 7-4-1、chunk 与 module
+### 4-4-1、chunk 与 module
 
 chunk 是若干 module 打成的包，一个 chunk 应该包括多个 module，一般来说最终会形成一个 file；而 JS 以外的资源，webpack 会通过各种 loader 转化成一个 module，这个 module 会被打包到某个 chunk 中，并不会形成一个单独的 chunk；
 
-##### 7-4-2、HMRP
+### 4-4-2、HMRP
 
 HMRP，即 HotModuleReplacementPlugin 是 HMR 中一个非常关键的插件，它主要做了：
 
@@ -2272,7 +2270,7 @@ HMRP，即 HotModuleReplacementPlugin 是 HMR 中一个非常关键的插件，�
   - 热更新客户端主要逻辑(HMR Runtime )：<u>拉取新模块代码</u>、<u>执行新模块代码</u>、<u>执行 accept 的回调实现局部更新</u>，<u>都是此插件将函数注入到 chunk 文件中</u>，而非 webpack-dev-server，WDS 只是调用了这些函数；
 - 注意：就是这个插件生成了最关键的两个文件，而非 webpack
 
-##### 7-4-3、HMRP 打包的 Chunk
+### 4-4-3、HMRP 打包的 Chunk
 
 下述即用 HotModuleReplacementPlugin 编译生成的 chunk，被注入了 HMR runtime 代码
 
@@ -2409,7 +2407,7 @@ var module = installedModules[moduleId] = {
  }
 ```
 
-##### 7-4-4、module.hot & module.hot.accept
+### 4-4-4、module.hot & module.hot.accept
 
 - accept 使用 
   - 要实现热更新，下述代码必不可少(原因看 accept 原理)，accept 传入的回调函数就是局部刷新逻辑，当./content.js模块改变时执行
@@ -2451,9 +2449,9 @@ if (module.hot) {
 }
 ```
 
-##### 7-4-5、详看 HMR-实现
+### 4-4-5、详看 HMR-实现
 
-##### 7-4-6、补充
+### 4-4-6、补充
 
 webpack-dev-server，webpack-hot-middleware，webpack-dev-middleware
 
@@ -2475,8 +2473,9 @@ webpack-dev-server，webpack-hot-middleware，webpack-dev-middleware
         	]
       },
       ```
-  
+
 - webpack-dev-server：内置了 Webpack-dev-middleware 和 Express 服务器，利用 `eventSource` 实现 webpack-hot-middleware 逻辑
+
 - 注意： `webpack-dev-server ` 功能已封装好，除 `webpack.config` 和命令行参数之外，很难定制型开发；在搭建脚手架时，利用 `webpack-dev-middleware`和`webpack-hot-middleware`，以及后端服务，可让开发更灵活；
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001345.png" style="zoom:50%;" align=""/>
