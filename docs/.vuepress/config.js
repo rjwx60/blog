@@ -187,7 +187,7 @@ module.exports = {
             ]
           },
           {
-            title: '06-数据类型',
+            title: '06-前端数据',
             path: '/Basics/06-前端数据', 
             children: [
               {
@@ -287,6 +287,10 @@ module.exports = {
               {
                 title: '九、综合实现',
                 path: '/Basics/09-前端实现/综合实现'
+              },
+              {
+                title: '十、Summary',
+                path: '/Basics/09-前端实现/Summary'
               }
             ]
           },
@@ -450,6 +454,28 @@ module.exports = {
                 title: '七、Summary',
                 path: '/NetWork/20-前端网络/Summary'
               }
+            ]
+          }
+        ]
+      },
+      {
+        title: '算法专题',   // 必要的
+        path: '/Algorithm/',   // 可选的, 标题的跳转链接，应为绝对路径且必须存在
+        collapsable: false, // 可选的, 默认值是 true,
+        sidebarDepth: 5,    // 可选的, 默认值是 1
+        children: [
+          {
+            title: '30-前端算法',
+            path: '/Algorithm/30-前端算法',
+            children: [
+              {
+                title: 'X、排序',
+                path: '/Algorithm/30-前端算法/排序'
+              },
+              {
+                title: 'X、Summary',
+                path: '/Algorithm/30-前端算法/Summary'
+              },
             ]
           }
         ]

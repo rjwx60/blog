@@ -17,7 +17,7 @@
   - 当传入 `defaultPrev` 时，从第一项开始；
   - 当未传入时，则为第二项；
 
-- 补充：右移操作，将前面的空位用0填充，可用于保证某变量为数字且为整数
+- 补充：右移操作，将前面的空位用0填充，可用**<u>于保证某变量为数字且为整数</u>**
 
 - ```js
   null >>> 0  //0
@@ -595,325 +595,7 @@ Array.prototype.splice = function(startIndex, deleteCount, ...addElements)  {
 
 ## 1-6、sort
 
-### 1-6-1、V8 实现思路
-
-V8 源码中排序的思路：假设要排序的元素个数是 n：
-
-- 当 n <= 10 时，采用 **<u>插入排序</u>**；
-- 当 n > 10 时，采用 **<u>三路快速排序</u>**：
-  - 10 < n <= 1000，<u>采用中位数作为哨兵元素</u>；
-  - n > 1000，每隔 200~215 个元素挑出一个元素，放到一个新数组，然后对它排序，找到中间位置的数，以此作为中位数
-
-- 注意：虽 <u>插入排序</u> 理论上是 O(n^2) 算法，<u>快速排序</u> 是 O(nlogn) 级算法；但实际情况中，当 n 越小，快排优势会越来越小，若 n 足够小，插入甚至会比快排高效；因此，对于很小的数据量，V8 应用的是 插入排序；
-- 注意：费力选择哨兵元素的原因是避免快排效率退化：快排性能瓶颈在于递归的深度，最坏的情况是每次的哨兵都是最小元素或最大元素，此时进行 partition时(一边是小于哨兵的元素，另一边是大于哨兵的元素)，就会有一边是空的，如此下去，递归层数就达到 n 次，而每一层的复杂度是 O(n)，因此快排此时会退化成 O(n^2) 级别；
-- 所以：让哨兵元素尽可能地处于数组中间位置，让最大或最小的情况尽可能减少；所以 V8 才做了如此多的优化；
-
-### 1-6-2、插入排序及优化
-
-```js
-// 插入排序
-const insertSort = (arr, start = 0, end) => {
-  end = end || arr.length;
-  for(let i = start; i < end; i++) {
-    let j;
-    for(j = i; j > start && arr[j - 1] > arr[j]; j --) {
-      let temp = arr[j];
-      arr[j] = arr[j - 1];
-      arr[j - 1] = temp;
-    }
-  }
-  return;
-}
-
-// 交换元素会有相当大的性能消耗，可用变量覆盖的方式代替
-
-// 排序优化
-const insertSort = (arr, start = 0, end) => {
-  end = end || arr.length;
-  for(let i = start; i < end; i++) {
-    let e = arr[i];
-    let j;
-    for(j = i; j > start && arr[j - 1] > e; j --)
-      arr[j] = arr[j-1];
-    arr[j] = e;
-  }
-  return;
-}
-```
-
-
-
-### 1-6-3、哨兵元素
-
-```js
-// sort 基本骨架
-Array.prototype.sort = (comparefn) => {
-  let array = Object(this);
-  let length = array.length >>> 0;
-  return InnerArraySort(array, length, comparefn);
-}
-
-const InnerArraySort = (array, length, comparefn) => {
-  // 比较函数未传入
-  if (Object.prototype.toString.call(callbackfn) !== "[object Function]") {
-    comparefn = function (x, y) {
-      if (x === y) return 0;
-      x = x.toString();
-      y = y.toString();
-      if (x == y) return 0;
-      else return x < y ? -1 : 1;
-    };
-  }
-  const insertSort = () => {
-    //...
-  }
-  const getThirdIndex = (a, from, to) => {
-    // 元素个数大于1000时寻找哨兵元素
-  }
-  const quickSort = (a, from, to) => {
-    //哨兵位置
-    let thirdIndex = 0;
-    while(true) {
-      if(to - from <= 10) {
-        insertSort(a, from, to);
-        return;
-      }
-      if(to - from > 1000) {
-        thirdIndex = getThirdIndex(a, from , to);
-      }else {
-        // 小于1000 直接取中点
-        thirdIndex = from + ((to - from) >> 2);
-      }
-    }
-    //下面开始快排
-  }
-}
-
-// 哨兵位置寻找实现
-const getThirdIndex = (a, from, to) => {
-  let tmpArr = [];
-  // 递增量，200~215 之间，因为任何正数和15做与操作，不会超过15，当然是大于0的
-  let increment = 200 + ((to - from) & 15);
-  let j = 0;
-  from += 1;
-  to -= 1;
-  for (let i = from; i < to; i += increment) {
-    tmpArr[j] = [i, a[i]];
-    j++;
-  }
-  // 把临时数组排序，取中间的值，确保哨兵的值接近平均位置
-  tmpArr.sort(function(a, b) {
-    return comparefn(a[1], b[1]);
-  });
-  let thirdIndex = tmpArr[tmpArr.length >> 1][0];
-  return thirdIndex;
-}
-```
-
-
-
-### 1-6-4、快速排序
-
-```js
-const _sort = (a, b, c) => {
-  let arr = [a, b, c];
-  insertSort(arr, 0, 3);
-  return arr;
-}
-
-const quickSort = (a, from, to) => {
-  //...
-  // 上面我们拿到了thirdIndex
-  // 现在我们拥有三个元素，from, thirdIndex, to
-  // 为了再次确保 thirdIndex 不是最值，把这三个值排序
-  [a[from], a[thirdIndex], a[to - 1]] = _sort(a[from], a[thirdIndex], a[to - 1]);
-  // 现在正式把 thirdIndex 作为哨兵
-  let pivot = a[thirdIndex];
-  // 正式进入快排
-  let lowEnd = from + 1;
-  let highStart = to - 1;
-  // 现在正式把 thirdIndex 作为哨兵, 并且lowEnd和thirdIndex交换
-  let pivot = a[thirdIndex];
-  a[thirdIndex] = a[lowEnd];
-  a[lowEnd] = pivot;
-  
-  // [lowEnd, i)的元素是和pivot相等的
-  // [i, highStart) 的元素是需要处理的
-  for(let i = lowEnd + 1; i < highStart; i++) {
-    let element = a[i];
-    let order = comparefn(element, pivot);
-    if (order < 0) {
-      a[i] = a[lowEnd];
-      a[lowEnd] = element;
-      lowEnd++;
-    } else if(order > 0) {
-      do{
-        highStart--;
-        if(highStart === i) break;
-        order = comparefn(a[highStart], pivot);
-      }while(order > 0)
-      // 现在 a[highStart] <= pivot
-      // a[i] > pivot
-      // 两者交换
-      a[i] = a[highStart];
-      a[highStart] = element;
-      if(order < 0) {
-        // a[i] 和 a[lowEnd] 交换
-        element = a[i];
-        a[i] = a[lowEnd];
-        a[lowEnd] = element;
-        lowEnd++;
-      }
-    }
-  }
-  // 永远切分大区间
-  if (lowEnd - from > to - highStart) {
-    // 继续切分lowEnd ~ from 这个区间
-    to = lowEnd;
-    // 单独处理小区间
-    quickSort(a, highStart, to);
-  } else if(lowEnd - from <= to - highStart) {
-    from = highStart;
-    quickSort(a, from, lowEnd);
-  }
-}
-```
-
-
-
-### 1-6-5、完整实现
-
-```js
-const sort = (arr, comparefn) => {
-  let array = Object(arr);
-  let length = array.length >>> 0;
-  return InnerArraySort(array, length, comparefn);
-}
-
-const InnerArraySort = (array, length, comparefn) => {
-  // 比较函数未传入
-  if (Object.prototype.toString.call(comparefn) !== "[object Function]") {
-    comparefn = function (x, y) {
-      if (x === y) return 0;
-      x = x.toString();
-      y = y.toString();
-      if (x == y) return 0;
-      else return x < y ? -1 : 1;
-    };
-  }
-  const insertSort = (arr, start = 0, end) => {
-    end = end || arr.length;
-    for (let i = start; i < end; i++) {
-      let e = arr[i];
-      let j;
-      for (j = i; j > start && comparefn(arr[j - 1], e) > 0; j--)
-        arr[j] = arr[j - 1];
-      arr[j] = e;
-    }
-    return;
-  }
-  const getThirdIndex = (a, from, to) => {
-    let tmpArr = [];
-    // 递增量，200~215 之间，因为任何正数和15做与操作，不会超过15，当然是大于0的
-    let increment = 200 + ((to - from) & 15);
-    let j = 0;
-    from += 1;
-    to -= 1;
-    for (let i = from; i < to; i += increment) {
-      tmpArr[j] = [i, a[i]];
-      j++;
-    }
-    // 把临时数组排序，取中间的值，确保哨兵的值接近平均位置
-    tmpArr.sort(function (a, b) {
-      return comparefn(a[1], b[1]);
-    });
-    let thirdIndex = tmpArr[tmpArr.length >> 1][0];
-    return thirdIndex;
-  };
-
-  const _sort = (a, b, c) => {
-    let arr = [];
-    arr.push(a, b, c);
-    insertSort(arr, 0, 3);
-    return arr;
-  }
-
-  const quickSort = (a, from, to) => {
-    //哨兵位置
-    let thirdIndex = 0;
-    while (true) {
-      if (to - from <= 10) {
-        insertSort(a, from, to);
-        return;
-      }
-      if (to - from > 1000) {
-        thirdIndex = getThirdIndex(a, from, to);
-      } else {
-        // 小于1000 直接取中点
-        thirdIndex = from + ((to - from) >> 2);
-      }
-      let tmpArr = _sort(a[from], a[thirdIndex], a[to - 1]);
-      a[from] = tmpArr[0]; a[thirdIndex] = tmpArr[1]; a[to - 1] = tmpArr[2];
-      // 现在正式把 thirdIndex 作为哨兵
-      let pivot = a[thirdIndex];
-      [a[from], a[thirdIndex]] = [a[thirdIndex], a[from]];
-      // 正式进入快排
-      let lowEnd = from + 1;
-      let highStart = to - 1;
-      a[thirdIndex] = a[lowEnd];
-      a[lowEnd] = pivot;
-      // [lowEnd, i)的元素是和pivot相等的
-      // [i, highStart) 的元素是需要处理的
-      for (let i = lowEnd + 1; i < highStart; i++) {
-        let element = a[i];
-        let order = comparefn(element, pivot);
-        if (order < 0) {
-          a[i] = a[lowEnd];
-          a[lowEnd] = element;
-          lowEnd++;
-        } else if (order > 0) {
-          do{
-            highStart--;
-            if (highStart === i) break;
-            order = comparefn(a[highStart], pivot);
-          }while (order > 0) ;
-          // 现在 a[highStart] <= pivot
-          // a[i] > pivot
-          // 两者交换
-          a[i] = a[highStart];
-          a[highStart] = element;
-          if (order < 0) {
-            // a[i] 和 a[lowEnd] 交换
-            element = a[i];
-            a[i] = a[lowEnd];
-            a[lowEnd] = element;
-            lowEnd++;
-          }
-        }
-      }
-      // 永远切分大区间
-      if (lowEnd - from > to - highStart) {
-        // 单独处理小区间
-        quickSort(a, highStart, to);
-        // 继续切分lowEnd ~ from 这个区间
-        to = lowEnd;
-      } else if (lowEnd - from <= to - highStart) {
-        quickSort(a, from, lowEnd);
-        from = highStart;
-      }
-    }
-  }
-  quickSort(array, 0, length);
-}
-```
-
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908100706.png" style="zoom:50%;" align=""/>
-
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908100707.png" style="zoom:50%;" align=""/>
-
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908100708.png" style="zoom:50%;" align=""/>
-
-<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908100709.png" style="zoom:50%;" align=""/>
+见算法专题-排序-快排实现一栏
 
 
 
@@ -953,13 +635,176 @@ console.log([3, 4, 5].myFindIndex(isEven)) // 1
 
 
 
+## 1-8、Index/LastIndexOf
+
+```c++
+// Copyright 2018 the V8 project authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+// https://github.com/v8/v8/blob/master/src/builtins/array-lastindexof.tq
+
+namespace array {
+macro LoadWithHoleCheck<Elements : type extends FixedArrayBase>(
+    elements: FixedArrayBase, index: Smi): JSAny
+    labels IfHole;
+
+LoadWithHoleCheck<FixedArray>(implicit context: Context)(
+    elements: FixedArrayBase, index: Smi): JSAny
+    labels IfHole {
+  const elements: FixedArray = UnsafeCast<FixedArray>(elements);
+  const element: Object = elements.objects[index];
+  if (element == TheHole) goto IfHole;
+  return UnsafeCast<JSAny>(element);
+}
+
+LoadWithHoleCheck<FixedDoubleArray>(implicit context: Context)(
+    elements: FixedArrayBase, index: Smi): JSAny
+    labels IfHole {
+  const elements: FixedDoubleArray = UnsafeCast<FixedDoubleArray>(elements);
+  const element: float64 = elements.floats[index].Value() otherwise IfHole;
+  return AllocateHeapNumberWithValue(element);
+}
+
+macro FastArrayLastIndexOf<Elements : type extends FixedArrayBase>(
+    context: Context, array: JSArray, from: Smi, searchElement: JSAny): Smi {
+  const elements: FixedArrayBase = array.elements;
+  let k: Smi = from;
+
+  // Bug(898785): Due to side-effects in the evaluation of `fromIndex`
+  // the {from} can be out-of-bounds here, so we need to clamp {k} to
+  // the {elements} length. We might be reading holes / hole NaNs still
+  // due to that, but those will be ignored below.
+  if (k >= elements.length) {
+    k = elements.length - 1;
+  }
+
+  while (k >= 0) {
+    try {
+      const element: JSAny = LoadWithHoleCheck<Elements>(elements, k)
+          otherwise Hole;
+
+      const same: Boolean = StrictEqual(searchElement, element);
+      if (same == True) {
+        assert(Is<FastJSArray>(array));
+        return k;
+      }
+    } label Hole {}  // Do nothing for holes.
+
+    --k;
+  }
+
+  assert(Is<FastJSArray>(array));
+  return -1;
+}
+
+transitioning macro
+GetFromIndex(context: Context, length: Number, arguments: Arguments): Number {
+  // 4. If fromIndex is present, let n be ? ToInteger(fromIndex);
+  //    else let n be len - 1.
+  const n: Number =
+      arguments.length < 2 ? length - 1 : ToInteger_Inline(arguments[1]);
+
+  // 5. If n >= 0, then.
+  let k: Number = SmiConstant(0);
+  if (n >= 0) {
+    // a. If n is -0, let k be +0; else let k be min(n, len - 1).
+    // If n was -0 it got truncated to 0.0, so taking the minimum is fine.
+    k = Min(n, length - 1);
+  } else {
+    // a. Let k be len + n.
+    k = length + n;
+  }
+  return k;
+}
+
+macro TryFastArrayLastIndexOf(
+    context: Context, receiver: JSReceiver, searchElement: JSAny,
+    from: Number): JSAny
+    labels Slow {
+  const array: FastJSArray = Cast<FastJSArray>(receiver) otherwise Slow;
+  const length: Smi = array.length;
+  if (length == 0) return SmiConstant(-1);
+
+  const fromSmi: Smi = Cast<Smi>(from) otherwise Slow;
+  const kind: ElementsKind = array.map.elements_kind;
+  if (IsFastSmiOrTaggedElementsKind(kind)) {
+    return FastArrayLastIndexOf<FixedArray>(
+        context, array, fromSmi, searchElement);
+  }
+  assert(IsDoubleElementsKind(kind));
+  return FastArrayLastIndexOf<FixedDoubleArray>(
+      context, array, fromSmi, searchElement);
+}
+
+transitioning macro GenericArrayLastIndexOf(
+    context: Context, object: JSReceiver, searchElement: JSAny,
+    from: Number): JSAny {
+  let k: Number = from;
+
+  // 7. Repeat, while k >= 0.
+  while (k >= 0) {
+    // a. Let kPresent be ? HasProperty(O, ! ToString(k)).
+    const kPresent: Boolean = HasProperty(object, k);
+
+    // b. If kPresent is true, then.
+    if (kPresent == True) {
+      // i. Let elementK be ? Get(O, ! ToString(k)).
+      const element: JSAny = GetProperty(object, k);
+
+      // ii. Let same be the result of performing Strict Equality Comparison
+      //     searchElement === elementK.
+      const same: Boolean = StrictEqual(searchElement, element);
+
+      // iii. If same is true, return k.
+      if (same == True) return k;
+    }
+
+    // c. Decrease k by 1.
+    --k;
+  }
+
+  // 8. Return -1.
+  return SmiConstant(-1);
+}
+
+// https://tc39.github.io/ecma262/#sec-array.prototype.lastIndexOf
+transitioning javascript builtin ArrayPrototypeLastIndexOf(
+    js-implicit context: NativeContext, receiver: JSAny)(...arguments): JSAny {
+  // 1. Let O be ? ToObject(this value).
+  const object: JSReceiver = ToObject_Inline(context, receiver);
+
+  // 2. Let len be ? ToLength(? Get(O, "length")).
+  const length: Number = GetLengthProperty(object);
+
+  // 3. If len is 0, return -1.
+  if (length == SmiConstant(0)) return SmiConstant(-1);
+
+  // Step 4 - 6.
+  const from: Number = GetFromIndex(context, length, arguments);
+
+  const searchElement: JSAny = arguments[0];
+
+  try {
+    return TryFastArrayLastIndexOf(context, object, searchElement, from)
+        otherwise Baseline;
+  } label Baseline {
+    return GenericArrayLastIndexOf(context, object, searchElement, from);
+  }
+}
+}
+```
 
 
 
 
 
 
-# 一-2、常见实现
+
+
+
+
+
+# 二、常见实现
 
 ## 2-1、数组扁平化
 
@@ -970,12 +815,18 @@ console.log([3, 4, 5].myFindIndex(isEven)) // 1
 ```js
 const arr = [1, [1,2], [1,2,3]]
 arr.flat(Infinity)  // [1, 1, 2, 1, 2, 3]
+
+arr = [1, [1,2], [1,2,[1,2,3],3]]
+arr.flat(Infinity)  // [1, 1, 2, 1, 2, 1, 2, 3, 3]
 ```
 
 ### 2-1-2、replace + split
 
 ```js
 ary = str.replace(/(\[|\])/g, '').split(',')
+// 上面是过去的写法了，新写法如下(没想到吧，V8 牛逼)
+`${arr}`.split(',');
+(arr + '').split(',');
 ```
 
 ### 2-1-3、replace + JSON.parse
@@ -984,11 +835,17 @@ ary = str.replace(/(\[|\])/g, '').split(',')
 str = str.replace(/(\[|\])/g, '');
 str = '[' + str + ']';
 ary = JSON.parse(str);
+// 上面是过去的写法了，新写法如下(没想到吧，V8 牛逼)
+`${arr}`.split(',');
+(arr + '').split(',');
 ```
 
 ### 2-1-4、普通递归
 
 ```js
+// 递归方式略过
+// 递归方式略过
+// 递归方式略过
 let result = [];
 let fn = function(ary) {
   for(let i = 0; i < ary.length; i++) {
@@ -1028,13 +885,11 @@ console.log(flatten(ary)) // [1, 1, 2, 1, 2, 3]
 ### 2-1-6、ES6 展开运算符
 
 ```js
-// 每次 while 都会合并一层的元素，这里第一次合并结果为 [1, 1, 2, 1, 2, 3, [4,4,4]]
-// 然后 arr.some 判定数组中是否存在数组，因为存在 [4,4,4]，继续进入第二次循环进行合并
-let arr = [1, [1,2], [1,2,3,[4,4,4]]]
+arr = [1, [2, [3, [4, 5]]], 6];
 while (arr.some(Array.isArray)) {
   arr = [].concat(...arr);
 }
-console.log(arr)  // [1, 1, 2, 1, 2, 3, 4, 4, 4]
+console.log(arr)  // [1, 2, 3, 4, 5, 6]
 ```
 
 ### 2-1-7、序列化 + 正则
@@ -1043,6 +898,9 @@ console.log(arr)  // [1, 1, 2, 1, 2, 3, 4, 4, 4]
 const arr = [1, [1,2], [1,2,3]]
 const str = `[${JSON.stringify(arr).replace(/(\[|\])/g, '')}]`
 JSON.parse(str)   // [1, 1, 2, 1, 2, 3]
+// 上面是过去的写法了，新写法如下(没想到吧，V8 牛逼)
+`${arr}`.split(',');
+(arr + '').split(',');
 ```
 
 
