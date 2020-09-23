@@ -120,9 +120,9 @@ URL 参数、POST 参数、第三方的链接、用户的 UGC 信息、Cookie (�
 
 ### 1-6-2、参数解析漏洞
 
-通过 query string 参数解析的漏洞， 插入非法代码(在标签的 href、src 等属性中，包含 javascript: 等可执行代码)；
+通过 query string 参数解析的漏洞， 插入非法代码(在标签的 href、src 等属性中，包含 JS: 等可执行代码)；
 
-原理： javascript: 字符、特殊字符若出现在特定位置会引发 XSS 攻击；
+原理： JS: 字符、特殊字符若出现在特定位置会引发 XSS 攻击；
 
 - 比如A：
   - 首先，input 输入；

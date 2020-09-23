@@ -305,11 +305,11 @@
 
 ### 2-7-3-1、CSRF 监控
 
-- <img src="https://i.loli.net/2020/09/06/WkMfBnl2wFQ6u3P.png" style="zoom:50%;" align=""/>
+<img src="https://i.loli.net/2020/09/06/WkMfBnl2wFQ6u3P.png" style="zoom:50%;" align=""/>
 
 ### 2-7-3-2、随机值法
 
-- <img src="https://i.loli.net/2020/09/07/AQWRcnzsCE47DxB.png" style="zoom:50%;" align=""/>
+<img src="https://i.loli.net/2020/09/07/AQWRcnzsCE47DxB.png" style="zoom:50%;" align=""/>
 
 
 

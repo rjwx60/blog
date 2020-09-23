@@ -72,7 +72,7 @@
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200909091146.png" style="zoom:50%;" align="" />
 
-- 别再留意下面的注意了!!! 其实没什么特别需要注意的，厘清它们之间的关系就够了!!!
+- <u>别再留意下面的注意了!!! 其实没什么特别需要注意的，厘清它们之间的关系就够了!!!</u>
 - 看上面的图，实例的隐式指向构造它的函数的显式、而函数除了有显式，还应当注意其也是一个对象也有一个隐式原型，而函数的隐式，均指向函数的显式，即 Function.prototype，而原型对象又 TM 是对象，好了，对象又 TM 有隐式，最终指向 Object.prototype，好了，这是老大了，JS  一切均对象就是这么由来的，老大的本源是什么?? null，无中生有；(这段语气有点暴躁，其实是暴躁自己为何这么简单的内容——就一链表，还要跟自己解释这么久…请忽略)；
 - 所以注意点只有函数的隐式原型指向 Function.prototype…其实也没啥好注意的，只是大多数人忽略了原来函数也有隐式指向；
 - 别再留意下面的注意了!!! 其实没什么特别需要注意的，厘清它们之间的关系就够了!!!
@@ -610,5 +610,223 @@ function _possibleConstructorReturn(self, call) {
 
 ## 三、设计模式
 
+设计模式的使用多见于模块制作、组件抽离、npm包(比如 vue-rx 内部使用到了单例模式、原型模式、适配器模式等)、软件架构设计乃至系统架构设计上(Rxjs + Node 的事件发布机制)；个人感觉它们所体现的开发设计思想比各类实现更为重要(当然代码实现也很重要不能停留书上 =。=)；此处只列举 JS 常见的设计模式(跟业务相关，业务复杂才能接触到更多更强大巧妙的设计模式，憾恨毕业去不成大厂…)：
+
+软件(还包括类/函数)设计模式的设计原则，其中 JS 世界中最常用到的是：单一职责原则SRP、开放封闭原则OP；
+
+- S一Single Responsibility Principle单一职责原则
+  - 一个程序只做好一 -件事
+  - 如果功能过于 复杂就拆分开，每个部分保持独立
+- O—OpenClosed Principle 开放/封闭原则
+  - 对扩展开放，对修改封闭
+  - 增加需求时，扩展新代码，而非修改已有代码
+- L—Liskov Substitution Principle 里氏替换原则
+  - 子类能覆盖父类
+  - 父类能出现的地方子类就能出现
+- I—Interface Segregation Principle接口隔离原则
+  - 保持接口的单一独立
+  - 类似单一职责原则，这里更关注接口
+- D—Dependency Inversion Principle 依赖倒转原则
+  - 面向接口编程， 依赖于抽象而不依赖于具体
+  - 使用方只关注接口 而不关注具体类的实现
+
+**<u>JS常用之一：单一职责原则—SRP(Single Responsibility Principle)-</u>**
+
+- 基本：一个方法、一个类只负责一个职责，各个职责的程序改动，不影响其它程序；
+- 比如：组件化、模块化；
+
+**<u>JS常用之二：开放封闭原则—OP(OpenClosed Principle)</u>**
+
+- 基本：核心思想是软件实体(类、模块、函数等)是可扩展的、但不可修改；即对扩展是开放的，而对修改是封闭的
+- 比如：类、模块和函数，应当对扩展开放，但对修改关闭；
+
+
+
+### 3-1、单例模式
+
+顾名思义，保证只有一个类实例，并提供访问其的全局访问点；优点有很多，比如划分命名空间，减少全局变量、实例仅需1次、简化代码，便于调试和维护、增强模块性；但缺点也明显：单点访问、可能导致模块间的强耦合，不利于单元测试(无法单独测试一个调用了来自单例的方法的类，而只能把它与那个单例作为一个单元一起测试)；应用就更多了：登录控件、模态框、注销删除控件、vuex、redux 中的 store、`JQ的$` 都有它的身影；可细分为惰性单例(即利用闭包去延迟执行)
+
+```js
+class SingletonLogin {
+  constructor(name,password){
+    this.name = name
+    this.password = password
+  }
+  static getInstance(name,password){
+    // 经典实现: if(!this.xxx) Vuex 里面也有体现
+    // 判断对象是否已经被创建,若创建则返回旧对象
+    if(!this.instance) {
+      this.instance = new SingletonLogin(name,password)
+    }
+    return this.instance
+  }
+}
+ 
+let obj1 = SingletonLogin.getInstance('TLP','123')
+let obj2 = SingletonLogin.getInstance('TLP','321')
+ 
+console.log(obj1===obj2)    // true
+console.log(obj1)           // {name:TLP,password:123}
+console.log(obj2)           // {name:TLP,password:123} - same result
+```
+
+
+
+### 3-2、工厂模式
+
+个人感觉其是一种多态实现；用于创建对象的接口，此接口由子类决定实例化哪个类(而这些类 **<u>通常都拥有相同的接口(属性和方法</u>**))；
+
+意义在于：父类即抽象类，存放一般性问题的处理与相同方法，随着子类构建而被其继承，子类间相互独立，负责具体业务逻辑；减少了代码冗余、降低了耦合度、提高了扩展性、灵活性高(子类可在父类基础上自定义接口)；此外，还使得构造函数和创建者分离，相同方法在父类中编写，符合 OP—开闭原则；但是，扩展时须引入抽象类，需要理解其内部实现才可扩展(但实际开发中人员水平是参差不齐的，容易埋 bug)；应用地方也有很多： JQ(所用思想真滴厉害)、`React.createElement()`、`Vue.component()` 
+
+```js
+// 简单工厂模式
+class User {
+  constructor(name, auth) {
+    this.name = name
+    this.auth = auth
+  }
+}
+class UserFactory {
+  static createUser(name, auth) {
+    // 工厂内部封装了创建对象的逻辑:
+    if(auth === 'admin')  new User(name, 1)
+    if(auth === 'user')  new User(name, 2)
+  }
+}
+const admin = UserFactory.createUser('TLP', 'admin');
+const user = UserFactory.createUser('TLP', 'user');
+```
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200909091219.png" style="zoom:50%;" align=""/>
+
+
+
+### 3-3、观察者与发布订阅模式
+
+前者估计是前端最原始、最常用的开发模式了，为何? 抛你一个 addEventListener…；
+
+至于为何放在一起讲，因为感觉两者区别不大，后者比前者多了一个调度中心 (ps：此乃思考不成熟的体现，两者还是有较大差异的，体现在前者只有两点关系，若这种关系过多，管理就会显得十分复杂、代码也会变得臃肿，久而久之会出大问题；而后者通过中间调度器去管理，也有配套的取消订阅的操作(前者取消观察需要自实现)，在大型应用或软件开发中更显效率与精简)；
+
+**<u>观察者模式</u>**：一种一对一或一对多的关系模式，观察者监听被观察者的变化，被观察者发生改变时，通知所有的观察者；较适用于小型的、一对象的改变需同时改变其它对象且不知道有多少对象需要改变时的场景；优点显而易见，灵活性相当高(坑点)，类似广播通信，自动通知所有已订阅过的对象、解耦(让耦合双方均依赖于抽象，而非依赖具体，使各自变化而不会影响另一边)，能单独扩展及重用；缺点：过度使用会导致对象与对象间联系弱化，难以跟踪维护和理解(比如 Angular 的 Subject…)；
+
+```js
+// 观察者
+class Observer {    
+  constructor (fn) {      
+    this.update = fn    
+  }
+}
+// 被观察者
+class Subject {    
+    constructor() {        
+        this.observers = []          // 观察者队列    
+    }    
+    addObserver(observer) {          
+        this.observers.push(observer)// 往观察者队列添加观察者    
+    }    
+    notify() {                       // 通知所有观察者,实际上是把观察者的 update()都执行了一遍       
+        this.observers.forEach(observer => {        
+            observer.update()        // 依次取出观察者,并执行观察者的 update 方法        
+        })    
+    }
+}
+var subject = new Subject()       // 被观察者
+const update = () => {console.log('被观察者发出通知')}  //收到广播时要执行的方法
+var ob1 = new Observer(update)    // 观察者1
+var ob2 = new Observer(update)    // 观察者2
+subject.addObserver(ob1)          // 观察者1订阅 subject 的通知
+subject.addObserver(ob2)          // 观察者2订阅 subject 的通知
+subject.notify()                  // 发出广播,执行所有观察者的 update 方法
+```
+
+**<u>发布订阅模式</u>**：
+
+```js
+var Event = (function () {
+  var list = {};
+  // 监听函数
+  var listen; 
+  // 移除监听函数
+  var remove; 
+  // 触发监听
+  var trigger; 
+
+  listen = function (key, fn) {
+    if (!list[key]) { list[key] = {}; }
+    list[key].push(fn);
+  };
+	// 触发器 - 调度器
+  trigger = function () {
+    var key = Array.prototype.shift.call(arguments), fns = list[key];
+    if (!fns || fns.length === 0) { return false; }
+    for (var i = 0, fn; (fn = fns[i++]); ) {
+      fn.apply(this, arguments);
+    }
+  };
+
+  remove = function (key, fn) {
+    var fns = list[key];
+    if (!fns) { return false; }
+    if (!fn) {
+      fns && (fns.length = 0);
+    } else {
+      for (var i = fns.length - 1; i >= 0; i--) {
+        var _fn = fns[i];
+        if (_fn === fn) {
+          fns.splice(i, 1);
+        }
+      }
+    }
+  };
+  // 返回
+  return {
+    listen,
+    trigger,
+    remove,
+  };
+})();
+
+function d1() { console.log("first"); }
+function d2() { console.log("second"); }
+Event.listen("color", d1); 	// d1
+Event.listen("color", d2); 	// d2
+Event.remove("color", d1); 	// d1
+Event.trigger("color"); 		// second
+```
+
+
+
+### 3-X、其他模式
+
+待添加：适配器模式、代理模式、装饰器模式(TS、Angular)；面向组合设计；
+
+
+
 ## 四、架构模式
 
+如何区分设计模式与架构模式，emmm，后者是一个根的定性问题，前者是枝的处理方式；比如种树，架构模式偏向于你要选用什么树、种在哪里、成本维护算计、种多少、用来干嘛等等，而设计模式更偏向于树种了之后，怎么培育、怎么打理、怎么束型等等；
+
+软件架构模式—**<u>*Architectural Pattern*</u>**：MVC，MVP，MVVM，均是常见的软件架构模式(Architectural Pattern)；
+
+软件架构模式通过分离关注点，来改进代码的组织方式，且相对独立不影响；
+
+- 相同部分：**<u>*MV(Model-View)*</u>**
+- 不同部分：**<u>*C(Controller)、P(Presenter)、VM(View-Model)*</u>**
+
+架构模式不同于设计模式 (Design Pattern)(明显比我上面说的更专业………)
+
+- 前者往往使用了多种设计模式；
+- 后者只是为了解决一类问题而总结出的抽象方法；
+
+- **<u>Model</u>**：应用程序中，用于处理应用程序数据逻辑的部分；
+  - 用于封装和应用程序的业务逻辑相关的数据以及对数据的处理方法；
+  - 通常负责在数据库中存取 **<u>管理数据</u>**；
+
+- **<u>View</u>**：应用程序中，用于处理数据显示的部分；
+  - 通常依据模型数据 **<u>依据数据创建视图</u>**；
+
+- **<u>Controller</u>**：应用程序中，用于处理用户交互的部分；
+  - 用于连接 Model & View，控制应用程序流程，定义用户界面对用户输入响应方式，处理用户行为和数据上的改变；
+  - 通常负责从 View 读取数据，控制用户输入，并向 Model 发送数据，是一个 **<u>业务逻辑处理—中间件</u>**；
+
+待添加：MVC、MVP、MVVM 

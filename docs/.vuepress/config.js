@@ -322,8 +322,16 @@ module.exports = {
               }
             ]
           },
-          ['/Basics/12-前端框架', '框架源码'],
-          ['/Basics/13-前端框架', '框架使用'],
+          {
+            title: '12-框架Vue',
+            path: '/Basics/12-框架Vue',
+            children: [
+              {
+                title: '一、',
+                path: '/Basics/12-框架Vue'
+              }
+            ]
+          },
           {
             title: '14-浏览器相关',
             path: '/Basics/14-浏览器相关',
