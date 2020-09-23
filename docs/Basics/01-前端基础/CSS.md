@@ -116,7 +116,8 @@ subbottom 设置 relative，z-index层级为>100
 
 **<u>*absolute*</u>** ：**<u>含义：生成绝对定位的元素，相对于 static 定位以外的第1个父元素进行位移、不占位、默认相对于 html 元素；</u>**
 
-注意： position 的属性值为 absolute 或者 relative 即可充当相对父级；
+- 注意： position 的属性值为 absolute 或者 relative 即可充当相对父级；
+
 
 **<u>*relative*</u>**：生成相对定位的元素，相对于其自身位置进行位移、占位、不改变原有 display 属性；
 
@@ -140,7 +141,7 @@ subbottom 设置 relative，z-index层级为>100
 
 **<u>*inherit*</u>**：从父元素继承 position 属性值； 
 
-**<u>*fixed*</u>**：生成绝对定位的元素，相对于浏览器窗口进行位移、不占位；fixed 与 absolute 共同点：
+**<u>*fixed*</u>**：**<u>生成绝对定位的元素，相对于浏览器窗口进行位移</u>**、不占位；fixed 与 absolute 共同点：
 
 - 均会改变行内元素的呈现模式，改变 display 为 block；
 - 均会让元素脱离普通流，不占据空间；
