@@ -401,7 +401,7 @@ Client -> ACK -> Server
 - 方式2：减少 SYN + ACK 重试次数，避免大量的超时重发；
 - 方式3：tcp_syncookies
 
-![](https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200919112355.png)
+![](https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200924092539.png)
 
 ​	若应用程序过慢则导致 Accept 队列满，若受到 SYN 攻击则导致 SYN 队列满，此时可启用cookie：
 
