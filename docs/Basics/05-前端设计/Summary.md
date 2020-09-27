@@ -739,6 +739,78 @@ subject.addObserver(ob2)          // 观察者2订阅 subject 的通知
 subject.notify()                  // 发出广播,执行所有观察者的 update 方法
 ```
 
+```js
+// 实现 node 中回调函数的机制，node 中回调函数其实是内部使用了观察者模式
+function EventEmitter() {
+  this.events = new Map();
+}
+// 需要实现的一些方法：
+// addListener、removeListener、once、removeAllListeners、emit
+
+// 模拟实现addlistener方法
+const wrapCallback = (fn, once = false) => ({ callback: fn, once });
+EventEmitter.prototype.addListener = function(type, fn, once = false) {
+  const hanlder = this.events.get(type);
+  if (!hanlder) {
+    // 没有type绑定事件
+    this.events.set(type, wrapCallback(fn, once));
+  } else if (hanlder && typeof hanlder.callback === 'function') {
+    // 目前type事件只有一个回调
+    this.events.set(type, [hanlder, wrapCallback(fn, once)]);
+  } else {
+    // 目前type事件数>=2
+    hanlder.push(wrapCallback(fn, once));
+  }
+}
+// 模拟实现removeListener
+EventEmitter.prototype.removeListener = function(type, listener) {
+  const hanlder = this.events.get(type);
+  if (!hanlder) return;
+  if (!Array.isArray(this.events)) {
+    if (hanlder.callback === listener.callback) this.events.delete(type);
+    else return;
+  }
+  for (let i = 0; i < hanlder.length; i++) {
+    const item = hanlder[i];
+    if (item.callback === listener.callback) {
+      hanlder.splice(i, 1);
+      i--;
+      if (hanlder.length === 1) {
+        this.events.set(type, hanlder[0]);
+      }
+    }
+  }
+}
+// 模拟实现once方法
+EventEmitter.prototype.once = function(type, listener) {
+  this.addListener(type, listener, true);
+}
+// 模拟实现emit方法
+EventEmitter.prototype.emit = function(type, ...args) {
+  const hanlder = this.events.get(type);
+  if (!hanlder) return;
+  if (Array.isArray(hanlder)) {
+    hanlder.forEach(item => {
+      item.callback.apply(this, args);
+      if (item.once) {
+        this.removeListener(type, item);
+      }
+    })
+  } else {
+    hanlder.callback.apply(this, args);
+    if (hanlder.once) {
+      this.events.delete(type);
+    }
+  }
+  return true;
+}
+EventEmitter.prototype.removeAllListeners = function(type) {
+  const hanlder = this.events.get(type);
+  if (!hanlder) return;
+  this.events.delete(type);
+}
+```
+
 **<u>发布订阅模式</u>**：
 
 ```js
@@ -748,22 +820,12 @@ var Event = (function () {
   var listen; 
   // 移除监听函数
   var remove; 
-  // 触发监听
+  // 触发器 - 调度器
   var trigger; 
-
   listen = function (key, fn) {
     if (!list[key]) { list[key] = {}; }
     list[key].push(fn);
   };
-	// 触发器 - 调度器
-  trigger = function () {
-    var key = Array.prototype.shift.call(arguments), fns = list[key];
-    if (!fns || fns.length === 0) { return false; }
-    for (var i = 0, fn; (fn = fns[i++]); ) {
-      fn.apply(this, arguments);
-    }
-  };
-
   remove = function (key, fn) {
     var fns = list[key];
     if (!fns) { return false; }
@@ -778,7 +840,14 @@ var Event = (function () {
       }
     }
   };
-  // 返回
+  trigger = function () {
+    var key = Array.prototype.shift.call(arguments), fns = list[key];
+    if (!fns || fns.length === 0) { return false; }
+    for (var i = 0, fn; (fn = fns[i++]); ) {
+      fn.apply(this, arguments);
+    }
+  };
+
   return {
     listen,
     trigger,
@@ -793,6 +862,68 @@ Event.listen("color", d2); 	// d2
 Event.remove("color", d1); 	// d1
 Event.trigger("color"); 		// second
 ```
+
+```js
+class EventEmitter {
+  constructor() {
+    this.cache = {}
+  }
+
+  on(name, fn) {
+    if (this.cache[name]) {
+      this.cache[name].push(fn)
+    } else {
+      this.cache[name] = [fn]
+    }
+  }
+
+  off(name, fn) {
+    const tasks = this.cache[name]
+    if (tasks) {
+      const index = tasks.findIndex((f) => f === fn || f.callback === fn)
+      if (index >= 0) {
+        tasks.splice(index, 1)
+      }
+    }
+  }
+
+  emit(name) {
+    if (this.cache[name]) {
+      // 创建副本，如果回调函数内继续注册相同事件，会造成死循环
+      const tasks = this.cache[name].slice()
+      for (let fn of tasks) {
+        fn();
+      }
+    }
+  }
+
+  emit(name, once = false) {
+    if (this.cache[name]) {
+      // 创建副本，如果回调函数内继续注册相同事件，会造成死循环
+      const tasks = this.cache[name].slice()
+      for (let fn of tasks) {
+        fn();
+      }
+      if (once) {
+        delete this.cache[name]
+      }
+    }
+  }
+}
+
+// 测试
+const eventBus = new EventEmitter()
+const task1 = () => { console.log('task1'); }
+const task2 = () => { console.log('task2'); }
+eventBus.on('task', task1)
+eventBus.on('task', task2)
+
+setTimeout(() => {
+  eventBus.emit('task')
+}, 1000)
+```
+
+
 
 
 
@@ -829,4 +960,241 @@ Event.trigger("color"); 		// second
   - 用于连接 Model & View，控制应用程序流程，定义用户界面对用户输入响应方式，处理用户行为和数据上的改变；
   - 通常负责从 View 读取数据，控制用户输入，并向 Model 发送数据，是一个 **<u>业务逻辑处理—中间件</u>**；
 
-待添加：MVC、MVP、MVVM 
+
+
+### 4-1、MVC
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200909091221.png" style="zoom:50%;" align="" />
+
+```js
+/**
+ * 基本:
+ * View 负责接收用户的输入操作，Controller 负责业务逻辑的处理，Model 负责数据管理或持久化，Controller 将结果反馈给 View
+ * 优点:
+ * 简化分组开发，实现同时开发；
+ * 利于管理，让开发人员更专注于开发；
+ * 职责明确，独立改变而不影响，较高的灵活性和重用性；
+ * 缺点:
+ * Controller 集中了过多业务逻辑；
+ * View 与 Controller 间耦合重，难以复用；
+ * 当每个事件都流经 Controller 时，Controller 变得臃肿；
+ */
+
+const MVC = {};
+const $ = (target) => document.querySelector(target);
+
+// Model 用于存储业务数据，数据发生变化，Model 将通知 View；
+MVC.Model = function () {
+  let val = 0;
+  let views = [];
+  this.add = (v) => { if(val < 100) { val+= v } };
+  this.sub = (v) => { if(val > 0) { val -= v} };
+  this.getVal = () => val;
+
+  // Model 和 View 间使用观察者模式
+  // View 事先在 Model 上注册从而观察 Model
+  // 当 Model 上数据发生改变时 View 则及时刷新(Controller)
+  this.register = (view) => views.push(view);
+  this.notify = () => {
+    for(let i = 0; i < views.length; i++) {
+      views[i].render(this);
+    }
+  }
+}
+
+MVC.View = function (controller) {
+  let $num = $('#num');
+  let $incBtn = $('#increase');
+  let $decBtn = $('#decrease');
+  // Controller 和 View 间使用策略模式
+  // View 引入 Controller 的实例 来实现特定的响应策略，如其中的按钮的 click 事件
+  this.render = (model) => $num.text(model.getVal() + 'rmb');
+
+  $incBtn.click(controller.increase);
+  $decBtn.click(controller.decrease);
+}
+
+MVC.Controller = function() {
+  let model = null;
+  let view1 = null;
+  // 在 Controller 中响应 View 的事件并调用 Model 的接口对数据进行操作，一旦 Model 发生变化便通知 View 进行更新；
+  this.init = () => {
+    model = new MVC.Model();
+    view1 = new MVC.View();
+    // ....
+    // 注册视图
+    model.register(view1);
+    // ....
+    // 渲染
+    model.notify();
+  }
+  this.increase = () => {
+    model.add(1);
+    model.notify();
+  }
+  this.decrease = () => {
+    model.sub(1);
+    model.notify();
+  }
+}
+
+;(function(){
+  const controller = new MVC.controller();
+  controller.init();
+})();
+```
+
+
+
+### 4-2、MVP
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200909091226.png" style="zoom:50%;" align="" />
+
+```js
+/**
+ * 基本:
+ * MVP 是 MVC 模式的改良
+ * 其将 MVC 中的 Controller 换为 Presenter-呈现，同样负责业务逻辑；
+ * 即 View 负责控件组成的页面，Model 负责实体数据库操作；
+ * 而 View 和 Model 间的控件数据绑定操作则属于 Presenter，目的时隔绝 View 和 Model 间的通信
+ * View 不再像 MVC 那样直接访问 Model，而此任务交由 Presenter 负责；
+ * 优点:
+ * 与 MVC 相比，解决了无法实现多个 View 共用一个 Controller的问题，降低 View 和 Controller 耦合度，可复用性提高
+ * 与 MVC 相比，MVP 模式通过解耦 View 和 Model ，使职责划分更加清晰
+ * 隔绝 View 和 Model，可将 View 抽离封装成组件(往后只需提供接口提供给上层操作即可)
+ * 缺点:
+ * Presenter 还是很重，维护困难；
+ * Presenter 负责基本业务逻辑，还需管理 View 与 Model 间的数据流动；
+ * 由于没有数据绑定，若 View 需求增多，Presenter 也要改变
+ */
+
+const MVP = {};
+const $ = (target) => document.querySelector(target);
+
+// 与 MVC 相比，MVP 模式通过解耦 View 和 Model ，使职责划分更加清晰
+MVP.Model = function () {
+  let val = 0;
+  this.add = (v) => { if(val < 100) { val+= v } };
+  this.sub = (v) => { if(val > 0) { val -= v} };
+  this.getVal = () => val;
+}
+
+MVP.View = function () {
+  let $num = $('#num');
+  let $incBtn = $('#increase');
+  let $decBtn = $('#decrease');
+
+  this.render = (model) => $num.text(model.getVal() + 'rmb');
+
+  // 用户对 View 的操作都转移到了Presenter
+  this.init = () => {
+    const presenter = new MVP.Presenter(this);
+    $incBtn.click(presenter.increase);
+    $decBtn.click(presenter.decrease);
+  }
+}
+
+MVP.Presenter = function(view) {
+  // Presenter 负责基本的业务逻辑，并管理 从 View 与 View 间的数据流动；
+  const _model = new MVP.Model();
+  const _view = view;
+
+  _view.render(_model);
+
+  this.increase = () => {
+    _model.add(1);
+    _view.render(_model);
+  }
+  this.decrease = () => {
+    _model.sub(1);
+    _view.render(_model);
+  }
+}
+
+;(function(){
+  const view = new MVC.View();
+  view.init();
+})();
+```
+
+
+
+### 4-3、MVVM
+
+ViewModel 是由前端开发人员组织生成和维护的视图数据层
+
+开发者对从后端获取的 Model 数据进行转换处理，做二次封装，以生成符合 View 层使用预期的视图数据模型；
+
+注意 ViewModel 所封装出来的数据模型，包括视图的状态和行为两部分，而 Model 层的数据模型是只包含状态
+
+比如页面展示什么，加载时发生什么，点击发生什么，滚动发生什么均属于视图行为，而视图状态和行为都封装在了 ViewModel 中
+
+如此封装使得 ViewModel 可完整地去描述 View 层
+
+```js
+/**
+ * 基本:
+ * MVP 是 MVC 模式的改良，而 MVVM 则是变革
+ * MVVM 将数据模型的，数据双向绑定的思想作为核心；
+ * MVVM 将 View 和 Model 的同步逻辑自动化，之间的同步不再需手动操作，而是交由框架提供的数据绑定功能来负责处理；
+ * 即只需告诉框架 V层 显示的数据，对应 M层哪一部分即可；
+ * 至此，V层 数据的变化会同时修改 M层的数据源，而 M层的数据变化也会立即反应到 V层上；
+ * ViewModel 是整个模式的重点，业务逻辑也主要集中在这里，其中的一大核心就是数据绑定；
+ * 
+ * 优点:
+ * 与 MVC/P 相比，简化业务与界面的依赖，解决数据频繁更新的问题；
+ * 与 MVC/P 相比，V 层 和 M 层分离，低耦合，提高可复用性；
+ * 与 MVC/P 相比，MVVM 中的 View 通过使用模板语法来声明式的将数据渲染进 DOM；
+ * VM 对Model 进行更新时，会通过数据绑定，更新到 View
+ */
+
+MVVM.Model = function() {
+  // Model: 在 MVVM 中，可将 Model 称为数据模型，仅关注数据本身，不关心任何行为；
+  return {
+    val: 0
+  }
+}
+
+// View: 用户操作界面 当 VM 对 Model 进行更新时，会通过数据绑定，更新到 View；
+// MVVM 中的 View 通过使用模板语法来声明式的将数据渲染进 DOM
+MVVM.View = function() {
+  return `
+    <div id="root">
+      <p>{{val}}</p>
+      <button $click="sub(1)">减1</button>
+      <button $click="add(1)">加1</button>
+    </div>
+  `
+}
+
+MVVM.ViewModel = function() {
+  // 内部实现隐藏
+  // 实现数据绑定，或 Vue 的通过 Object.defineProperty 或 Ng 通过 Zone 触发然后新旧值比对
+}
+
+new MVVM.ViewModel({
+  el: '#root',
+  data: MVVM.Model,
+  methods: {
+    add(v) {
+      if(this.val < 100) this.val += v;
+    },
+    sub(v) {
+      if(this.val > 0) this.val -= v;
+    }
+  }
+})
+
+
+// 总之
+// MVVM 模式简化了界面与业务的依赖，解决了数据频繁更新；
+// 在使用当中，利用双向绑定技术，使得 Model 变化时，ViewModel 会自动更新，而 ViewModel 变化时，View 也会自动变化
+```
+
+MVVM 框架实现了双向绑定
+
+这样 ViewModel 的内容会实时展现在 View 层，前端开发者再也不必低效且麻烦地通过操纵 DOM 去更新视图
+
+MVVM 框架已经把最脏最累的一块做好了，开发者只需要处理和维护 ViewModel，更新数据视图就会自动得到相应更新；
+
+这样 View 层展现的不是 Model 层的数据，而是 ViewModel 的数据，由 ViewModel 负责与 Model 层交互 即完全解耦 View 层和 Model 层；

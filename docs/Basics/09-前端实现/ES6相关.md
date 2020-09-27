@@ -82,6 +82,19 @@ class A extends B {
     console.log(this);
   }
 }
+
+
+// 这个即可
+// 寄生组合继承了，中间还有几个演变过来的继承但都有一些缺陷
+function Parent() {
+  this.name = 'parent';
+}
+function Child() {
+  Parent.call(this);
+  this.type = 'children';
+}
+Child.prototype = Object.create(Parent.prototype);
+Child.prototype.constructor = Child;
 ```
 
 ### 7-2-1-2、ES5 实现
@@ -129,6 +142,40 @@ var A = (function(_super) {
 // 测试
 const a = new A();
 console.log(a.BName, a.constructor); // B ,ƒ A() {}
+```
+
+```js
+function create(proto) {
+  function F() {}
+  F.prototype = proto;
+  return new F();
+}
+
+// Parent
+function Parent(name) {
+  this.name = name
+}
+
+Parent.prototype.sayName = function () {
+  console.log(this.name)
+};
+
+// Child
+function Child(age, name) {
+  Parent.call(this, name)
+  this.age = age
+}
+Child.prototype = create(Parent.prototype)
+Child.prototype.constructor = Child
+
+Child.prototype.sayAge = function () {
+  console.log(this.age)
+}
+
+// 测试
+const child = new Child(18, 'Jack')
+child.sayName()
+child.sayAge()
 ```
 
 
@@ -413,6 +460,101 @@ const p1 = new MyPromise1((resolve, reject) => {
 // 1秒后输出 result
 p1.then(res => console.log(res));
 ```
+
+
+
+### 7-3-2、低配版3
+
+```js
+// 建议阅读 [Promises/A+ 标准](https://promisesaplus.com/)
+class MyPromise {
+  constructor(func) {
+    this.status = 'pending'
+    this.value = null
+    this.resolvedTasks = []
+    this.rejectedTasks = []
+    this._resolve = this._resolve.bind(this)
+    this._reject = this._reject.bind(this)
+    try {
+      func(this._resolve, this._reject)
+    } catch (error) {
+      this._reject(error)
+    }
+  }
+
+  _resolve(value) {
+    setTimeout(() => {
+      this.status = 'fulfilled'
+      this.value = value
+      this.resolvedTasks.forEach(t => t(value))
+    })
+  }
+
+  _reject(reason) {
+    setTimeout(() => {
+      this.status = 'reject'
+      this.value = reason
+      this.rejectedTasks.forEach(t => t(reason))
+    })
+  }
+
+  then(onFulfilled, onRejected) {
+    return new MyPromise((resolve, reject) => {
+      this.resolvedTasks.push((value) => {
+        try {
+          const res = onFulfilled(value)
+          if (res instanceof MyPromise) {
+            res.then(resolve, reject)
+          } else {
+            resolve(res)
+          }
+        } catch (error) {
+          reject(error)
+        }
+      })
+      this.rejectedTasks.push((value) => {
+        try {
+          const res = onRejected(value)
+          if (res instanceof MyPromise) {
+            res.then(resolve, reject)
+          } else {
+            reject(res)
+          }
+        } catch (error) {
+          reject(error)
+        }
+      })
+    })
+  }
+
+  catch(onRejected) {
+    return this.then(null, onRejected);
+  }s
+}
+
+// 测试
+new MyPromise((resolve) => {
+  setTimeout(() => {
+    resolve(1);
+  }, 500);
+}).then((res) => {
+  console.log(res);
+  return new MyPromise((resolve) => {
+    setTimeout(() => {
+      resolve(2);
+    }, 500);
+  });
+}).then((res) => {
+  console.log(res);
+  throw new Error('a error')
+}).catch((err) => {
+  console.log('==>', err);
+})
+```
+
+
+
+
 
 
 
@@ -1100,13 +1242,174 @@ function P6() {
 
 
 
+### 7-3-6、Promise 再实现
+
+```js
+const PENDING = 'PENDING';      // 进行中
+const FULFILLED = 'FULFILLED';  // 已成功
+const REJECTED = 'REJECTED';    // 已失败
+
+class Promise {
+  constructor(exector) {
+    // 初始化状态
+    this.status = PENDING;
+    // 将成功、失败结果放在this上，便于then、catch访问
+    this.value = undefined;
+    this.reason = undefined;
+    // 成功态回调函数队列
+    this.onFulfilledCallbacks = [];
+    // 失败态回调函数队列
+    this.onRejectedCallbacks = [];
+
+    const resolve = value => {
+      // 只有进行中状态才能更改状态
+      if (this.status === PENDING) {
+        this.status = FULFILLED;
+        this.value = value;
+        // 成功态函数依次执行
+        this.onFulfilledCallbacks.forEach(fn => fn(this.value));
+      }
+    }
+    const reject = reason => {
+      // 只有进行中状态才能更改状态
+      if (this.status === PENDING) {
+        this.status = REJECTED;
+        this.reason = reason;
+        // 失败态函数依次执行
+        this.onRejectedCallbacks.forEach(fn => fn(this.reason))
+      }
+    }
+    try {
+      // 立即执行executor
+      // 把内部的resolve和reject传入executor，用户可调用resolve和reject
+      exector(resolve, reject);
+    } catch(e) {
+      // executor执行出错，将错误内容reject抛出去
+      reject(e);
+    }
+  }
+  then(onFulfilled, onRejected) {
+    onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : value => value;
+    onRejected = typeof onRejected === 'function'? onRejected:
+      reason => { throw new Error(reason instanceof Error ? reason.message:reason) }
+    // 保存this
+    const self = this;
+    return new Promise((resolve, reject) => {
+      if (self.status === PENDING) {
+        self.onFulfilledCallbacks.push(() => {
+          // try捕获错误
+          try {
+            // 模拟微任务
+            setTimeout(() => {
+              const result = onFulfilled(self.value);
+              // 分两种情况：
+              // 1. 回调函数返回值是Promise，执行then操作
+              // 2. 如果不是Promise，调用新Promise的resolve函数
+              result instanceof Promise ? result.then(resolve, reject) : resolve(result);
+            })
+          } catch(e) {
+            reject(e);
+          }
+        });
+        self.onRejectedCallbacks.push(() => {
+          // 以下同理
+          try {
+            setTimeout(() => {
+              const result = onRejected(self.reason);
+              // 不同点：此时是reject
+              result instanceof Promise ? result.then(resolve, reject) : reject(result);
+            })
+          } catch(e) {
+            reject(e);
+          }
+        })
+      } else if (self.status === FULFILLED) {
+        try {
+          setTimeout(() => {
+            const result = onFulfilled(self.value);
+            result instanceof Promise ? result.then(resolve, reject) : resolve(result);
+          });
+        } catch(e) {
+          reject(e);
+        }
+      } else if (self.status === REJECTED){
+        try {
+          setTimeout(() => {
+            const result = onRejected(self.reason);
+            result instanceof Promise ? result.then(resolve, reject) : reject(result);
+          })
+        } catch(e) {
+          reject(e);
+        }
+      }
+    });
+  }
+  catch(onRejected) {
+    return this.then(null, onRejected);
+  }
+  static resolve(value) {
+    if (value instanceof Promise) {
+      // 如果是Promise实例，直接返回
+      return value;
+    } else {
+      // 如果不是Promise实例，返回一个新的Promise对象，状态为FULFILLED
+      return new Promise((resolve, reject) => resolve(value));
+    }
+  }
+  static reject(reason) {
+    return new Promise((resolve, reject) => {
+      reject(reason);
+    })
+  }
+}
+
+
+// Promise.all
+Promise.myAll = function(promiseArr) {
+  return new Promise((resolve, reject) => {
+    const ans = [];
+    let index = 0;
+    for (let i = 0; i < promiseArr.length; i++) {
+      promiseArr[i]
+      .then(res => {
+        ans[i] = res;
+        index++;
+        if (index === promiseArr.length) {
+          resolve(ans);
+        }
+      })
+      .catch(err => reject(err));
+    }
+  })
+}
+
+// Promise.race
+Promise.race = function(promiseArr) {
+  return new Promise((resolve, reject) => {
+    promiseArr.forEach(p => {
+      // 如果不是Promise实例需要转化为Promise实例
+      Promise.resolve(p).then(
+        val => resolve(val),
+        err => reject(err),
+      )
+    })
+  })
+}
+```
 
 
 
 
-### 7-3-4、Async/Await
 
-原理：利用 `generator` (生成器)分割代码片段，然后我们使用一个函数让其自迭代，每一个`yield` 用 `promise` 包裹起来，执行下一步的时机由 `promise` 来控制；
+
+
+
+
+
+
+### 7-3-5、Async/Await
+
+原理：利用 `generator` (生成器)分割代码片段，然后使用一个函数让其自迭代，每一个`yield` 用 `promise` 包裹起来，执行下一步时机由 `promise` 来控制；
 
 ```js
 // 异步迭代，模拟异步函数
@@ -1178,7 +1481,7 @@ asyncFunc().then(res => {
 
 
 
-### 7-3-5、异步请求顺序执行
+### 7-3-6、异步请求顺序执行
 
 - 利用 `reduce`，初始值传入一个`Promise.resolve()`，之后往里面不停的叠加`.then()`
 
@@ -1254,4 +1557,147 @@ asyncFunc().then(res => {
 - Rxjs 实现；
 
 
+
+### 7-3-7、异步并发数限制
+
+```js
+/**
+ * 关键点
+ * 1. new promise 一经创建，立即执行
+ * 2. 使用 Promise.resolve().then 可以把任务加到微任务队列，防止立即执行迭代方法
+ * 3. 微任务处理过程中，产生的新的微任务，会在同一事件循环内，追加到微任务队列里
+ * 4. 使用 race 在某个任务完成时，继续添加任务，保持任务按照最大并发数进行执行
+ * 5. 任务完成后，需要从 doingTasks 中移出
+ */
+function limit(count, array, iterateFunc) {
+  const tasks = []
+  const doingTasks = []
+  let i = 0
+  const enqueue = () => {
+    if (i === array.length) {
+      return Promise.resolve()
+    }
+    const task = Promise.resolve().then(() => iterateFunc(array[i++]))
+    tasks.push(task)
+    const doing = task.then(() => doingTasks.splice(doingTasks.indexOf(doing), 1))
+    doingTasks.push(doing)
+    const res = doingTasks.length >= count ? Promise.race(doingTasks) : Promise.resolve()
+    return res.then(enqueue)
+  };
+  return enqueue().then(() => Promise.all(tasks))
+}
+
+// test
+const timeout = i => new Promise(resolve => setTimeout(() => resolve(i), i))
+limit(2, [1000, 1000, 1000, 1000], timeout).then((res) => {
+  console.log(res)
+})
+```
+
+
+
+### 7-3-8、异步串行/并行
+
+```js
+// 字节面试题，实现一个异步加法
+function asyncAdd(a, b, callback) {
+  setTimeout(function () {
+    callback(null, a + b);
+  }, 500);
+}
+
+// 解决方案
+// 1. promisify
+const promiseAdd = (a, b) => new Promise((resolve, reject) => {
+  asyncAdd(a, b, (err, res) => {
+    if (err) {
+      reject(err)
+    } else {
+      resolve(res)
+    }
+  })
+})
+
+// 2. 串行处理
+async function serialSum(...args) {
+  return args.reduce((task, now) => task.then(res => promiseAdd(res, now)), Promise.resolve(0))
+}
+
+// 3. 并行处理
+async function parallelSum(...args) {
+  if (args.length === 1) return args[0]
+  const tasks = []
+  for (let i = 0; i < args.length; i += 2) {
+    tasks.push(promiseAdd(args[i], args[i + 1] || 0))
+  }
+  const results = await Promise.all(tasks)
+  return parallelSum(...results)
+}
+
+// 测试
+(async () => {
+  console.log('Running...');
+  const res1 = await serialSum(1, 2, 3, 4, 5, 8, 9, 10, 11, 12)
+  console.log(res1)
+  const res2 = await parallelSum(1, 2, 3, 4, 5, 8, 9, 10, 11, 12)
+  console.log(res2)
+  console.log('Done');
+})()
+```
+
+
+
+### 7-3-9、Promise 并行限制
+
+即实现有并行限制的Promise调度器问题；[源自](https://juejin.im/post/6854573217013563405)
+
+```js
+class Scheduler {
+  constructor() {
+    this.queue = [];
+    this.maxCount = 2;
+    this.runCounts = 0;
+  }
+  add(promiseCreator) {
+    this.queue.push(promiseCreator);
+  }
+  taskStart() {
+    for (let i = 0; i < this.maxCount; i++) {
+      this.request();
+    }
+  }
+  request() {
+    if (!this.queue || !this.queue.length || this.runCounts >= this.maxCount) {
+      return;
+    }
+    this.runCounts++;
+
+    this.queue.shift()().then(() => {
+      this.runCounts--;
+      this.request();
+    });
+  }
+}
+   
+const timeout = time => new Promise(resolve => {
+  setTimeout(resolve, time);
+})
+  
+const scheduler = new Scheduler();
+  
+const addTask = (time,order) => {
+  scheduler.add(() => timeout(time).then(()=>console.log(order)))
+}
+  
+  
+addTask(1000, '1');
+addTask(500, '2');
+addTask(300, '3');
+addTask(400, '4');
+scheduler.taskStart()
+// 2
+// 3
+// 1
+// 4
+```
 

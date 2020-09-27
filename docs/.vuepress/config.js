@@ -323,12 +323,24 @@ module.exports = {
             ]
           },
           {
-            title: '12-框架Vue',
-            path: '/Basics/12-框架Vue',
+            title: '12-前端框架',
+            path: '/Basics/12-前端框架',
             children: [
               {
-                title: '一、',
-                path: '/Basics/12-框架Vue'
+                title: '一、框架Vue',
+                path: '/Basics/12-前端框架/框架Vue'
+              },
+              {
+                title: '二、框架Angular',
+                path: '/Basics/12-前端框架/框架Angular'
+              },
+              {
+                title: '三、框架React',
+                path: '/Basics/12-前端框架/框架React'
+              },
+              {
+                title: '四、Summary',
+                path: '/Basics/12-前端框架/Summary'
               }
             ]
           },

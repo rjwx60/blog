@@ -101,6 +101,27 @@ function ArrayMap(f, receiver) {
   }
   return result;
 }
+
+
+
+// forEach 区别，没有返回值
+Array.prototype.forEach = function(callback, thisArg) {
+  if (this == null) {
+    throw new TypeError('this is null or not defined');
+  }
+  if (typeof callback !== "function") {
+    throw new TypeError(callback + ' is not a function');
+  }
+  const O = Object(this);
+  const len = O.length >>> 0;
+  let k = 0;
+  while (k < len) {
+    if (k in O) {
+      callback.call(thisArg, O[k], k, O);
+    }
+    k++;
+  }
+}
 ```
 
 
@@ -840,7 +861,7 @@ ary = JSON.parse(str);
 (arr + '').split(',');
 ```
 
-### 2-1-4、普通递归
+### 2-1-4、函数递归
 
 ```js
 // 递归方式略过
@@ -875,9 +896,7 @@ flat(arr) // [1, 1, 2, 1, 2, 3]
 ```js
 const ary = [1, [1,2], [1,2,3]]
 function flatten(ary) {
-    return ary.reduce((pre, cur) => {
-        return pre.concat(Array.isArray(cur) ? flatten(cur) ：cur);
-    }, []);
+    return ary.reduce((pre, cur) => pre.concat(Array.isArray(cur) ? flatten(cur) ：cur), []);
 }
 console.log(flatten(ary)) // [1, 1, 2, 1, 2, 3]
 ```
@@ -901,6 +920,32 @@ JSON.parse(str)   // [1, 1, 2, 1, 2, 3]
 // 上面是过去的写法了，新写法如下(没想到吧，V8 牛逼)
 `${arr}`.split(',');
 (arr + '').split(',');
+```
+
+
+
+## 2-1、对象扁平化
+
+```js
+function objectFlat(obj = {}) {
+  const res = {}
+  function flat(item, preKey = '') {
+    Object.entries(item).forEach(([key, val]) => {
+      const newKey = preKey ? `${preKey}.${key}` : key
+      if (val && typeof val === 'object') {
+        flat(val, newKey)
+      } else {
+        res[newKey] = val
+      }
+    })
+  }
+  flat(obj)
+  return res
+}
+
+// 测试
+const source = { a: { b: { c: 1, d: 2 }, e: 3 }, f: { g: 2 } }
+console.log(objectFlat(source));
 ```
 
 
@@ -968,71 +1013,146 @@ arr.sort(function () {
 
 ## 2-4、数组去重
 
-- `Array.from(new Set(arr))`
+### 2-4-1、new Set
 
-  - ```js
-    var arr = [1,1,2,5,6,3,5,5,6,8,9,8];
-    console.log(Array.from(new Set(arr)))
-    // console.log([...new Set(arr)])
-    ```
+`Array.from(new Set(arr))`、`[...new Set(arr)]`
 
-- `[...new Set(arr)]`
+- ```js
+  var arr = [1,1,2,5,6,3,5,5,6,8,9,8];
+  console.log(Array.from(new Set(arr)))
+  console.log([...new Set(arr)])
+  ```
 
-- `for `循环嵌套，利用 `splice` 去重
 
-  - ```js
-    function unique (origin) {
-      let arr = [].concat(origin);
-      for (let i = 0; i < arr.length; i++) {
-        for (let j = i + 1; j < arr.length; j++) {
-          if (arr[i] == arr[j]) {
-            arr.splice(j, 1);
-            j--;
-          }
+
+
+
+### 2-4-2、嵌套 for + splice
+
+for 循环嵌套，利用 splice 去重
+
+- ```js
+  function unique (origin) {
+    let arr = [].concat(origin);
+    for (let i = 0; i < arr.length; i++) {
+      for (let j = i + 1; j < arr.length; j++) {
+        if (arr[i] == arr[j]) {
+          arr.splice(j, 1);
+          j--;
         }
       }
-      return arr;
     }
-    var arr = [1,1,2,5,6,3,5,5,6,8,9,8];
-    console.log(unique(arr))
-    ```
+    return arr;
+  }
+  var arr = [1,1,2,5,6,3,5,5,6,8,9,8];
+  console.log(unique(arr))
+  ```
 
-- 新建数组，利用 `indexOf` 或 `includes` 去重
 
-  - ```js
-    function unique (arr) {
-      let res = []
-      for (let i = 0; i < arr.length; i++) {
-        if (!res.includes(arr[i])) {
-          res.push(arr[i])
-        }
+
+### 2-4-3、indexOf/includes/filter/map
+
+新建数组，利用 `indexOf` 或 `includes` 去重
+
+- ```js
+  const unique2 = arr => {
+    const res = [];
+    for (let i = 0; i < arr.length; i++) {
+      if (res.indexOf(arr[i]) === -1) res.push(arr[i]);
+    }
+    return res;
+  }
+  
+  function unique (arr) {
+    let res = []
+    for (let i = 0; i < arr.length; i++) {
+      if (!res.includes(arr[i])) {
+        res.push(arr[i])
       }
-      return res;
     }
-    var arr = [1,1,2,5,6,3,5,5,6,8,9,8];
-    console.log(unique(arr))
-    ```
-
-- 先用 `sort `排序，然后用一个指针从第`0`位开始，配合 `while` 循环去重
-
-  - ```js
-    function unique (arr) {
-      arr = arr.sort(); // 排序之后的数组
-      let pointer = 0;
-      while (arr[pointer]) {
-        if (arr[pointer] != arr[pointer + 1]) { // 若这一项和下一项不相等则指针往下移
-          pointer++;
-        } else { // 否则删除下一项
-          arr.splice(pointer + 1, 1);
-        }
+    return res;
+  }
+  var arr = [1,1,2,5,6,3,5,5,6,8,9,8];
+  console.log(unique(arr))
+  
+  const unique4 = arr => {
+    return arr.filter((item, index) => {
+      return arr.indexOf(item) === index;
+    });
+  }
+  
+  const unique5 = arr => {
+    const map = new Map();
+    const res = [];
+    for (let i = 0; i < arr.length; i++) {
+      if (!map.has(arr[i])) {
+        map.set(arr[i], true)
+        res.push(arr[i]);
       }
-      return arr;
     }
-    var arr = [1,1,2,5,6,3,5,5,6,8,9,8];
-    console.log(unique(arr))
-    ```
+    return res;
+  }
+  ```
 
-    
+
+
+### 2-4-4、sort + while
+
+先用 `sort `排序，然后用一个指针从第`0`位开始，配合 `while` 循环去重
+
+- ```js
+  function unique (arr) {
+    arr = arr.sort(); // 排序之后的数组
+    let pointer = 0;
+    while (arr[pointer]) {
+      if (arr[pointer] != arr[pointer + 1]) { // 若这一项和下一项不相等则指针往下移
+        pointer++;
+      } else { // 否则删除下一项
+        arr.splice(pointer + 1, 1);
+      }
+    }
+    return arr;
+  }
+  var arr = [1,1,2,5,6,3,5,5,6,8,9,8];
+  console.log(unique(arr))
+  ```
+
+
+
+
+## 2-5、类数组转换
+
+类数组是具有 length 属性，但不具有数组原型方法；比如 arguments、DOM操作方法返回的结果(NodeList)；
+
+### 2-5-1、Array.from
+
+```js
+Array.from(document.querySelectorAll('div'))
+```
+
+
+
+### 2-5-2、Array.prototype.slice.call()
+
+```js
+Array.prototype.slice.call(document.querySelectorAll('div'))
+```
+
+
+
+### 2-5-3、扩展运算符
+
+```js
+[...document.querySelectorAll('div')]
+```
+
+
+
+### 2-5-4、concat
+
+```js
+Array.prototype.concat.apply([], document.querySelectorAll('div'));
+```
 
 
 

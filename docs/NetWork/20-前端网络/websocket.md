@@ -1,8 +1,12 @@
 # 零、问题区
 
+
+
 ## 0-1、websocket 区别
 
 与 http 区别，协议层面的连接实现、心跳机制、安全防范等—见下方
+
+
 
 ## 0-2、websocket ⽤法
 
@@ -157,19 +161,51 @@ ws.onerror = function () {
 
 
 
+
+
+
+
+
+
 # 一、发展
 
 ## 		1-1、问题
 
-HTTP 不支持持久连接，下述模式建立的长连接是长连接(伪)，<u>通讯双方需大量交换HTTP header</u>(无状态协议，须头部以鉴别)，信息交换效率低下(但实现简单，无需作架构升级即可使用)；
+HTTP 先天不支持持久连接(HTTP2支持—通过数据帧)，虽然可通过下列方式建立长连接，但这些长连接是伪的，因为<u>通讯双方需大量交换HTTP header</u>(无状态协议，须头部以鉴别)，信息交换效率低下，但实现简单，无需作架构升级即可使用：
 
-- 所谓的 keep-alive(1.1)，是指在一次 TCP 连接中完成多个 HTTP 请求，但注意这里的每次请求仍需单独发送header；
-- 所谓的 polling，是指客户端不断主动向服务器发送 HTTP 请求查询是否有新数据；
+- keep-alive：HTTP1.1引入，即在一个 TCP 连接中完成多个 HTTP 请求，但每次请求仍需单独发送 Header；
+- polling：指客户端不断向服务器发送 HTTP 请求，查询是否有新数据；
 
-在这种环境下，过去客户端想要及时获取更新一般基于 2 种形式：Ajax 轮询 和 long poll；但是应对 Ajax 轮询需要有较快的处理速度与相应资源，应对 long poll 需要有高并发处理能力，不管如何都会<u>增加服务端的压力</u>；
+此种背景下，若客户端想要及时获取最新信息(即时通讯技术)，一般基于 4 种形式：
 
-- 前者，原理简单粗暴，每间隔一定时间就向服务器发送请求，询问是否有最新消息；
-- 后者，则在轮询基础上，采取阻塞模型(客户端发起连接后，服务器等待直至有新消息才响应请求，随后客户端再次发起同样连接，循环往复)；<u>服务端无法主动联系客户端</u>；
+<u>轮询-polling</u>：客户端和服务器间会一直进行连接，每隔一段时间就询问一次；前端通常采取setInterval 或 setTimeout 去不断的请求服务器数据；
+
+- 优点：实现简单，适合处理的异步查询业务；
+- 缺点：轮询时间通常固定，过长不实时过短增加服务端负担；而请求大部分无意义，浪费服务端资源；且要求服务端有较快处理速度与相应资源；
+
+<u>长轮询-long polling</u>：即轮询+阻塞模型；客户端发送请求到服务端，若服务端没有新的数据，就保持住这个连接直到有数据。一旦服务端有了数据(消息)给客户端，它就使用这个连接发送数据给客户端；接着连接关闭；随后客户端再次发起同样连接，循环往复；
+
+- 优点：对比轮询做了优化，有较好的时效性；
+- 缺点：占较多的内存资源与请求数；<u>服务端仍无法主动联系客户端，且需要有高并发处理能力</u>；
+
+<u>iframe流</u>：即在浏览器中动态载入一个 iframe，并让其地址指向请求的服务器地址(即向服务器发送了一个http请求)，然后在浏览器端创建一个处理数据的函数，在服务端通过 iframe 与浏览器的长连接定时输出数据给客户端，iframe 页面接收到此数据就会将其解析成代码并传给父页面从而实现即时通讯目的；
+
+- 优点：对比轮询做了优化，有较好的时效性；
+- 缺点：兼容性与用户体验不好。服务器维护一个长连接会增加开销。一些浏览器的的地址栏图标会一直转菊花。
+
+<u>Server-sent Events(SSE)</u>：与长轮询机制类似，区别是每个连接不只发送一个消息；客户端发送一个请求，服务端保持这个连接直到有新消息发送回客户端，仍然保持着连接，如此连接就可以实现消息的再次发送，由服务器单向发送给客户端；
+
+- 优点：HTML5 标准；实现较为简单；一个连接可以发送多个数据；
+- 缺点：兼容性不好(IE，Edge不支持)；服务器只能单向推送数据到客户端；
+
+<u>WebSocket</u>：HTML5 WebSocket 规范定义了一种 API，使 Web 页面能够使用 WebSocket 协议与远程主机进行双向通信；WebSocket 属于应用层协议；其基于 TCP 传输协议，并复用 HTTP 握手通道；但并非基于 HTTP 协议，其只是在建立连接前须借助 HTTP(在首次握手时升级协议为 ws 或 wss)；
+
+- 优点：与轮询和长轮询相比，巨大减少了不必要的网络流量和等待时间；开销小，双向通讯，支持二进制传输；
+- 缺点：开发成本高，需要额外做重连保活；
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200924231830.png" alt="截屏2020-09-24 下午11.18.20" style="zoom:67%;" />
+
+
 
 
 
@@ -219,6 +255,8 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
 
 
 
+
+
 ## 3-1、传递消息时的编码格式
 
 3-1-1、消息与帧的区别：
@@ -263,9 +301,11 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001135.png" style="zoom:40%;" align=""/>
 
+
+
 ### 4-1-2、建立连接
 
-建立 websocket 连接时候所需消息有如下内容：
+建立 websocket 连接时候所需消息有如下内容 [upgrade_mechanism 规范](https://developer.mozilla.org/en-US/docs/Web/HTTP/Protocol_upgrade_mechanism)：
 
 - 首先，客户端利用 HTTP 发送报文，报文含构建 websocket 连接客户所需告知服务端的消息
 
@@ -276,6 +316,16 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
     Sec-WebSocket-Protocol: chat, superchat
     Sec-WebSocket-Version: 13
     ```
+    
+  - Connection 设置 Upgrade，通知服务端，该 request 类型需要进行升级为 websocket；
+
+  - Sec-WebSocket-Key 秘钥的值是通过规范中定义的算法进行计算得出，因此是不安全的，但是可以阻止一些误操作的 websocket 请求；
+
+  - Sec-WebSocket-Protocol 指定有限使用的Websocket协议，可以是一个协议列表(list)。服务端在 response 中返回列表中支持的第一个值；
+
+  - Sec-WebSocket-Version 指定通信时使用的Websocket协议版本。最新版本:13，[历史版本](https://www.iana.org/assignments/websocket/websocket.xml#version-number)
+
+  - Sec-WebSocket-Extensions 客户端向服务端发起请求扩展列表(list)，供服务端选择并在响应中返回；
 
 - 然后，服务端响应，消息响应完成后即可认为 websocket 建立成功；
 
@@ -298,7 +348,6 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
   - 首先，客户端 SWK 与 GUID(标准文档，值固定) 拼接；
   - 然后，SHA1加密；
   - 最后，进行 Base64混淆；
-
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001136.png" style="zoom:50%;" align=""/>
 
@@ -453,15 +502,453 @@ websocket 为双向传输协议，关闭时需双向关闭，且因其承载在 
 
 
 
+
+
 # 六、其他
 
-6-1、知乎问答：https://www.zhihu.com/topic/19657811/top-answers
+## 6-1、ngSocketIo
 
-6-2、Chrome 源码看实现：https://www.zhihu.com/topic/19657811/top-answers
+[ng-socket-io](https://github.com/bougarfaoui/ng-socket-io)  是 socket.io-client 的 angular 版本，其内部只是对 socket.io-client 的 [angular 化](https://github.com/bougarfaoui/ng-socket-io/blob/master/socket-io.service.ts) 封装(并利用 Observable 封装了一个 socket.on 事件—更友好地使用 angular 化的 socket)；关键：`this.ioSocket = io(url, options);`
+
+```js
+import { Injectable, EventEmitter, Inject } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/share'; 
+
+import * as io from 'socket.io-client';
+
+import { SocketIoConfig } from './socketIoConfig';
+import { SOCKET_CONFIG_TOKEN } from './socket-io.module';
+
+export class WrappedSocket {
+    subscribersCounter = 0;
+    ioSocket: any;
+
+    constructor(@Inject(SOCKET_CONFIG_TOKEN) config: SocketIoConfig) {
+        const url: string = config.url || '';
+        const options: any = config.options || {};
+      	// 关键对象
+        this.ioSocket = io(url, options);
+    }
+
+    on(eventName: string, callback: Function) {
+        this.ioSocket.on(eventName, callback);
+    }
+
+    once(eventName: string, callback: Function) {
+        this.ioSocket.once(eventName, callback);
+    }
+
+    connect() {
+        return this.ioSocket.connect();
+    }
+
+    disconnect(close?: any) {
+        return this.ioSocket.disconnect.apply(this.ioSocket, arguments);
+    }
+
+    emit(eventName: string, data?: any, callback?: Function) {
+        return this.ioSocket.emit.apply(this.ioSocket, arguments);
+    }
+
+    removeListener(eventName: string, callback?: Function) {
+        return this.ioSocket.removeListener.apply(this.ioSocket, arguments);
+    }
+
+    removeAllListeners(eventName?: string) {
+        return this.ioSocket.removeAllListeners.apply(this.ioSocket, arguments);
+    }
+
+    /** create an Observable from an event */
+    fromEvent<T>(eventName: string): Observable<T> {
+        this.subscribersCounter++;
+        return Observable.create( (observer: any) => {
+             this.ioSocket.on(eventName, (data: T) => {
+                 observer.next(data);
+             });
+             return () => {
+                 if (this.subscribersCounter === 1)
+                    this.ioSocket.removeListener(eventName);
+            };
+        }).share();
+    }
+   
+    /* Creates a Promise for a one-time event */
+    fromEventOnce<T>(eventName: string): Promise<T> {
+        return new Promise<T>(resolve => this.once(eventName, resolve));
+    }
+}
+```
 
 
 
-# 七、转自
+## 6-2、socket.io-client
+
+[socketClient 文档](https://socket.io/docs/client-api/)、[socketClientGithub](https://github.com/socketio/socket.io-client)
+
+socket 核心对象 io 由 Manager 类负责创建；
+
+```js
+// https://github.com/socketio/socket.io-client/blob/master/lib/index.js
+var parsed = url(uri);
+  var source = parsed.source;
+  var id = parsed.id;
+  var path = parsed.path;
+  var sameNamespace = cache[id] && path in cache[id].nsps;
+  var newConnection = opts.forceNew || opts['force new connection'] ||
+                      false === opts.multiplex || sameNamespace;
+
+  var io;
+
+  if (newConnection) {
+    debug('ignoring socket cache for %s', source);
+    io = Manager(source, opts);
+  } else {
+    if (!cache[id]) {
+      debug('new io instance for %s', source);
+      cache[id] = Manager(source, opts);
+    }
+    io = cache[id];
+  }
+  if (parsed.query && !opts.query) {
+    opts.query = parsed.query;
+  }
+  return io.socket(parsed.path, opts);
+}
+```
+
+Manager 类负责连接的核心操作通过 [engine.io-client](https://github.com/socketio/engine.io-client) 实现，而事件发布特性则由 Emitter = require('component-emitter'); 实现
+
+```js
+// https://github.com/socketio/socket.io-client/blob/master/lib/manager.js
+var eio = require('engine.io-client');
+var Socket = require('./socket');
+var Emitter = require('component-emitter');
+
+// ...
+
+module.exports = Manager;
+
+function Manager (uri, opts) {
+  // 单例
+  if (!(this instanceof Manager)) return new Manager(uri, opts);
+  if (uri && ('object' === typeof uri)) {
+    opts = uri;
+    uri = undefined;
+  }
+  opts = opts || {};
+  opts.path = opts.path || '/socket.io';
+	// 一些初始化配置
+}
+
+// ... 
+
+Manager.prototype.open = Manager.prototype.connect = function (fn, opts) {
+  // 单例
+  if (~this.readyState.indexOf('open')) return this;
+  // 核心
+  this.engine = eio(this.uri, this.opts);
+  var socket = this.engine;
+  var self = this;
+  this.readyState = 'opening';
+  this.skipReconnect = false;
+
+  // emit `open`
+  var openSub = on(socket, 'open', function () {
+    self.onopen();
+    fn && fn();
+  });
+
+  // emit `connect_error`
+  var errorSub = on(socket, 'error', function (data) {
+    self.cleanup();
+    self.readyState = 'closed';
+    self.emitAll('connect_error', data);
+    if (fn) {
+      var err = new Error('Connection error');
+      err.data = data;
+      fn(err);
+    } else {
+      // Only do this if there is no fn to handle the error
+      self.maybeReconnectOnOpen();
+    }
+  });
+
+  // emit `connect_timeout`
+  if (false !== this._timeout) {
+    var timeout = this._timeout;
+
+    // set timer
+    var timer = setTimeout(function () {
+      openSub.destroy();
+      socket.close();
+      socket.emit('error', 'timeout');
+      self.emitAll('connect_timeout', timeout);
+    }, timeout);
+
+    this.subs.push({
+      destroy: function () {
+        clearTimeout(timer);
+      }
+    });
+  }
+
+  this.subs.push(openSub);
+  this.subs.push(errorSub);
+
+  return this;
+};
+```
+
+
+
+## 6-3、engine.io
+
+先不说它基本内容，先从这个库的示例文件出发，观察知：
+
+- 通过 const io = require('engine.io').attach(server); 构建 socket 服务端并开始监听； 
+- 通过 const socket = new eio.Socket(); 建立客户端并开始监听； 
+
+```js
+// 1、engine.io 示例工程 socket Server
+// 通过 const io = require('engine.io').attach(server); 构建服务器
+const app = express();
+const express = require('express');
+const enchilada = require('enchilada');
+const server = require('http').createServer(app);
+
+const io = require('engine.io').attach(server);
+
+app.use(enchilada({
+  src: __dirname + '/public',
+  debug: true
+}));
+app.use(express.static(__dirname + '/public'));
+
+// 静态服务路由
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
+app.get('/engine.io.min.js', (req, res) => {
+  res.sendFile(require.resolve('engine.io-client/dist/engine.io.min.js'));
+});
+
+io.on('connection', (socket) => {
+  socket.on('message', () => {
+    socket.send('pong');
+  });
+});
+
+const port = process.env.PORT || 3000;
+
+// 监听
+server.listen(port, () => {
+  console.log('\x1B[96mlistening on localhost:' + port + ' \x1B[39m');
+});
+```
+
+```js
+// 2、engine.io 示例工程 socket Client
+// 切换路由，获取 engine.io-client/dist/engine.io.min.js 并建立客户端: const socket = new eio.Socket(); 开始监听
+function $ (id) { return document.getElementById(id); }
+
+let smoothie;
+let time;
+
+function render () {
+  // ...
+}
+
+// socket
+const socket = new eio.Socket();
+
+let last;
+function send () {
+  last = new Date();
+  socket.send('ping');
+  $('transport').innerHTML = socket.transport.name;
+}
+socket.on('open', () => {
+  if ($('chart').getContext) {
+    render();
+    window.onresize = render;
+  }
+  send();
+});
+socket.on('close', () => {
+  if (smoothie) smoothie.stop();
+  $('transport').innerHTML = '(disconnected)';
+});
+socket.on('message', () => {
+  const latency = new Date() - last;
+  $('latency').innerHTML = latency + 'ms';
+  if (time) time.append(+new Date(), latency);
+  setTimeout(send, 100);
+});
+```
+
+- 通过 const io = require('engine.io').attach(server); 构建 socket 服务端并开始监听； 
+- 通过 const socket = new eio.Socket(); 建立客户端并开始监听； 
+
+```js
+// 观察 socket Server 构建
+const server = require('http').createServer(app);
+const io = require('engine.io').attach(server); 
+// ...
+server.listen(port, () => {})
+
+
+// engine.io.js
+const http = require("http");
+const Server = require("./server");
+// ...
+function listen(port, options, fn) {
+  if ("function" === typeof options) {
+    fn = options;
+    options = {};
+  }
+  const server = http.createServer(function(req, res) {
+    res.writeHead(501);
+    res.end("Not Implemented");
+  });
+  // create engine server
+  const engine = exports.attach(server, options);
+  engine.httpServer = server;
+  server.listen(port, fn);
+  return engine;
+}
+
+function attach(server, options) {
+  const engine = new Server(options);
+  engine.attach(server, options);
+  return engine;
+}
+// ...
+// 发现知调用了 Server 实例的 attach 方法, 若有传入 httpServer 则利用，否则通过 listen 调用时自构造 httpServer
+
+
+
+// server.js
+// ...
+  attach(server, options) {
+    const self = this;
+    options = options || {};
+    let path = (options.path || "/engine.io").replace(/\/$/, "");
+
+    const destroyUpgradeTimeout = options.destroyUpgradeTimeout || 1000;
+    // normalize path
+    path += "/";
+    function check(req) {
+      return path === req.url.substr(0, path.length);
+    }
+
+    // cache and clean up listeners
+    const listeners = server.listeners("request").slice(0);
+    server.removeAllListeners("request");
+    server.on("close", self.close.bind(self));
+    server.on("listening", self.init.bind(self));
+
+    // add request handler
+    // 注意到若没有后续的 if 与普通的 httpServer 无太大区别，监听 request，然后通知
+    server.on("request", function(req, res) {
+      if (check(req)) {
+        debug('intercepting request for path "%s"', path);
+        self.handleRequest(req, res);
+      } else {
+        let i = 0;
+        const l = listeners.length;
+        for (; i < l; i++) {
+          listeners[i].call(server, req, res);
+        }
+      }
+    });
+
+    // 若模式是 websocket 
+    if (~self.opts.transports.indexOf("websocket")) {
+      // 监听 upgrade 事件,并通过 handleUpgrade 进行 socket 协议升级
+      server.on("upgrade", function(req, socket, head) {
+        if (check(req)) {
+          self.handleUpgrade(req, socket, head);
+        } else if (false !== options.destroyUpgrade) {
+          // default node behavior is to disconnect when no handlers
+          // but by adding a handler, we prevent that
+          // and if no eio thing handles the upgrade
+          // then the socket needs to die!
+          setTimeout(function() {
+            if (socket.writable && socket.bytesWritten <= 0) {
+              return socket.end();
+            }
+          }, destroyUpgradeTimeout);
+        }
+      });
+    }
+  }
+}
+// 先是进行某些认证，然后 Buffer 处理协议升级所需请求头，最后通过 self.ws.handleUpgrade(req, socket, head, function(conn) 升级
+handleUpgrade(req, socket, upgradeHead) {
+  this.prepare(req);
+
+  const self = this;
+  this.verify(req, true, function(err, success) {
+    if (!success) {
+      abortConnection(socket, err);
+      return;
+    }
+    const head = Buffer.from(upgradeHead); // eslint-disable-line node/no-deprecated-api
+    upgradeHead = null;
+
+    // delegate to ws
+    self.ws.handleUpgrade(req, socket, head, function(conn) {
+      self.onWebSocket(req, conn);
+    });
+  });
+}
+// self.ws.handleUpgrade 即 this.ws.handleUpgrade, 而 this.ws 由 this.ws = new wsModule.Server({ 创建
+init() {
+  if (!~this.opts.transports.indexOf("websocket")) return;
+
+  if (this.ws) this.ws.close();
+
+  // add explicit require for bundlers like webpack
+  const wsModule = this.opts.wsEngine === "ws" ? require("ws") : require(this.opts.wsEngine);
+  this.ws = new wsModule.Server({
+    noServer: true,
+    clientTracking: false,
+    perMessageDeflate: this.opts.perMessageDeflate,
+    maxPayload: this.opts.maxHttpBufferSize
+  });
+}
+// 溯源成功，由 ws 库实现…
+// 溯源成功，由 ws 库实现…
+// 溯源成功，由 ws 库实现…
+```
+
+观察服务端 socket 生成可知，engine.io 本质还是由 ws 库实现(即其为 websocket 的又一层封装)，但做了向下兼容处理，如果环境不支持则使用 Polling 方式替代(XHR、JSONP)；(长轮询：客户端发送一次 request，当服务端有消息推送时会 push 一条 response 给客户端；客户端收到 response 后，会再次发送 request，重复上述过程，直到其中一端主动断开连接为止) 
+
+
+
+
+
+
+
+Socket.io 基于 engine.io 这个库，engine.io 使用  Websocket 和 XHR 方式封装了一套 socket 协议； 为其提供跨浏览器/跨设备的双向通信功能；而因低版本浏览器不支持 Websocket，则会使用长轮询(polling)替代兼容；[目录结构](https://github.com/socketio/engine.io/tree/master/lib)
+
+- transports file
+- engine.io.js
+- server.js
+- socket.js
+- transports.js
+
+
+
+
+
+ engine.io 原理、其他即时方案补充、科普文、长连接实现原理、Node Socket实现(自定义)、Chrome实现、Socket与WebSocket、大文件传输、优缺点及使用；
+
+
+
+
 
 
 

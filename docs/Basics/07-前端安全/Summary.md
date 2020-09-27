@@ -101,6 +101,24 @@ CSP 可实现：
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200923225423.png" style="zoom:50%;" align=""/>
 
+最后的最后，使用成熟的 JS XSS 过滤库，比如：[兔展大佬写的](https://github.com/leizongmin/js-xss)|[介绍MD](https://github.com/leizongmin/js-xss/blob/master/README.zh.md)
+
+```js
+// 极简输入过滤
+function filterXSS (str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/ /g, '&nbsp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/\r{0,}\n/g, '<br/>')
+}
+```
+
+
+
 
 
 
