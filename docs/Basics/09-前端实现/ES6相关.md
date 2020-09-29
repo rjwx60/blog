@@ -21,7 +21,42 @@ console.log(i)      // Uncaught ReferenceError: i is not defined
 
 
 
-### 7-1-2、defineProperty 实现 const
+### 7-1-2、defineProperty & Proxy
+
+Object. property 方法使用：
+
+- object. property(参数1, 参数2, 参数3)；
+  - 参数1为该对象(obj)
+  - 参数2为要定义或修改的对象的属性名
+  - 参数3为属性描述符(对象，主要有两种形式：数据描述符和存取描述符)；
+- 返回值：直接在一个对象上定义一个新属性或者修改对象上的现有属性，并返回该对象 obj；
+
+Object.defineProperty 优势如下：
+
+- 兼容性好，支持IE9，而 Proxy 的存在浏览器兼容性问题，且无法用 polfill 磨平；
+
+Object.defineProperty 问题有三：
+
+- 不能监听数组的变化；
+- 必须遍历对象的每个属性；
+- 必须深层遍历嵌套的对象；
+
+Proxy：Proxy 可直接监听对象和数组变化，并有多达13种拦截方法，作为新标准还受到浏览器厂商重点持续的性能优化；
+
+- 注意：Proxy 只会代理对象第一层，但 Vue3 通过判断当前 Reflect. get 返回值是否为 Object，是则再通过 reactive 方法做代理，实现深度观测；
+- 注意：监测数组时可能触发多次 Get/Set，Vue3 通过判断 key 是否为当前被代理对象 target 自身属性，或判断旧值与新值是否相等，来执行 trigger；
+- Proxy 在 ES2015 规范中被正式加入，特点如下：
+  - 可直接监听对象而非属性，针对整个对象，而非对象某个属性，无需对 keys 进行遍历；
+  - 可直接监听数组的变化，无需像 Object.defineProperty 对数组的方法进行重载，省去了众多 hack，减少代码量，减少了维护成本；
+  - 有多达13种拦截方法，不限于apply、 ownKeys、 deleteProperty、 has 等等，而这是 Object.defineProperty 所不具备的；
+  - 返回的是一个新对象,我们可以只操作新的对象达到目的,而Object.defineProperty只能遍历对象属性直接修改；
+  - 作为新标准受到浏览器厂商重点关注和性能优化；
+
+
+
+
+
+### 7-1-4、defineProperty 实现 const
 
 实现 const 的关键在于 `Object.defineProperty()` ，此API用于在一个对象上增加或修改属性；
 

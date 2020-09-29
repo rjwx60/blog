@@ -1,3 +1,5 @@
+全文均出自于：[多年持续更新的性能优化目录列表](https://www.smashingmagazine.com/2020/01/front-end-performance-checklist-2020-pdf-pages)，[及此文译文](https://mp.weixin.qq.com/s/d9J-_aF9K8QTUtemol-EfQ)，注意，文章只是综述列表，要逐个引用逐个阅读实践，但内容涉及之广单看这几篇是不行的，若想实现性能极致优化须长期不断关注并实践；
+
 - [一、优化指标](./优化指标.md)
 - [二、定义环境](./定义环境.md)
 - [三、静态资源优化](./静态资源优化.md)

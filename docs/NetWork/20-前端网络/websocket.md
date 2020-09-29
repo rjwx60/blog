@@ -1,182 +1,15 @@
-# 零、问题区
-
-
-
-## 0-1、websocket 区别
-
-与 http 区别，协议层面的连接实现、心跳机制、安全防范等—见下方
-
-
-
-## 0-2、websocket ⽤法
-
-### 0-2-1、鉴权
-
-websocket 本身没有鉴权机制，只能自己实现：
-
-- socket 连接建立时，检查连接的 HTTP 请求头信息(比如cookies中关于用户的身份信息、登录信息(加密))；
-- socket 建立连接之后，客户端必须携带授权内容，如此服务端在接收到消息时，检查连接是否已授权过，及授权是否过期；
-- 以上两点，只要答案为否，则服务端主动关闭 socket 连接
-
-websocket 鉴权机制的实现：
-
-- websocket 的增加一个自定义的 channleHandle 在 webscoketChannleHandle 前，每次判断 body 里面的 token 信息；
-- 若不合格，则直接用 channel.close(); 关闭连接
-- 详看：https://www.cnblogs.com/duanxz/p/5440716.html
-
-### 0-2-2、房间分配
-
-主要方式是 node 服务端存储和管理房间，而当客户进入房间、留言、退出房间等操作时，服务端鉴权后，根据返回的房间信息，向 房间内所有成员进行 broadcast(广播)；详看下链，极佳；
-
-https://stackoverflow.com/questions/4445883/node-websocket-server-possible-to-have-multiple-separate-broadcasts-for-a-si
-
-https://github.com/gw19/join-and-chat-in-multiple-rooms-with-socket-io/blob/master/server/server.js
-
-### 0-2-3、心跳重连
-
-心跳机制是每隔一段时间向服务器发送一个数据包，告诉服务器自身状况，与此同时确认服务器端是否连接正常(后者正常会回传数据包)
-
-```javascript
-let ws, tt;
-// 避免重复连接
-let lockReconnect = false;
-let wsUrl = "wss://echo.websocket.org";
-
-function createWebSocket() {
-  try {
-    ws = new WebSocket(wsUrl);
-    init();
-  } catch(e) {
-    // console.log('失败重连');
-    reconnect(wsUrl);
-  }
-}
-
-// 事件初始化
-function init() {
-  ws.onclose = function () {
-    // console.log('连接关闭');
-    reconnect(wsUrl);
-  };
-  ws.onerror = function() {
-    // console.log('发生异常了');
-    reconnect(wsUrl);
-  };
-  ws.onopen = function () {
-    // 心跳检测重置
-    heartCheck.start();
-  };
-  ws.onmessage = function (event) {
-    // console.log('接收到消息');
-    heartCheck.start();
-  }
-}
-function reconnect(url) {
-  if(lockReconnect) return;
-  // 避免瞬时多次触发重连
-  lockReconnect = true;
-  // 没连接上会一直重连，设置延迟避免请求过多
-  tt && clearTimeout(tt);
-  tt = setTimeout(function () {
-    createWebSocket(url);
-    lockReconnect = false;
-    // 间隔 4s 尝试重连
-  }, 4000);
-}
-
-// 心跳检测 - 实现1
-var heartCheck = {
-  timeout: 3000,
-  timeoutObj: null,
-  serverTimeoutObj: null,
-  start: function(){
-    // console.log('start');
-    var self = this;
-    this.timeoutObj && clearTimeout(this.timeoutObj);
-    this.serverTimeoutObj && clearTimeout(this.serverTimeoutObj);
-    this.timeoutObj = setTimeout(function(){
-      // 发送心跳，后端收到后，返回一个心跳消息，
-      ws.send("123456789");
-      self.serverTimeoutObj = setTimeout(function() {
-        // console.log(ws);
-        ws.close();
-        // createWebSocket();
-      }, self.timeout);
-
-    }, this.timeout)
-  }
-}
-createWebSocket(wsUrl);
-// 详看:
-// https://blog.csdn.net/Toleranty/article/details/80911093
-
-
-// 心跳检测 - 实现2
-var heartCheck = {
-    timeout: 60000,//60ms
-    timeoutObj: null,
-    serverTimeoutObj: null,
-    reset: function(){
-        clearTimeout(this.timeoutObj);
-        clearTimeout(this.serverTimeoutObj);
-　　　　 this.start();
-    },
-    start: function(){
-        var self = this;
-        this.timeoutObj = setTimeout(function(){
-            ws.send("HeartBeat");
-            self.serverTimeoutObj = setTimeout(function(){
-                ws.close();
-              	// 若直接执行 reconnect 会触发 onclose 导致重连2次
-            }, self.timeout)
-        }, this.timeout)
-    },
-}
-
-ws.onopen = function () {
-   heartCheck.start();
-};
-ws.onmessage = function (event) {
-    heartCheck.reset();
-}
-ws.onclose = function () {
-    reconnect();
-};
-ws.onerror = function () {
-    reconnect();
-};
-// 详看: 
-// https://www.cnblogs.com/rsapaper/p/12585070.html
-```
-
-其他：https://blog.csdn.net/du591310450/article/details/86717727
-
-其他：https://my.oschina.net/714593351/blog/1583592
-
-其他：https://www.imooc.com/article/35114
-
-
-
-
-
-
-
-
-
-
-
-
-
 # 一、发展
 
 ## 		1-1、问题
 
-HTTP 先天不支持持久连接(HTTP2支持—通过数据帧)，虽然可通过下列方式建立长连接，但这些长连接是伪的，因为<u>通讯双方需大量交换HTTP header</u>(无状态协议，须头部以鉴别)，信息交换效率低下，但实现简单，无需作架构升级即可使用：
+传统 HTTP 先天不支持持久连接(HTTP2支持—通过数据帧)，而 HTTP1并发能力是依赖同时发起多个 TCP 连接访问服务器实现(但并发数受限于浏览器允许的最大并发连接数)，且还有 TCP 慢启动特性(新连接速度提升需要时间)，及连接本身握手损耗等问题；
+
+虽可通过下列方式建立长连接，但这些长连接是伪的，因为<u>通讯双方需携带几百上千字节的大量重复 header(甚至数据部分还没有头部部分大)</u>(无状态协议，须头部以鉴别)，信息交换效率低下，但实现简单，无需作架构升级即可使用：
 
 - keep-alive：HTTP1.1引入，即在一个 TCP 连接中完成多个 HTTP 请求，但每次请求仍需单独发送 Header；
 - polling：指客户端不断向服务器发送 HTTP 请求，查询是否有新数据；
 
-此种背景下，若客户端想要及时获取最新信息(即时通讯技术)，一般基于 4 种形式：
+此种背景下，若客户端想要及时获取最新信息(即时通讯技术)，一般基于 4(+2)种形式：
 
 <u>轮询-polling</u>：客户端和服务器间会一直进行连接，每隔一段时间就询问一次；前端通常采取setInterval 或 setTimeout 去不断的请求服务器数据；
 
@@ -198,12 +31,16 @@ HTTP 先天不支持持久连接(HTTP2支持—通过数据帧)，虽然可通�
 - 优点：HTML5 标准；实现较为简单；一个连接可以发送多个数据；
 - 缺点：兼容性不好(IE，Edge不支持)；服务器只能单向推送数据到客户端；
 
-<u>WebSocket</u>：HTML5 WebSocket 规范定义了一种 API，使 Web 页面能够使用 WebSocket 协议与远程主机进行双向通信；WebSocket 属于应用层协议；其基于 TCP 传输协议，并复用 HTTP 握手通道；但并非基于 HTTP 协议，其只是在建立连接前须借助 HTTP(在首次握手时升级协议为 ws 或 wss)；
+<u>WebSocket</u>：HTML5 WebSocket 规范定义了一种 API，使 Web 页面能够使用 WebSocket 协议与远程主机进行双向通信；其属于应用层协议；基于 TCP 传输协议，并复用 HTTP 握手通道；但并非基于 HTTP 协议，其只是在建立连接前须借助 HTTP(在首次握手时升级协议为 ws 或 wss)；其允许在一条 ws 连接上同时并发多个请求，即在 A 请求发出后 A 响应还未到达，就可继续发出 B 请求；
 
 - 优点：与轮询和长轮询相比，巨大减少了不必要的网络流量和等待时间；开销小，双向通讯，支持二进制传输；
 - 缺点：开发成本高，需要额外做重连保活；
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200924231830.png" alt="截屏2020-09-24 下午11.18.20" style="zoom:67%;" />
+
+<u>基于 UDP 的 WebRTC：</u>
+
+<u>MQTT：</u>
 
 
 
@@ -211,10 +48,15 @@ HTTP 先天不支持持久连接(HTTP2支持—通过数据帧)，虽然可通�
 
 ## 	1-2、解决
 
-引入 Websocket，WebSocket 是一种基于 TCP 的轻量级网络通信协议，是 HTML5 新出的持久化协议(相对于非持久的 HTTP)，可看作是 HTTP 协议的补充(或拓展补丁)，其旨在实现通讯双方长连接(真)，是解决 HTTP 本身无法解决的问题而做出的一个改良设计；
+引入 Websocket，WebSocket 是一种基于 TCP 的轻量级网络通信协议，是 HTML5 新出的持久化协议(相对于非持久协议 HTTP)，可看作是 HTTP 协议补充，其旨在实现通讯双方长连接(真)，是解决 HTTP 本身无法解决的问题而做出的一个改良设计；
 
 - 注意：与 HTTP/2 一样，均为解决 HTTP 某些方面的缺陷而诞生；但解决方式略不同，HTTP/2 针对  <u>队头阻塞</u>，WebSocket 针对 <u>请求-应答</u> 的通信模式；
-- 注意：请求应答模式，即半双工的通信模式，不具备服务器推送能力；所以限制了 HTTP 在实时通信领域的发展。虽可使用轮询来不停的向服务器发送 HTTP 请求，但缺点巨大，反复的无效请求会占用大量的带宽和 CPU 资源；所以，WebSocket 应运而生；WebSocket 是一个全双工通信协议，具备服务端主动推送的能力；本质上是对 TCP 做了一层包装，让它可运行在浏览器环境中；
+- 注意：HTTP 请求应答模式，即半双工的通信模式，不具备服务器推送能力；故限制了 HTTP 在实时通信领域的发展；
+- HTTP的生命周期通过 Request 来界定，即 One Request One Response；
+  - HTTP1.0 中，完成上述 One 即结束；
+  - HTTP1.1中，进行改进：Keep-alive，使得一次 HTTP 连接中，可发送多个Request，接收多个 Response；但终究还是 Request = Response——One Request One Response；且此 response 也是被动，不能主动发起；WebSocket 由此应运而生；
+  - WebSocket 是一个全双工通信协议，具备服务端主动推送的能力；本质上是对 TCP 做的一层包装，让它可运行在浏览器环境中；
+  - Websocket 基于 HTTP 协议，但更准确地说是借用 HTTP 协议来完成一部分握手；
 
 Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行协议升级-后文提到)，后续进行数据交换时便不用再发 HTTP header、双方可同时收发信息(双通道)，由被动发送变为主动发送，减轻了服务端的负担，且拥有 multiplexing 功能(不用 URI 复用同一 Websocket 连接)、且能维持连接状态(通讯双方能发送 Ping/Pong Frame 监控中间节点的异常情况的发生)；
 
@@ -225,17 +67,29 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
 
 ## 		2-1、优点
 
-- 支持双向通信，可主动发送，同时收发，实时性更强；
-- 可发送文本，也可发送二进制文件；
-- 协议标识符是 ws，加密后是 wss ；
-- 较少的控制开销；连接创建后，ws客户端、服务端进行数据交换时，协议控制的数据包头部较小。在不包含头部的情况下，服务端到客户端的包头只有2~10字节（取决于数据包长度），客户端到服务端的的话，需要加上额外的4字节的掩码。而HTTP协议每次通信都需要携带完整的头部；提高信息交换效率、减轻服务端负担等；
-- 支持扩展；ws 协议定义了扩展，用户可以扩展协议，或者实现自定义的子协议。（比如支持自定义压缩算法等）
-- 无跨域问题；
-- 实现简单，服务端库如 `socket.io`、`ws` ，而客户端也只需要参照 api 实现即可；
+可概括为与 HTTP 区别：
+
+- 支持双向通信，双方均可主动发送，同时收发，实时性更强；
+- 可发送文本(HTTP1)，也可发送二进制文件(HTTP2)；
+- 协议标识符是 ws，加密后是 wss ；支持扩展；ws 协议定义了扩展，用户可扩展协议，或实现自定义的子协议(比如支持自定义压缩算法等)；
+- 较少的控制开销；连接创建后，ws客户端、服务端进行数据交换时，协议控制的数据包头部较小；提高信息交换效率、减轻服务端负担；
+  - 不包含头部情况下，服务端到用户包头只有 2~10 字节，相反则需要加上额外 4字节掩码；而 HTTP 每次通信都需携带完整头部；
+- 无跨域问题；实现简单，服务端库如 `socket.io`、`ws` ，而客户端也只需要参照 api 实现即可；
+- Websocket 只需一次HTTP握手，整个通讯过程是建立在一次连接/状态中，避免了HTTP的非状态性；
+
+
+
+
+
+那么websocket的缺点也很明显，它对开发者要求高了许多。对前端开发者，往往要具备数据驱动使用javascript的能力，且需要维持住ws连接（否则消息无法推送）；对后端开发者而言，难度增大了很多，一是长连接需要后端处理业务的代码更稳定（不要随便把进程和框架都crash掉），二是推送消息相对复杂一些，三是成熟的http生态下有大量的组件可以复用，websocket则太新了一点。
+
+
+
+
 
 ## 		2-2、缺点
 
-​		兼容问题(对旧式等不支持 websocket 的浏览器须作系列兼容处理)、宽带与耗电问题(ping/pong机制-已有相应优化)、可伸缩性较差、操作复杂：
+兼容问题(对旧式等不支持 websocket 的浏览器须作系列兼容处理)、宽带与耗电问题(ping/pong机制-已有相应优化)、可伸缩性较差、操作复杂：
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001127.png" style="zoom: 33%;" align=""  />
 
@@ -245,7 +99,7 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
 
 # 三、协议格式
 
-​	http 基于流，websocket 基于帧，其中帧格式如下图1所示、其中红色部分2字节8位内容一定存在，但后面内容并非一定存在、其中RSV(1/2/3)为保留位、opcode 用于定义帧类型如图2所示：
+http 基于流，websocket 基于帧，其中帧格式如下图1所示、其中红色部分2字节8位内容一定存在，但后面内容并非一定存在、其中RSV(1/2/3)为保留位、opcode 用于定义帧类型如图2所示：
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001128.png" style="zoom:50%;" />
 
@@ -295,7 +149,7 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
 
 ### 4-1-1、完成握手
 
-会话建立的第一步，即完成 websocket 握手，**<u>而握手本质是由 HTTP1.1 协议升级所得</u>**，握手 URI 格式如下图所示：
+会话建立第一步：完成 websocket 握手，**<u>而握手本质是由借由 HTTP1.1 实现(传送含有特定字段的报文请求升级)</u>**，握手 URI 格式如下图所示：
 
 - 注意：除子协议、扩展协议、CORS跨域三字段外均为必选项：
 
@@ -315,26 +169,30 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
     Sec-WebSocket-Key: x3JJHMbDL1EzLkh9GBhXDw==
     Sec-WebSocket-Protocol: chat, superchat
     Sec-WebSocket-Version: 13
+    // ...
     ```
     
-  - Connection 设置 Upgrade，通知服务端，该 request 类型需要进行升级为 websocket；
+  - <u>Connection 设置 Upgrade，告知服务端，该 request 类型需要进行升级为 websocket；</u>
 
-  - Sec-WebSocket-Key 秘钥的值是通过规范中定义的算法进行计算得出，因此是不安全的，但是可以阻止一些误操作的 websocket 请求；
+  - Sec-WebSocket-Key：通过规范中定义算法计算得出，用以验证对方 websocket 服务真伪(不安全，但可阻止websocket 请求误操作)；
 
-  - Sec-WebSocket-Protocol 指定有限使用的Websocket协议，可以是一个协议列表(list)。服务端在 response 中返回列表中支持的第一个值；
+  - Sec-WebSocket-Protocol：指定有限使用的 Websocket协议，可以是一个协议列表(list)；服务端在 response 中返回列表中支持的第一个值；
 
-  - Sec-WebSocket-Version 指定通信时使用的Websocket协议版本。最新版本:13，[历史版本](https://www.iana.org/assignments/websocket/websocket.xml#version-number)
+  - Sec-WebSocket-Version：指定通信时使用的Websocket协议版本。最新版本:13，[历史版本](https://www.iana.org/assignments/websocket/websocket.xml#version-number)
 
   - Sec-WebSocket-Extensions 客户端向服务端发起请求扩展列表(list)，供服务端选择并在响应中返回；
 
-- 然后，服务端响应，消息响应完成后即可认为 websocket 建立成功；
+- 然后，服务端响应，消息响应完成后，即可认为 websocket 建立成功；
 
   - ```http
     Upgrade: websocket
     Connection: Upgrade
     Sec-WebSocket-Accept: HSmrc0sMlYUkAGmm5OPpG2HaGWk=
     Sec-WebSocket-Protocol: chat
+    // ...
     ```
+    
+  - Sec-WebSocket-Accept：经过服务器确认，并且加密过后的 Sec-WebSocket-Key，用以证明服务器自身身份；
 
 - 其中：按等级分如下，一类红色信息；二类绿色信息；三类蓝色信息；四类黑色信息；
 
@@ -504,9 +362,307 @@ websocket 为双向传输协议，关闭时需双向关闭，且因其承载在 
 
 
 
-# 六、其他
 
-## 6-1、ngSocketIo
+
+
+
+# 六、使用
+
+## 6-1、基本封装
+
+涉及基础搭建、消息收发(ID控制执行回调)；
+
+涉及鉴权机制(须自实现—比如通过验证 token)：
+
+- socket 连接建立时，检查连接的 HTTP 请求头信息(比如cookies中关于用户的身份信息、登录信息(加密))；
+- socket 建立连接后，客户端必须携带授权内容，如此服务端在接收到消息时，检查连接是否已授权过，及授权是否过期；
+- 以上两点，只要答案为否，则服务端主动关闭 socket 连接
+
+涉及房间分配：主要通过 Node 服务端存储和管理房间，用户进退房间时，服务端鉴权后，根据返回房间信息(ID)，向房间内所有成员进行 broadcast：
+
+[详看文章1](https://stackoverflow.com/questions/4445883/node-websocket-server-possible-to-have-multiple-separate-broadcasts-for-a-si)、[详看文章2](https://github.com/gw19/join-and-chat-in-multiple-rooms-with-socket-io/blob/master/server/server.js)
+
+```js
+import io from 'socket.io-client';
+import EventEmitter from 'EventEmitter';
+class Ws extends EventEmitter {
+    constructor (options) {
+        super();
+        //...
+        this.init();
+    }
+    init () {
+        const socket  = this.link = io('wss://x.x.x.x');
+        socket.on('connect', this.onConnect.bind(this));
+        socket.on('message', this.onMessage.bind(this));
+        socket.on('disconnect', this.onDisconnect.bind.(this);
+        socket.on('someEvent', this.onSomeEvent.bind(this));
+    }
+    onMessage(packet) {
+        const data = this.parseData(packet);
+        // ...
+        this.$emit('message', data);
+    }
+  
+  	// 发送消息
+  	// 需要使用唯一标识来处理消息回调
+  	seq = 0;
+    cmdTasksMap = {};
+    // ...
+    sendCmd(cmd, params) {
+        return new Promise((resolve, reject) => {
+            this.cmdTasksMap[this.seq] = {
+                resolve,
+                reject
+            };
+            const data = genPacket(cmd, params, this.seq++);
+            this.link.send({ data });
+        });
+    }
+		// 接收消息
+    onMessage(packet) {
+      	const data = parsePacket(packet);
+        if (data.seq) {
+            const cmdTask = this.cmdTasksMap[data.seq];
+            if (cmdTask) {
+                if (data.body.code === 200) {
+                    cmdTask.resolve(data.body);
+                } else {
+                    cmdTask.reject(data.body);
+                }
+                delete this.cmdTasksMap[data.seq];
+            }
+        }
+    }
+}
+```
+
+
+
+
+
+
+
+## 6-2、实际优化
+
+- 连接保持：超时处理、心跳包(检查长链接存活的关键)、重连退避机制；
+  - 心跳包：在客户端和服务器间定时通知对方自身状态的自定义的命令字端，按一定时间间隔发送，类似于心跳；
+  - 应用中加入心跳检测可检测是否正常可响应，TCP KeepAlive 只是连接保活，无法完全确保无异常(服务器死锁仍可收到)
+  - 通常使用空内容的心跳包，并设定合适发送频率与超时时间来作为连接保持的判断；
+
+```js
+// 超时处理
+class Ws extends EventEmitter {
+    // ...
+    sendCmd(cmd, params) {
+        return new Promise((resolve, reject) => {
+            this.cmdTasksMap[this.seq] = {
+                resolve,
+                reject
+            };
+            // 加个定时器
+            this.timeMap[this.seq] = setTimeout(() => {
+                const err = new newTimeoutError(this.seq);
+                reject({ ...err });
+            }, CMDTIMEOUT);
+
+            const data = genPacket(cmd, params, this.seq++);
+            this.link.send({ data });
+        });
+    }
+    onMessage(packet) {
+        const data = parsePacket(packet);
+        if (data.seq) {
+            const cmdTask = this.cmdTasksMap[data.seq];
+            if (cmdTask) {
+                clearTimeout(this.timeMap[this.seq]);
+                delete this.timeMap[this.seq];
+                if (data.body.code === 200) {
+                    cmdTask.resolve(data.body);
+                } else {
+                    cmdTask.reject(data.body);
+                }
+                delete this.cmdTasksMap[data.seq];
+            }
+        }
+    }
+}
+```
+
+```js
+// 心跳重连
+// 若服务端只认心跳包作为连接存在判断，那就在连接建立后定时发心跳就行
+// 若以收到包为判断存活，那就在每次收到消息重置并起个定时器发送心跳包
+class Ws extends EventEmitter {
+    // ...
+     onMessage(packet) {
+        const data = parsePacket(packet);
+        if (data.seq) {
+            const cmdTask = this.cmdTasksMap[data.seq];
+            if (cmdTask) {
+                clearTimeout(this.timeMap[this.seq]);
+                if (data.body.code === 200) {
+                    cmdTask.resolve(data.body);
+                } else {
+                    cmdTask.reject(data.body);
+                }
+                delete this.cmdTasksMap[data.seq];
+            }
+        }
+        this.startHeartBeat();
+    }
+    startHeartBeat() {
+        if (this.heartBeatTimer) {
+            clearTimeout(this.heartBeatTimer);
+            this.heartBeatTimer = null;
+        }
+        this.heartBeatTimer = setTimeout(() => {
+            // 在 sendCmd 中指定 heartbeat 类型 seq 为 0，让业务包连续编号
+            this.sendCmd('heartbeat').then(() => {
+                // 发送成功了就不管
+            }).catch((e) => {
+                this.heartBeatError(e);
+            });
+        }, HEARTBEATINTERVAL);
+    }
+}
+```
+
+- 流量优化：持久化存储；
+  - 使用 H5 的大容量存储方案：indexedDB，配合使用成熟的  [Dexie.js](https://link.zhihu.com/?target=https%3A//github.com/dfahlander/Dexie.js)，[db.js](https://link.zhihu.com/?target=https%3A//github.com/aaronpowell/db.js) 二次封装库；
+  - 并用时间戳进行增量同步，优先从存储获取；
+  - 消息的通知则通过缓存队列维护保证入库时序(顺序)；
+- 流量优化：减少连接数；
+  - WebWorker 线程可执行任务而不干扰用户界面；且可将消息发送到创建它 JS 代码, 通过将消息发布到该代码指定的事件处理程序(反之亦然)；
+  - WebWorker 能够使用：WebSocket、XHR，等通讯 API，能操作本地存储；
+  - 遂可通过 SharedWorker API 创建一个执行指定脚本来共享 web worker 来实现多个 tab 间的通讯复用，来达到减少连接数目的；
+
+
+
+## 6-3、一般示例
+
+### 6-3-1、心跳检测重连
+
+```js
+let ws, tt;
+// 避免重复连接
+let lockReconnect = false;
+let wsUrl = "wss://echo.websocket.org";
+
+function createWebSocket() {
+  try {
+    ws = new WebSocket(wsUrl);
+    init();
+  } catch(e) {
+    // console.log('失败重连');
+    reconnect(wsUrl);
+  }
+}
+
+// 事件初始化
+function init() {
+  ws.onclose = function () {
+    // console.log('连接关闭');
+    reconnect(wsUrl);
+  };
+  ws.onerror = function() {
+    // console.log('发生异常了');
+    reconnect(wsUrl);
+  };
+  ws.onopen = function () {
+    // 心跳检测重置
+    heartCheck.start();
+  };
+  ws.onmessage = function (event) {
+    // console.log('接收到消息');
+    heartCheck.start();
+  }
+}
+function reconnect(url) {
+  if(lockReconnect) return;
+  // 避免瞬时多次触发重连
+  lockReconnect = true;
+  // 没连接上会一直重连，设置延迟避免请求过多
+  tt && clearTimeout(tt);
+  tt = setTimeout(function () {
+    createWebSocket(url);
+    lockReconnect = false;
+    // 间隔 4s 尝试重连
+  }, 4000);
+}
+
+// 心跳检测 - 实现1
+var heartCheck = {
+  timeout: 3000,
+  timeoutObj: null,
+  serverTimeoutObj: null,
+  start: function(){
+    // console.log('start');
+    var self = this;
+    this.timeoutObj && clearTimeout(this.timeoutObj);
+    this.serverTimeoutObj && clearTimeout(this.serverTimeoutObj);
+    this.timeoutObj = setTimeout(function(){
+      // 发送心跳，后端收到后，返回一个心跳消息，
+      ws.send("123456789");
+      self.serverTimeoutObj = setTimeout(function() {
+        // console.log(ws);
+        ws.close();
+        // createWebSocket();
+      }, self.timeout);
+
+    }, this.timeout)
+  }
+}
+createWebSocket(wsUrl);
+// 详看:
+// https://blog.csdn.net/Toleranty/article/details/80911093
+
+
+// 心跳检测 - 实现2
+var heartCheck = {
+    timeout: 60000,//60ms
+    timeoutObj: null,
+    serverTimeoutObj: null,
+    reset: function(){
+        clearTimeout(this.timeoutObj);
+        clearTimeout(this.serverTimeoutObj);
+　　　　 this.start();
+    },
+    start: function(){
+        var self = this;
+        this.timeoutObj = setTimeout(function(){
+            ws.send("HeartBeat");
+            self.serverTimeoutObj = setTimeout(function(){
+                ws.close();
+              	// 若直接执行 reconnect 会触发 onclose 导致重连2次
+            }, self.timeout)
+        }, this.timeout)
+    },
+}
+
+ws.onopen = function () {
+   heartCheck.start();
+};
+ws.onmessage = function (event) {
+    heartCheck.reset();
+}
+ws.onclose = function () {
+    reconnect();
+};
+ws.onerror = function () {
+    reconnect();
+};
+// 详看: 
+// https://www.cnblogs.com/rsapaper/p/12585070.html
+```
+
+
+
+
+
+# X、其他
+
+## X-1、ngSocketIo
 
 [ng-socket-io](https://github.com/bougarfaoui/ng-socket-io)  是 socket.io-client 的 angular 版本，其内部只是对 socket.io-client 的 [angular 化](https://github.com/bougarfaoui/ng-socket-io/blob/master/socket-io.service.ts) 封装(并利用 Observable 封装了一个 socket.on 事件—更友好地使用 angular 化的 socket)；关键：`this.ioSocket = io(url, options);`
 
@@ -582,7 +738,7 @@ export class WrappedSocket {
 
 
 
-## 6-2、socket.io-client
+## X-2、socket.io-client
 
 [socketClient 文档](https://socket.io/docs/client-api/)、[socketClientGithub](https://github.com/socketio/socket.io-client)
 
@@ -702,7 +858,7 @@ Manager.prototype.open = Manager.prototype.connect = function (fn, opts) {
 
 
 
-## 6-3、engine.io
+## X-3、engine.io
 
 先不说它基本内容，先从这个库的示例文件出发，观察知：
 
@@ -932,7 +1088,7 @@ init() {
 
 
 
-Socket.io 基于 engine.io 这个库，engine.io 使用  Websocket 和 XHR 方式封装了一套 socket 协议； 为其提供跨浏览器/跨设备的双向通信功能；而因低版本浏览器不支持 Websocket，则会使用长轮询(polling)替代兼容；[目录结构](https://github.com/socketio/engine.io/tree/master/lib)
+Socket.io 基于 engine.io 这个库，engine.io 使用  Websocket 和 XHR 方式封装了一套 socket 协议； 为其提供跨浏览器/跨设备的双向通信功能；而因低版本浏览器不支持 Websocket，则会使用长轮询(polling)替代兼容；[目录结构](https://github.com/socketio/engine.io/tree/master/lib)、https://blog.csdn.net/u013243347/article/details/86661778、中文乱码问题—maybe 字节流截断：https://cnodejs.org/topic/55fcd7ed152fdd025f0f4eb7
 
 - transports file
 - engine.io.js

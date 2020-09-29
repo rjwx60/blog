@@ -1,4 +1,15 @@
 
+
+https://mp.weixin.qq.com/s/d9J-_aF9K8QTUtemol-EfQ
+
+https://mp.weixin.qq.com/s/7NJv21Dz7eGFFt-c3qitWw
+
+https://mp.weixin.qq.com/s/J1hMFK9LfzvTNvEtyOwE-Q
+
+https://www.smashingmagazine.com/2020/01/front-end-performance-checklist-2020-pdf-pages/
+
+
+
 preload,prefetch,dns-prefetch
 
 https://juejin.im/post/6844903562070196237#heading-5
