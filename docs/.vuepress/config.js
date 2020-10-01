@@ -2,7 +2,7 @@ module.exports = {
   title: "Leibnize 个人学习笔记", 
   description: "整理自网络",
   theme: 'reco',
-  base: "/docs/",
+  base: "/",
   themeConfig: {
     nav: [
       { text: "Github", link: "https://github.com/rjwx60" },
