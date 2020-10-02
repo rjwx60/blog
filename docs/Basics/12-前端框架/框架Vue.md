@@ -885,7 +885,7 @@ Vue.nextTick()
 
 
 
-## 2-11、KeepAlive
+## 2-11、其他—KeepAlive
 
 keep-alive 是 Vue内置的一个组件，可使被包含的组件保留状态，避免重新渲染，一般结合路由和动态组件一起使用，用于缓存组件：
 

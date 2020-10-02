@@ -38,9 +38,11 @@
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200924231830.png" alt="截屏2020-09-24 下午11.18.20" style="zoom:67%;" />
 
-<u>基于 UDP 的 WebRTC：</u>
+<u>基于 UDP 的 WebRTC</u>：
 
-<u>MQTT：</u>
+<u>MQTT</u>：为了物联网场景设计的基于TCP的 Pub/Sub 协议，有许多为物联网优化的特性，比如适应不同网络的QoS、层级主题、遗言等等；而WebSocket是为了HTML5应用方便与服务器双向通讯而设计的协议，HTTP握手然后转TCP协议，用于取代之前的Server Push、Comet、长轮询等老旧实现；
+
+
 
 
 
@@ -48,7 +50,7 @@
 
 ## 	1-2、解决
 
-引入 Websocket，WebSocket 是一种基于 TCP 的轻量级网络通信协议，是 HTML5 新出的持久化协议(相对于非持久协议 HTTP)，可看作是 HTTP 协议补充，其旨在实现通讯双方长连接(真)，是解决 HTTP 本身无法解决的问题而做出的一个改良设计；
+为彻底解决 server 主动向 client 发送数据问题，W3C 在 HTML5 中提供了一种 client 与 server 间进行全双工通讯的网络技术 WebSocket；其是一个全新的、独立的协议，基于 TCP 协议，是 HTML5 新出的持久化协议(相对于非持久协议 HTTP)，与 HTTP 协议兼容却不会融入 HTTP 协议，仅仅作为 HTML5 的一部分；WebSocket 是一种协议，是一种与 HTTP 同等的网络协议，两者都是应用层协议，都基于 TCP 协议。但是 WebSocket 是一种双向通信协议，在建立连接之后，WebSocket 的 server 与 client 都能主动向对方发送或接收数据。同时，WebSocket 在建立连接时需要借助 HTTP 协议，连接建立好了之后 client 与 server 之间的双向通信就与 HTTP 无关；
 
 - 注意：与 HTTP/2 一样，均为解决 HTTP 某些方面的缺陷而诞生；但解决方式略不同，HTTP/2 针对  <u>队头阻塞</u>，WebSocket 针对 <u>请求-应答</u> 的通信模式；
 - 注意：HTTP 请求应答模式，即半双工的通信模式，不具备服务器推送能力；故限制了 HTTP 在实时通信领域的发展；
@@ -333,23 +335,61 @@ websocket 为双向传输协议，关闭时需双向关闭，且因其承载在 
 
 
 
+## 4-4、实现
+
+编写 websocket 服务，需要克服2个难点：
+
+- 熟练掌握 Websocket 的协议；
+- 操作二进制数据流(Node 的 Buffer)；
+
+以及了解2个基本点：
+
+- 网络编程中使用大端次序—Big endian表示大于一字节的数据，称之为网络字节序；
+- 最高有效位—MSB(MostSignificantBit)；
+
+而实现过程中，最核心的部分是解析或生成 Frame(帧)；
+
+![截屏2020-10-02 下午3.31.59](https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201002153203.png)
+
+[过程伪码实现](https://www.zhihu.com/question/37647173/answer/1403359896)、[前文行文比较散乱，这个比较好](https://zhuanlan.zhihu.com/p/37350346)：
+
+- 1、构造响应头 resHeaders 部分：获取升级请求头：sec-websocket-key，服务段接收并计算值；
+- 2、通过 socket 接口监听事件(数据与关闭)，并存储接收的 Buffer 数据通过 BufferAPI 连接；
+- 3、通过专门函数，处理解析最小通讯单位帧数据，其中包含大量的位操作符以及 Buffer 类操作；
+  - 注意：每个帧含有操作码，表明当前帧身份为数据帧或控制帧(看上图，Payload 才是数据载体)；根据操作码的不同进行不同处理；或转为 utf8 编码，或二进制则直接交付，发送 pong 响应；
+- 4、数据分片，对于大数据，wb 支持数据分片；分片利于发送方发送时不必等待长度的统计(服务端可通过缓冲队列控制分片)、也利于多路复用，提高网络利用效率；分片数据的拼接可参考 FIN 控制帧相关规则；WebSocket 是一个 message-based 协议，可自动将数据分片，且自动将分片的数据组装；
+
+Node 提供了 EventEmitter 类自带事件循环，http 模块让你直接使用封装好的 socket 对象，所以只需按照 Websocket 协议实现 Frame 解析和组装即可；
+
+- Websocket 是一种应用层协议，是为了提供 Web 应用程序和服务端全双工通信而专门制定；
+- WebSocket 和 HTTP 都是基于 TCP 协议实现；
+- WebSocket 和 HTTP 唯一关联是 HTTP 客户端需发送 "Upgrade" 请求，即 101 Switching Protocol 到 HTTP 服务端，然后由其进行协议转换；
+- WebSocket 使用 HTTP 来建立连接，但定义一系列新的 header 域，这些域在 HTTP 中并不会使用；
+- WebSocket 能和 HTTP Server 共享同一 port；
+- WebSocket 的 数据帧有序；
+
+
+
+
+
 # 五、安全
 
 ## 		5-1、代理污染攻击与掩码防御
 
-问题：
 - 首先，存在实现不当的代理服务器 (无法识别 websocket 协议)
 - 然后，黑客构建恶意服务器与恶意页面，并试图建立与上述服务器的 websocket 连接
 - 然后，恶意页面与恶意服务器建立 websocket 连接(实际通过 http1.1长连接实现)，此时恶意页面伪造 GET 请求，此请求改变 host 为被攻击的服务器，恶意服务器伪造被攻击服务器的响应，期间代理服务器缓存了虚假的结果；
 - 最后，当正常用户访问被攻击服务器时，则实际返回的是缓存中的内容；
-- <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001143.png" style="zoom:50%;" align="" />
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001143.png" style="zoom:50%;" align="" />
 
 本质：代理服务器问题(无法识别 websocket 协议会将握手请求识别为 HTTP1.1请求，并将当前连接识别为 HTTP1.1长连接)、浏览器问题；
 
 解决：浏览器须对客户端发送内容均做掩码 (frame-masking-key) 处理，使其无法伪造，强制合法；以减少针对代理服务器的缓存处理攻击风险；
 
-- <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001144.png" style="zoom:70%;" align=""/>
-- <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001145.png" style="zoom:70%;" align=""/>
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001144.png" style="zoom:70%;" align=""/>
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001145.png" style="zoom:70%;" align=""/>
 
 总结：虽代理无法识别 websocket 而会建立长连接，但目的是建立长连接后伪造 HTTP GET 请求，伪造请求后恶意服务器伪造响应，迷惑代理服务器并使其缓存结果，从而让用户无法访问正确服务器；
 
@@ -541,7 +581,7 @@ class Ws extends EventEmitter {
 
 ## 6-3、一般示例
 
-### 6-3-1、心跳检测重连
+**<u>*心跳检测重连*</u>**
 
 ```js
 let ws, tt;
@@ -1080,7 +1120,17 @@ init() {
 // 溯源成功，由 ws 库实现…
 ```
 
-观察服务端 socket 生成可知，engine.io 本质还是由 ws 库实现(即其为 websocket 的又一层封装)，但做了向下兼容处理，如果环境不支持则使用 Polling 方式替代(XHR、JSONP)；(长轮询：客户端发送一次 request，当服务端有消息推送时会 push 一条 response 给客户端；客户端收到 response 后，会再次发送 request，重复上述过程，直到其中一端主动断开连接为止) 
+观察可知，Socket.io 基于 engine.io 库，而其本质还是由 ws 库实现，即为 websocket 的又一层封装，但做了向下兼容处理，若环境不支持则使用 Polling 方式替代(XHR、JSONP)；(Polling—长轮询：客户端发送一次 request，当服务端有消息推送时会 push 一条 response 给客户端；客户端收到 response 后，会再次发送 request，重复上述过程，直到其中一端主动断开连接为止)；以实现跨浏览器/跨设备的双向通信功能；
+
+
+
+## X-4、Socket
+
+网络应用中，两应用同时需要向对方发送消息的能力，所利用到的技术就是 socket，其能够提供端对端的通信；对于程序员而言，其需要在 A 端创建一个 socket 实例，并为这个实例提供其所要连接的 B 端的 IP 地址和端口号，而在 B 端创建另一个 socket 实例，并且绑定本地端口号来进行监听。当 A 和 B 建立连接后，双方就建立了一个端对端的 TCP 连接，从而可以进行双向通信；
+
+WebSocekt 是 HTML5 规范中的一部分，其借鉴 socket 思想，为 client 和 server 间提供了类似的双向通信机制；同时，WebSocket 又是一种新的应用层协议，包含一套标准的 API；而 socket 并不是一个协议，而是一组接口，其主要方便大家直接使用更底层的协议(比如 TCP 或 UDP)；
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201002151932.png" alt="截屏2020-10-02 下午3.19.23" style="zoom:67%;" />
 
 
 
@@ -1088,19 +1138,9 @@ init() {
 
 
 
-Socket.io 基于 engine.io 这个库，engine.io 使用  Websocket 和 XHR 方式封装了一套 socket 协议； 为其提供跨浏览器/跨设备的双向通信功能；而因低版本浏览器不支持 Websocket，则会使用长轮询(polling)替代兼容；[目录结构](https://github.com/socketio/engine.io/tree/master/lib)、https://blog.csdn.net/u013243347/article/details/86661778、中文乱码问题—maybe 字节流截断：https://cnodejs.org/topic/55fcd7ed152fdd025f0f4eb7
-
-- transports file
-- engine.io.js
-- server.js
-- socket.js
-- transports.js
+websocket 中文乱码原因(字节流截断?)、拓展其长连接实现、Node 实现、大文件传输等内容、自定义；HMR机制；内部机理，WebSocket toLatin1 字节流处理、为何是离线时机、再深入：小程序、RN、Ionic 工作原理、与原生沟通、改造、实践；Hybrid 区别；
 
 
-
-
-
- engine.io 原理、其他即时方案补充、科普文、长连接实现原理、Node Socket实现(自定义)、Chrome实现、Socket与WebSocket、大文件传输、优缺点及使用；
 
 
 
