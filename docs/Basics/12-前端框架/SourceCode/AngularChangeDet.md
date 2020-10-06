@@ -281,9 +281,7 @@ Angular 的编译器解析模板并创建绑定，而每一绑定定义了：一
 
 在变更检测期间，Angular 遍历所有绑定，并对表达式求值，将所得的结果与旧值比较，若有必要则更新DOM；
 
-每个变更检测循环后，Angular 运行一次检查以确保组建的状态与用户界面同步；这次检查为同步运行并可能会报错`ExpressionChangedAfterItWasChecked`；
-
-[引用自](https://blog.angularindepth.com/a-gentle-introduction-into-change-detection-in-angular-33f9ffff6f10)
+每个变更检测循环后，Angular 运行一次检查以确保组建的状态与用户界面同步；这次检查为同步运行并可能会报错`ExpressionChangedAfterItWasChecked`；[引用自此](https://blog.angularindepth.com/a-gentle-introduction-into-change-detection-in-angular-33f9ffff6f10)
 
 
 

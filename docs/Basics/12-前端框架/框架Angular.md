@@ -62,10 +62,9 @@ export class HelloUserComponent {
 
   - 三代：IVY(newest)，其实现了打包代码体积的减少(质飞跃)，生成代码可读性增强，速度提升，更强的扩展性，支持元编程，高阶组件 HOC；首先是在编译产物上做了大幅优化；不再生成 ngFactory，而是生成定义函数，对不同装饰器对应类不同，分别为：component => ngComponentDef、Directive => ngDirectiveDef、Injectable => ngInjectableDef；即现在每个 component 就是自身的 componentFactory；然后，模板编译的结果，会被放入 ngComponentDef 定义函数的 template function 中；其由两个判断构成：view creation 部分，change detection；然后，回归二代的编译到指令方式，但不同二代中的 renderer API，IVY 的 template 函数由许多内置指令集组成，指令集详细定义每种元素对应的各种处理；过去结构过于笼统，存在大量 if-else；而指令集精准定义渲染器需操作，优化代码量，且取消之前的 factory-component 的映射关系；
 
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908141036.png" alt="截屏2020-09-08 下午2.10.31" style="zoom:50%;" />
 
-  <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908141036.png" alt="截屏2020-09-08 下午2.10.31" style="zoom:50%;" />
-
-  <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908141736.png" alt="截屏2020-09-08 下午2.15.08" style="zoom:50%;" />
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908141736.png" alt="截屏2020-09-08 下午2.15.08" style="zoom:50%;" />
 
 **<u>*Runtime：负责变更检测与数据刷新：*</u>**
 
@@ -95,9 +94,13 @@ export class HelloUserComponent {
 
 ## 2-1、变更检测
 
-[引用自](https://skyfly.xyz/2017/07/04/Front_End/Angular/AngularChangeDetection/)、[文2](https://zhuanlan.zhihu.com/p/96486260)、[文3](https://zhuanlan.zhihu.com/p/97884917)
+[引用自文章1](https://skyfly.xyz/2017/07/04/Front_End/Angular/AngularChangeDetection/)、[文章2](https://zhuanlan.zhihu.com/p/96486260)、[文章3](https://zhuanlan.zhihu.com/p/97884917)
 
-总结即：通过 zone 触发检测机制(Zone劫持所有原生异步事件，从而实现变更检测的启动通知)，变更检测通过深度优先遍历组件，与存储在组件中的 ViewData 旧值比对实现更新；过去在开发环境下，变更检测会有两次检查，若二次检查发现数值改变，则会报错，以避免生产环境下的无限触发更新情况；为避免变更检测频繁触发，可通过多种方式减少变更检测对象的数目比如：OnPush 策略；
+总结即：通过 zone 触发检测机制(Zone劫持所有原生异步事件，从而实现变更检测的启动通知)，变更检测通过深度优先遍历组件，与存储在组件中的 ViewData 旧值比对实现更新；过去在开发环境下，变更检测会有两次检查，若二次检查发现数值改变，则会报错，以避免生产环境下的无限触发更新情况；为避免变更检测频繁触发，可通过多种方式减少变更检测对象的数目比如：
+
+- OnPush 策略：默认情况下，Ng 默认使用 `ChangeDetectionStrategy.Default` 策略来进行变更检测；在此模式下，每组异步操作结束后(用户事件、记时器、XHR、promise等事件使应用中的数据将发生了改变时)，都将触发对整个组件树的变更检查；但并非所有场景和组件都需都被检查，此时可启用 OnPush 模式： `changeDetection: ChangeDetectionStrategy.OnPush`，与 NG 约定强制使用不可变对象，此后 NG 将跳过对该组件的全部变化监测(含子组件)，直到有属性的引用发生变化为止，来避免不必要的变更检查以提升应用性能；注意不可变对象即：保证对象不会改变，即当其内部属性发生变化时，将会用新对象来替代旧对象；不可变对象仅仅依赖初始化时的属性，也即初始化时候属性没有改变，没有改变就不会产生一份新的引用；
+  - 注意 OnPush 模式下，还是可以通过内部 Input、内部 DOM 事件、`cdr: ChangeDetectorRef; this.cdr.detectChanges();` 来触发检测；
+- zone.runOutsideAngular(使其无法检测到变化)
 
 解释二：NG 中的所有组件，在内部均被表示为一种叫视图的数据结构；Angular 的编译器解析模板并创建绑定，而每一绑定定义了：一个要更新的DOM元素的属性 & 用于求值的表达式；视图中的 `oldValues ` 属性存储了在变更检测中被用于比较的旧值；在变更检测期间，Angular 遍历所有绑定，并对表达式求值，将所得的结果与旧值比较，若有必要则更新DOM；每个变更检测循环后，Angular 运行一次检查以确保组建的状态与用户界面同步；这次检查为同步运行并可能会报错` ExpressionChangedAfterItWasChecked`；
 
@@ -116,13 +119,13 @@ export class HelloUserComponent {
 
 ## 2-2、依赖注入
 
-可简单粗暴理解为高阶函数；
+可简单理解为高阶函数；
 
 
 
 ## 2-3、路由机制
 
-[引用自此文，作了解即可](https://zhuanlan.zhihu.com/p/98516062)，详看 SourceCode(本地)—AngularRouter
+[可看此文以作了解](https://zhuanlan.zhihu.com/p/98516062)，详看 SourceCode(本地)—AngularRouter
 
 
 

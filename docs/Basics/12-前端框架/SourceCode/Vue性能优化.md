@@ -1,0 +1,34 @@
+- 编码阶段：
+  - keep-alive
+  - 防抖、节流
+  - 使用事件代理
+  - ListDOM 滚动加载；
+  - 事件销毁(防止内存泄漏)
+  - 采用keep-alive缓存组件
+  - 减少非必要的响应式依赖
+  - v-if 和 v-show 区分使用场景
+  - 渲染函数写法减去编译处理流程
+  - 官方风格指南 + 官方 ESLint 插件
+  - computed 和 watch区分使用场景
+  - 长列表性能优化，滚动到可视区域动态加载、优化无限列表性能
+  - v-for 遍历必须为 item 添加 key，key 保证唯一， v-if 和 v-for 不同用
+  - 组件/三方模块按需导入、图片懒加载、路由懒加载、异步组件、事件的销毁
+  - 尽量减少 data 中的数据，data 中的数据都会增加 Get/Set，会收集对应的 watcher
+
+- SEO优化
+  - 预渲染
+  - 服务端渲染SSR
+
+- 打包优化：
+  - splitChunks 提取公共代码、压缩代码、图片压缩、提取组件的CSS、优化SourceMap
+  - Tree Shaking/Scope Hoisting、多线程打包 happypack、模板预编译、构建结果输出分析
+  - 使用cdn加载第三方模块、减少ES6转为ES5的冗余代码
+- 网络优化
+  - 开启gzip压缩
+  - 浏览器缓存
+  - 使用 CDN
+  - 使用 Chrome Performance 查找性能瓶颈
+- 用户体验
+  - 骨架屏
+  - PWA
+
