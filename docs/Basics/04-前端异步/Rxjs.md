@@ -29,7 +29,64 @@ Async APIS - 各种异步API；
 
 
 
-## 5-2、Rxjs
+## 5-2、函数式编程
+
+注意，此小节仅做了解，略读即可；
+
+注意，此小节仅做了解，略读即可；
+
+注意，此小节仅做了解，略读即可；
+
+以函数作为主要载体的编程方式，用函数去拆解和抽象一般的表达式 
+
+语义清晰、复用性高、维护性好、易于扩展、作用域包裹减少污染
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061649.png" alt="img" style="zoom:67%;" />
+
+函数式写法一：表意清晰，易于维护/复用/扩展；
+
+- 利用函数封装性将功能做拆解(粒度不唯一)，并封装为不同函数，而再利用组合的调用达到目的；
+
+- 利用高阶函数，Array.map 代替 for…of 做数组遍历，减少中间变量和操作；
+
+函数式写法二：容易造成横向延展，产生多层嵌套，可读性低，Bug 出现率上升；
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061650.png" alt="img" style="zoom:67%;" />
+
+改写：结构变得清晰；
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061651.png" alt="img" style="zoom: 50%;" />
+
+函数的嵌套和链式的对比还有一个很好的例子，即回调函数 和 Promise 模式：
+
+- 随着回调函数嵌套层级和单层复杂度增加，它将会变得臃肿且难以维护，
+- 而 Promise 的链式结构，在高复杂度时，仍能纵向扩展，而且层次隔离很清晰
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061652.png" alt="img" style="zoom: 50%;" />
+
+###  5-2-1、 函数式编程模型 
+
+- 闭包(Closure)，关于闭包定义、用途、弊端在前端核心已经讲得很清楚了，此处不再赘述
+- 高阶函数：接受或者返回一个函数的函数称为高阶函数；
+- 柯里化(Currying)：给定一函数的部分参数，生成一个接受其他参数的新函数； 比如：_.partial 函数，产生新的函数 relativeFromBase ，这个函数在调用时就相当于调用 path.relative ，并默认将第一个参数传入 BASE ，后续传入的参数顺序后置；柯里化可使开发者只关心函数部分参数，使函数用途更加清晰，调用更加简单；
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061656.png" alt="img" style="zoom:67%;" />
+
+ 
+
+- 组合(Composing)：将多个函数的能力合并，创造一个新函数，比如：_.flow 将转大写和转 Base64 的函数的能力合并，生成一个新函数；
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061657.png" alt="img" style="zoom:67%;" />
+
+ 
+
+
+
+
+
+
+
+## 5-3、Rxjs
 
 Rxjs 是一套借由 Observable 序列来组合非同步行为 & 事件基础程序的库；
 
@@ -75,7 +132,7 @@ Rxjs 引用了2个重要思想：函数式编程、响应式编程：
 
 
 
-### 5-2-1、Observable
+### 5-3-1、Observable
 
 RXJS 是 Observable 的 JS 实现，而 RxJS 整个库的基础就是 Observable(非 Observer，有别于观察者模式)；Observable 表示一个可观察对象，表示一个可调用的未来值或事件的集合，其融合了2种设计思想模式：
 
@@ -204,7 +261,7 @@ Observer：数据处理、事件处理、观察者；
 
 
 
-### 5-2-2、适用场景
+### 5-3-2、适用场景
 
 Rxjs 适用于复杂场景下的异步操作：
 
@@ -370,9 +427,9 @@ search.forEach(
 
 
 
-## 5-2、Concepts
+## 5-3、Concepts
 
-### 5-2-1、Observable
+### 5-3-1、Observable
 
 An observable represents a stream, or source of data that can arrive over time
 
@@ -393,7 +450,7 @@ This is because observables are cold, or do not activate a producer (like wiring
 
 
 
-### 5-2-2、Subscriptions
+### 5-3-2、Subscriptions
 
 Subscriptions are what set everything in motion(运转). 
 
@@ -442,7 +499,7 @@ It's worth noting that when we discuss an Observable source emitting data to obs
 
 
 
-### 5-2-3、Opeartors
+### 5-3-3、Opeartors
 
 Operators offer a way to manipulate values from a source, returning an observable of the transformed values. Many of the RxJS operators will look familiar if you are used to JavaScripts `Array` methods
 
@@ -483,7 +540,7 @@ const subscription = dataSource
 
 
 
-## 5-3、Subjects
+## 5-4、Subjects
 
 Subjects 是一种特殊的Observable类型，在观察者之间共享一个执行路径；
 
@@ -590,7 +647,7 @@ subjects.forEach(o => o.next('s'));
 
 
 
-## 5-4、Operators
+## 5-5、Operators
 
 参考：https://www.zhihu.com/question/303073602
 

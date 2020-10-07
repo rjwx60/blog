@@ -1,6 +1,182 @@
-# 二、函数相关
+# 二、函数相关 
 
-## 2-1、柯里化
+## 2-1、基本
+
+### 2-1-1、形参/实参/函数名
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061624.png" alt="img" style="zoom:67%;" />
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061625.png" alt="img" style="zoom:67%;" />
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061622.png" alt="img" style="zoom:67%;" />
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061623.png" alt="img" style="zoom:67%;" />
+
+
+
+### 2-1-2、arguments
+
+Arguments 对象是一个伪数组对象(故不能用数组方法)，拥有 length 属性，可以通过实例 arguments[ i ] 来访问对象中的元素；可通过Array.prototype.slice.call(arguments)/Array.from 方法将其转换为数组；
+
+- fn.length：形参个数；
+- arguments.length：函数实参个数；
+- arguments.callee：引用函数自身；
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061626.png" alt="img" style="zoom:67%;" />
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061627.png" alt="img" style="zoom:67%;" />
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061629.png" alt="img" style="zoom:67%;" />
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061628.png" alt="img" style="zoom:67%;" />
+
+```js
+console.log(Array.from(arguments));
+console.log([...arguments]);
+
+function greet(firstname, lastname, language) {
+  language = language || "en";
+  if (arguments.length === 0) {
+    console.log("Missing parameters!");
+    return;
+  }
+  console.log(arguments);
+}
+
+greet();
+// Missing parameters!
+greet("John");
+// [Arguments] { '0': 'John' }
+greet("John", "Doe");
+// [Arguments] { '0': 'John', '1': 'Doe' }
+greet("John", "Doe", "es");
+// [Arguments] { '0': 'John', '1': 'Doe', '2': 'es' }
+```
+
+
+
+#### 2-1-2-1、arguments.length 属性
+
+arguments.length 表示 function 实际所传参数的个数；而函数名.length 可获取函数期望的传参个数；
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061632.png" alt="img" style="zoom:67%;" />
+
+ 
+
+####  2-1-2-2、arguments.callee 属性
+
+arguments.callee 属性可调用函数本身，当函数正在执行时才可调用，可实现方法的递归调用；
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061633.png" alt="img" style="zoom:67%;" />
+
+ 
+
+ 
+
+#### 2-1-2-3、Function.caller属性
+
+Function对象 caller 属性可指向当前函数的调用者，当调用者函数正在执行时才可调用
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061634.png" alt="img" style="zoom:67%;" />
+
+####  2-1-2-4、注意事项
+
+宽松模式下 arguments 与参数同步，图1；严格模式下则不追踪变化
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061630.png" alt="img" style="zoom:67%;" />
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061631.png" alt="img" style="zoom:67%;" />
+
+
+
+#### 2-1-2-5、 arguments 应用
+
+- 方法重载：指在一个类中定义多个同名的方法，但要求每个方法具有不同的参数的类型或参数的个数；JS 并无重载功能，但可通过 Arguments 对象模拟重载；普通方法(通过 ifElse)实现方法重载，图1，以及通过 arguments 对象实现方法重载，图2：
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061635.png" alt="img" style="zoom:67%;" />
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061636.png" alt="img" style="zoom:67%;" />
+
+-  递归调用：可实现匿名函数的递归调用；
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061637.png" alt="img" style="zoom:67%;" />
+
+- 不定参使用；
+
+
+
+
+
+### 2-1-3、函数类型
+
+JS 可分为 具名函数 和 匿名函数，前者能输出 fn.name 后者不能
+
+下面是用于获取函数名的函数
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061638.png" alt="img" style="zoom:67%;" />
+
+创建函数的方式：
+
+- 声明函数，包括函数名及函数体，如 function fn1(){}
+- 创建匿名函数表达式，不带函数名，如 var fn1=function (){}，又如对象中定义的函数：var o={ fn : function (){…} }
+- 创建具名函数表达式，带函数名，具名函数表达式的 函数名 只能在创建函数内部使用，如 var fn1=function xxcanghai(){};
+- Function构造函数，传递字符串，创建包含字符串命令的匿名函数，图2；
+- 自执行函数，自执行函数属于上述的函数表达式，规则相同；
+- 其他创建函数的方法，如 eval ， setTimeout ， setInterval 等非常用、非标准方法；
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061639.png" alt="img" style="zoom:67%;" />
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061640.png" alt="img" style="zoom:67%;" />
+
+
+
+#### 2-1-3-1、函数表达式
+
+函数表达式，在对象 / 非对象下的可访问性问题：
+
+- 访问，对象内部的函数表达式：
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061641.png" alt="img" style="zoom:67%;" />
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061642.png" alt="img" style="zoom:67%;" />
+
+- 访问，非对象内部的函数表达式：
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061643.png" alt="img" style="zoom:67%;" />
+
+- 函数表达式问题：引擎会拆分成两行代码执行：
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061644.png" alt="img" style="zoom:67%;" />
+
+- 函数表达式 与 函数声明：
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061645.png" alt="img" style="zoom:67%;" />
+
+
+
+#### 2-1-3-2、自执行匿名函数
+
+自执行匿名函数：如 （ function ( ) { }( ) ）或如 （ function ( ) { } )( )
+
+创建命名空间，遮蔽变量，自执行，代码在被解释时就已在运行，保存状态
+
+- 自执行匿名函数表达式
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061646.png" alt="img" style="zoom:67%;" />
+
+- 自执行匿名函数 与 IIFE
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061647.png" alt="img" style="zoom:67%;" />
+
+- Module模式
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201007061648.png" alt="img" style="zoom:67%;" />
+
+ 
+
+
+
+## 2-2、柯里化
 
 无时无刻不在使用柯里化函数，只是没有将它总结出来而已；其本质就是将一个参数很多的函数分解成单一参数的多个函数；
 
@@ -81,15 +257,15 @@ function add() {
 
 
 
-## 2-2、高阶函数
+## 2-3、高阶函数
 
 <u>一个函数</u> 就可接收另一个函数作为参数或者返回值为一个函数，<u>这种函数</u>就称之为 **<u>高阶函数</u>**；
 
 
 
-### 2-2-1、数组中的高阶函数
+### 2-3-1、数组中的高阶函数
 
-### 2-2-1-1、map
+### 2-3-1-1、map
 
 参数：接受两个参数：回调函数、回调函数的this值(可选)；
 
@@ -111,7 +287,7 @@ console.log(newNums);  // [7, 10, 13]
 
 
 
-### 2-2-1-2、reduce
+### 2-3-1-2、reduce
 
 参数：接收两个参：回调函数，另一个为初始值；
 
@@ -129,7 +305,7 @@ console.log(newNums); // 6
 
 
 
-### 2-2-1-3、filter
+### 2-3-1-3、filter
 
 参数：一个函数参数；此函数接受一个默认参数，就是当前元素；这个作为参数的函数返回值为一个布尔类型，决定元素是否保留；
 
@@ -144,7 +320,7 @@ console.log(oddNums);
 
 
 
-### 2-2-1-4、sort
+### 2-3-1-4、sort
 
 参数：一个用于比较的函数，它有两个默认参数，分别是代表比较的两个元素；
 
@@ -168,7 +344,7 @@ nums.sort(function(a, b) {
 
 
 
-### 2-2-1-5、forEach
+### 2-3-1-5、forEach
 
 在 forEach 中用 return 不会返回，函数会继续执行；
 
@@ -192,7 +368,7 @@ ForEach 中断方法：
 
 
 
-## 2-3、Sleep 函数
+## 2-4、Sleep 函数
 
 实现一个 sleep 函数，比如 sleep(1000) 意味着等待1000毫秒，可从 Promise、Generator、Async/Await 等角度实现：
 
@@ -238,7 +414,7 @@ sleep(output,1000);
 
 
 
-## 2-4、LazyMan 函数 
+## 2-5、LazyMan 函数 
 
 ```
 LazyMan('Tony');
@@ -510,7 +686,7 @@ LazyMan('Tony').eat('lunch').eat('dinner').sleepFirst(5).sleep(10).eat('junk foo
 
 
 
-## 2-5、setTimeout/setInterval/Req
+## 2-6、setTimeout/setInterval/Req
 
 屏幕绘制频率：普通屏电子束每秒击打荧光粉的次数或通电持续发光、显示器高频更新屏幕图像；
 
@@ -545,7 +721,7 @@ CSS 动画原理：图像被绘制而引起变化的视觉效果，比如 60Hz�
 
 
 
-### 2-5-1、setTime/setInterval 
+### 2-6-1、setTime/setInterval 
 
 `setTimeout` 运行机制：执行该语句时，是立即把当前定时器代码推入事件队列，当定时器在事件列表中满足设置的时间值时将传入的函数加入任务队列，之后的执行就交给任务队列负责；但若此时任务队列不为空，则需等待，所以执行定时器内代码的时间可能会大于设置的时间；
 
@@ -587,7 +763,7 @@ function fn() {
 
 
 
-### 2-5-2、两者区别&实现
+### 2-6-2、两者区别&实现
 
 前者，时间指：Math.max (其他代码执行时间 与 setTime设定时间)；
 
@@ -624,7 +800,7 @@ setTimeout(() => {
 
 
 
-### 2-5-3、[requestAnimationFrame](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestAnimationFrame)
+### 2-6-3、[requestAnimationFrame](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestAnimationFrame)
 
 注意：rAF 不属于宏任务也不属于微任务，它是独立于主线程之外的任务，不归主线程管；
 
