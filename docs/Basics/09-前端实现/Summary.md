@@ -1,5 +1,4 @@
 - [一、Array相关](./Array相关.md)
-  - API 实现(待定)、扁平化(flat、String化+split(',')、其他通常方式)、寻值(indexOf、includes、find、findIndex)、乱序(sort+random)、去重(待定)
 - [二、Function相关](./Function相关.md)
 - [三、Date相关](./Date相关.md)
 - [四、RegExp相关](./RegExp相关.md)

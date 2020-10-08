@@ -1,14 +1,21 @@
 # 总结
 
-零碎内容太多，详看各个章节；
+内容零碎，详看各个章节的内容；
+
+
 
 ## 一、HTML
 
-H5新增特性、doctype(怪异/标准模式)、meta描述网页元信息(https、响应式(viewport、http-equive)...)
+H5新增特性、doctype(怪异/标准模式)、meta描述网页元信息(https、响应式(viewport、http-equive)...)；
+
+
 
 ## 二、CSS
 
-盒模型(box-sizing-content-border)、层叠上下文、position(absolute-ab或relative/fixed-窗口/static-默认/inherit-继承/sticky-实验/relative-相对自身)
+盒模型(box-sizing-content-border)、层叠上下文、position(absolute-ab或relative/fixed-窗口/static-默认/inherit-继承/sticky-实验/relative-相对自身)等；
+
+
 
 ## 三、DOMBOM
 
+代理、事件

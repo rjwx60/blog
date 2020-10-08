@@ -1120,7 +1120,7 @@ init() {
 // 溯源成功，由 ws 库实现…
 ```
 
-观察可知，Socket.io 基于 engine.io 库，而其本质还是由 ws 库实现，即为 websocket 的又一层封装，但做了向下兼容处理，若环境不支持则使用 Polling 方式替代(XHR、JSONP)；(Polling—长轮询：客户端发送一次 request，当服务端有消息推送时会 push 一条 response 给客户端；客户端收到 response 后，会再次发送 request，重复上述过程，直到其中一端主动断开连接为止)；以实现跨浏览器/跨设备的双向通信功能；
+观察可知，Socket.io 基于 engine.io 库，而其本质还是由 ws 库实现，即为 websocket 的又一层封装，但做了向下兼容处理，若环境不支持，则使用 Polling 方式替代(XHR、JSONP)；(Polling—长轮询：客户端发送一次 request，当服务端有消息推送时会 push 一条 response 给客户端；客户端收到 response 后，会再次发送 request，重复上述过程，直到其中一端主动断开连接为止)；以实现跨浏览器/跨设备的双向通信功能；
 
 
 
@@ -1131,14 +1131,6 @@ init() {
 WebSocekt 是 HTML5 规范中的一部分，其借鉴 socket 思想，为 client 和 server 间提供了类似的双向通信机制；同时，WebSocket 又是一种新的应用层协议，包含一套标准的 API；而 socket 并不是一个协议，而是一组接口，其主要方便大家直接使用更底层的协议(比如 TCP 或 UDP)；
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201002151932.png" alt="截屏2020-10-02 下午3.19.23" style="zoom:67%;" />
-
-
-
-
-
-
-
-websocket 中文乱码原因(字节流截断?)、拓展其长连接实现、Node 实现、大文件传输等内容、自定义；HMR机制；内部机理，WebSocket toLatin1 字节流处理、为何是离线时机、再深入：小程序、RN、Ionic 工作原理、与原生沟通、改造、实践；Hybrid 区别；
 
 
 
