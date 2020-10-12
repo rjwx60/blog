@@ -8,6 +8,29 @@ Plugin 就是插件，基于事件流框架 `Tapable`用以扩展 Webpack 功能
 
 - 在 plugins 中单独配置，类型为数组，每一项是一个 Plugin 的实例，参数都通过构造函数传入；
 
+从功能上说
+
+- loader 用于加载待打包的资源，Plugin 用于扩展 webpack 功能。
+
+- loader 本质上就是一个函数，在该函数中对接收到的内容进行转换，返回转换后的结果，主要用于加载某些资源文件。因为 webpack 只会加载 js 和 json，这就需要对应的 loader 将资源转化，加载进来。
+
+- plugin 用于扩展 webpack 的功能（loader 其实也是扩展功能，但是只专注于转化文件这一领域），在 webpack 运行的生命周期中会广播许多生命周期钩子事件，plugin 可以监听这些事件，在合适的时机通过 webpack 提供的 API 改变输出结果。
+
+
+从运行时机角度区分
+
+- loader 运行在打包文件之前（loader 为模块加载时的预处理文件）
+
+- plugin 在整个编译周期都起作用
+
+
+从使用角度区分
+
+- loader 在 rules 中配置，类型为数组，每一项都是一个 Object，内部包含了 test（类型文件）、loader、options（参数）等属性
+
+- plugin 在 plugins 中单独配置，类型为数组，每一项是一个 Plugin 的实例，参数都通过构造函数传入
+
+
 
 
 ## 5-1、Loader

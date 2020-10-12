@@ -14,6 +14,8 @@
 
 ## 1-2、webpack原理
 
+**<u>下面是构建原理：</u>**
+
 ![image-20201002175028479](https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20201002175028.png)
 
 Webpack 的运行流程是一个串行的过程，从启动到结束会依次执行以下流程：
@@ -32,13 +34,35 @@ Webpack 的运行流程是一个串行的过程，从启动到结束会依次执
 - 编译：从 Entry 出发，针对每个 Module 串行调用对应的 Loader 去翻译文件的内容，再找到该 Module 依赖的 Module，递归地进行编译处理
 - 输出：将编译后的 Module 组合成 Chunk，将 Chunk 转换成文件，输出到文件系统中
 
+**<u>下面是打包和使用原理：</u>**
+
+webpack 根据 `webpack.config.js` 中的入口文件，在入口文件里识别模块依赖，不管这里的模块依赖是用 CJS 写的，还是 ESM 规范写，webpack 会自动进行分析，并通过转换、编译代码，打包成最终文件；最终文件中的模块实现是基于 webpack 自实现的 webpack_require(es5 code)，所以打包后的文件可以跑在浏览器上；同时意味着：webpack 环境中，可以使用 es6 语法，也可以使用 CJS 语法，因为从 webpack2 开始内置了对 ES6、CJS、AMD 模块化语句的支持，webpack 会对各种模块进行语法分析，并作转换编译；针对异步模块：webpack 实现模块的异步加载方式有点像 JSONP 的流程；遇到异步模块时，使用 `__webpack_require__.e` 函数去将异步代码加载进来；该函数会在 html 的 Head 中动态增加 script 标签，src 指向指定的异步模块存放的文件；加载的异步模块文件会执行 `webpackJsonpCallback` 函数，将异步模块加载到主文件中；所以后续可以像同步模块一样，直接使用 `__webpack_require__("**.js")` 加载异步模块；
+
+**<u>下面是 SourceMap 作用：</u>**
+
+sourcemap 是将编译、打包、压缩之后的代码映射回源码的过程；打包压缩后，代码不具备良好的可读性，想要调试源码就需要 sourcemap，出错时控制台会直接显示原始代码出错的位置；map 文件只要不打开开发者工具，浏览器是不会加载；
+
+**<u>下面是解析代码路径原理：</u>**
+
+webpack 依赖 enhanced-resolve 来解析代码模块路径，过程类似 Node 的模块路径解析，但有很多自定义的解析配置；模块解析规则分三种：
+
+*   解析相对路径
+    - 查找想对当前模块的路径下是否有对应的文件或文件夹，是 文件 则直接加载；
+    - 如果是文件夹则找到对应文件夹下是否有 `package.json` 文件；
+    - 有的话就按照文件中的 `main` 字段的文件名来查找文件；
+    - 没有 `package.json ` 或 `main ` 字段，则查找 `index.js` 文件；
+*   解析绝对路径：直接查找对应路径文件，不建议使用，因为不同的机器会用绝对路径查找不到
+*   解析模块名：查找当前文件目录，父级直至根目录下的 node_modules 文件夹，看是否有对应名称的模块
+
+通过配置 `resolve.alias`、`resolve.extensions` 、`resolve.modules`等字段优化路径查找速度
 
 
 
 
-## 1-3、使用
 
-- 文件指纹：filename+name—hash项目粒度chunkhash-chunk粒度contenthash文件粒度
+## 1-3、webpack使用
+
+- 文件指纹：filename+name：hash-项目粒度(image)；chunkhash-打包的chunk粒度(js)；contenthash-文件粒度(css)
 
 - JS 的解析：babel-loader-cacheDirectory开启缓存—include+exclude减少被处理文件
 
@@ -73,6 +97,193 @@ Webpack 的运行流程是一个串行的过程，从启动到结束会依次执
 
 - - 符合 ECMAScript proposal 的 import() 语法(推荐)
   - 框架层面-路由懒加载-打包自动处理
+
+**<u>影响打包速度环节与优化：</u>**
+
+- 开始打包，需要获取所有的依赖模块
+  - 搜索所有依赖模块，这需要占用一定的时间；
+  - 故可优化搜索时间A；
+- 解析所有依赖模块(解析成浏览器可运行的代码)
+  - webpack 根据配置的 loader 解析相应文件。日常开发中我们需要使用 loader 对 js、css、图片、字体等文件进行转换处理，并且转换处理的文件的数量也是十分大。由于 JS 单线程使得操作不能并发处理，而是需要一个个文件处理；
+  - 故可优化解析时间B；
+- 将所有依赖模块打包到一个文件
+  - 将所有解析完成的代码，打包到一个文件中，为使浏览器加载的包更小(减少白屏时间)，所以 webpack 会对代码进行优化；
+  - JS 压缩是发布编译的最后阶段，时间耗费较久，因压缩 JS 需将代码解析成 AST，然后根据复杂规则去解析/处理 AST，最后将 AST 还原回 JS；
+  - 故可优化压缩时间C；
+- 二次打包
+  - 有时只改动了项目中的一个小地方，所有文件都会重新打包，但大部分文件并没有变更；
+  - 故可优化二次打包时间D；
+
+**<u>A优化搜索时间</u>**：缩小文件搜索范围，减少不必要的编译工作
+
+webpack 打包时，会从配置的 entry 出发，解析入口文件的导入语句，再递归解析；
+
+在遇到导入语句时，webpack 会做两件事情：
+
+*   根据导入语句去寻找对应的要导入的文件；
+*   根据找到要导入文件的后缀，使用配置中的 loader 去处理文件。例如：使用了 ES Next 语法需要用到 babel-loader。
+
+这两件事情一旦项目文件数量增多，速度会显著降低，所以虽然无法避免以上两件事情，但是可以尽量减少事情的发生以提高速度。
+
+1. **优化 loader 配置**
+
+   使用 loader 时可以通过 test、include、exclude 三个配置项来命中 loader 要应用规则的文件；
+
+2. **优化 resolve.modules 配置**
+
+   resolve.modules 用于配置 webpack 去哪些目录下寻找第三方模块，resolve.modules 的默认值是 ['node_modules']，含义是先去当前目录下的 ./node_modules 寻找，没有找到就去上一级目录中找，一路递归；
+
+3. **优化 resolve.alias 配置**
+
+   resolve.alias 配置项通过别名来把原导入路径映射成新的导入路径，减少耗时的递归解析操作；
+
+4. **优化 resolve.extensions 配置**
+
+   在导入语句中没带文件后缀时，webpack 会根据 resolve.extensions 自动带上后缀去尝试询问文件是否存在，所以配置 resolve.extensions 应注意：
+
+   *   resolve.extensions 列表要尽可能小，不要把不存在的后缀添加进去；
+   *   高频后缀名放在前面，以便尽快退出超找过程；
+   *   在写代码时，尽可能带上后缀名，从而避免寻找过程。
+
+5. **优化 resolve.mainFields 配置**
+
+   有一些第三方模块会针对不同环境提供几分代码，路径一般会写在 package.json 中。
+
+   webpack 会根据 mainFields 中配置去决定优先采用哪份代码，只会使用找到的第一个。
+
+6. **优化 module.noParse 配置**
+
+   module.noParse 配置项可以让 webpack 忽略对部分没采用模块化的文件的递归处理，这样做的好处是能提高构建性能。原因是部分年代比较久远的库体积庞大且没有采用模块化标准，让 webpack 去解析这些文件没有任何意义
+
+
+
+**<u>B优化解析时间</u>**：运行在 Node.JS 上的 webpack 是单线程模式；即 webpack 打包只能逐个文件处理，当文件数量比较多时，打包时间就会比较漫长，故需开启多线程来提高解析速度；thread-loader(webpack4 官方推荐)
+
+使用：将此 loader 放在其他 loader 前，放置在其之后的 loader 就会在一个单独的 worker【worker pool】池里运行，一个 worker 就是一个 Node.JS 进程，每个单独进程处理时间上限为 600ms，各个进程的数据交换也会限制在这个时间内。
+
+```typescript
+import { Configuration } from 'webpack'
+
+const config: Configuration = {
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: ['thread-loader', 'babel-loader']
+      },
+      {
+        test: /\.less$/,
+        exclude: /node_modules/,
+        use: [
+          'style-loader',
+          'thread-loader',
+          'css-loader',
+          'less-loader'
+        ]
+      }
+    ]
+  }
+}
+```
+
+注意： 由于工作原理限制，thread-loader 需放在 style-loader 之后，因 thread-loader 后的 loader 没法存取文件，也没法获取 webpack 的选项配置；
+
+官方说每个 worker 大概都要花费 600ms，为防止启动 worker 时的高延迟，提供了对 worker 池的优化：预热机制；另外请仅在耗时的 loader 上使用；
+
+```typescript
+import threadLoader from 'thread-loader'
+
+const jsWorkerPool = {
+  // 产生的 worker 数量，默认是cpu核心数 - 1
+  // 当 require('os').cpus() 是 undefined时则为 1
+  worker: 2, 
+  
+  // 闲置时定时删除 worker 进程
+  // 默认为 500ms
+  // 可以设置为无穷大，监视模式(--watch)下可以保持 worker 持续存在
+  poolTimeout: 2000 
+}
+
+const cssWorkerPool = {
+  // 一个 worker 进程中并行执行工作的数量
+  // 默认为 20
+  wokerParallelJobs: 2,
+  poolTimeout: 2000
+}
+
+threadLoader.warmup(jsWorkerPool, ['babel-loader'])
+threadLoader.warmup(cssWorkerPool, ['css-loader'])
+```
+
+
+
+
+
+**<u>C优化压缩时间</u>**：webpack 4 默认使用 terser-webpack-plugin 压缩插件压缩优化代码，该插件使用 terser 来缩小 JS。
+
+terser：用于 ES Next 的 JS 解析器、mangler/compressor(压缩器)工具包；
+
+启动多进程：使用多进程来并行运行提高构建速度，默认并发数量为 os.cspus().length - 1
+
+```typescript
+import { Configuration } from 'webpack'
+import TerserPlugin from 'terser-webpack-plugin'
+
+const config: Configuration = {
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        parallel: true
+      })
+    ]
+  }
+}
+```
+
+
+
+**<u>D优化二次打包时间</u>**：将改动少的文件缓存起来，二次打包直接读取缓存，显著提升打包时间；
+
+使用 webpack 缓存方法有几种，例如 cache-loader，HardSourceWebpackPlugin 或 babel-loader 的 cacheDirectory 标志；
+
+注意：这些缓存方法都有启动开销，重新运行期间在本地节省的时间很大，但是初次启动实际上会更慢；
+
+cache-loader：和 thread-loader 用法一样，在性能开销比较大的 loader 之前添加此 loader，以将结果缓存到磁盘
+
+``` typescript
+import { Configuration } from 'webpack'
+import { resolve } from 'path'
+
+const config: Configuration = {
+  module: {
+    rules: [
+      {
+        test: /\.js$/
+        use: ['cache-loader', ...loaders],
+    		include: resolve('src')
+      }
+    ]
+  }
+}
+```
+
+HardSourceWebpackPlugin：第一次构建将花费正常时间、第二次构建将显著加快（大约提升 90% 的构建速度）
+
+```typescript
+import { Configuration } from 'webpack'
+import HardSourceWebpackPlugin from 'hard-source-webpack-plugin'
+
+const config: Configuration = {
+  plugins: [
+    new HardSourceWebpackPlugin()
+  ]
+}
+```
+
+
+
+
 
 
 
@@ -125,6 +336,12 @@ Webpack 的运行流程是一个串行的过程，从启动到结束会依次执
 
 
 
+
+
+
+
+
+
 ## 1-5、Loader
 
 Webpack 基于 *Node*，故只能识别 JS 模块，无法加载其他类型文件，因此需要 对不同类型文件的 JS 转换器，loader 负责此功能
@@ -155,12 +372,12 @@ Webpack 基于 *Node*，故只能识别 JS 模块，无法加载其他类型文�
 
 **<u>*loader编写*</u>**
 
-- 原则
+- 三大原则：
   - 单一原则：每个 Loader 只做一件事；
   - 链式调用：单一原则的延伸，Webpack 会按顺序链式调用每个 Loader；
   - 统一原则：应遵循 Webpack 制定的设计规则和结构(模块化)，输入与输出均为字符串，各个 Loader 完全独立(无状态)，即插即用；
 - 参数获取：webpack.config.js 的 loader 的 options 内容(参数)，可用 webpack 自带插件 loader-utils 获取
-- 案例
+- 案例展示：
   - my-babel-loader 将 ES6 代码转换为 ES5 代码；
   - babel.transform(source, options);
   - html-minify-loader 压缩html文本

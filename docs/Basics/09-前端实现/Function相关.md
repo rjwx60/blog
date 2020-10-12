@@ -251,6 +251,17 @@ function add() {
   }
   return fn;
 }
+
+// Exp5
+// 实现 f(10)(100)(1000)(10000).val == 11110
+// 实现 f(1)(2)(3).val === 7
+function f(...args1) {
+  function ff(...args) {
+    return f(...args1, ...args)
+  }
+  ff.val = args1.reduce((cv, pre) => cv + pre, 0);
+  return ff;
+}
 ```
 
 

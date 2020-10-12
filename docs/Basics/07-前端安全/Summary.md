@@ -10,9 +10,9 @@
 
 **<u>*XSS(Cross Site Script)跨站脚本攻击*</u>**：即攻击者想方设法向用户页面注入恶意脚本，在浏览器渲染数据时进行攻击；主分三种：
 
-- **存储型**：即攻击脚本被存储在服务端，每当无辜用户请求某页面时，页面携带恶意脚本返回，并随页面渲染而执行攻击；
-- **反射型**：将攻击脚本混在URL中，服务端接收并将恶意代码当做参数取出、拼接在页面中返回，浏览器解析后即执行恶意代码；
-- **DOM型**：将攻击脚本写在URL中，诱导用户点击该URL，若 URL 被解析，则攻击脚本就会被运行；此类型攻击不经过服务端；
+- **存储型**：<u>即攻击脚本被存储在服务端，每当无辜用户请求某页面时，页面携带恶意脚本返回，并随页面渲染而执行攻击；</u>
+- **反射型**：<u>将攻击脚本混在URL中，服务端接收并将恶意代码当做参数取出、拼接在页面中返回，浏览器解析后即执行恶意代码；</u>
+- **DOM型**：<u>将攻击脚本写在URL中，诱导用户点击该URL，若 URL 被解析，则攻击脚本就会被运行；此类型攻击不经过服务端；</u>
 - 注意：过往此种攻击案例是跨域的，故称跨站脚本，但发展至今，是否跨域已不再重要，但名称却保留了下来；
 
 
@@ -70,18 +70,22 @@
 
 ### 1-2、防御方式
 
-**<u>*不管何种 XSS 攻击，均需被浏览器执行才可发起攻击，故可以此作为防御切入口：*</u>**
+**<u>不管何种 XSS 攻击，均需被浏览器执行才可发起攻击，故可以此作为防御切入口：</u>**
 
-首先，**<u>输入输出检查/转义/过滤(HTML标签、URL-encodeURIComponent)</u>**；不能相信任何输入数据；而不管接收什么，或发送什么，都需进行各种转义过滤；
+首先，**<u>输入输出检查/转义/过滤(HTML标签、URL-encodeURIComponent)</u>**；不能相信任何输入数据；而不管接收什么或发送什么都需进行转义过滤；
 
 - 向服务端发送数据要进行 URL 的 `encodeURIComponent` 转义与特定标签符转义；而接收服务端返回数据则同理；
-- 对于服务端返回的数据，要谨慎选择输出类 API，而应使用 textContent、setAttribute、innerText；避免使用能将字符串作为代码执行的 API，比如 JS 的 eval()、setTimeout()、setInterval()，避免 innerHTML、outerHTML、document.write()，比如 vue 不使用 v-html / dangerouslySetInnerHTML；
+- 对于服务端返回的数据，要谨慎选择输出类 API，而应使用 `textContent、setAttribute、innerText`；
+- 避免使用能将字符串作为代码执行的 API，比如 JS 的 `eval()、setTimeout()、setInterval()`，避免 `innerHTML、outerHTML、document.write()`，比如 `vue 不使用 v-html / dangerouslySetInnerHTML`；
 
 然后，鉴于 XSS 目标多数是获取用户 Cookie，可设置 **<u>Cookie:HttpOnly</u>** 字段，使 JS 无法操作 Cookie 值；
 
 然后，后端若需要进行 HTML 拼接，则须**<u>选择安全、成熟的转义库</u>** 基础之上，进行更细致的转义策略制定；
 
-然后，**<u>后端配置 CSP-浏览器内容安全策略(兼容性问题不大)</u>**，让服务器决定浏览器可加载的资源白名单，阻止名单以外的资源加载与运行；告诉浏览器哪些外部资源可加载和执行；只需配置规则，如何拦截是由浏览器自实现；具体做法是：配置 HTTP Header 中的  `Content-Security-Policy`；(还可设置 meta 标签 `<meta http-equiv="Content-Security-Policy" content="form-action 'self';">`)
+然后，**<u>后端配置 CSP-浏览器内容安全策略(兼容性问题不大)</u>**，让服务器决定浏览器可加载的资源白名单，阻止名单以外的资源加载与运行；告诉浏览器哪些外部资源可加载和执行；只需配置规则，如何拦截是由浏览器自实现；具体做法：
+
+- 配置 HTTP Header 中的  `Content-Security-Policy`；
+- 设置 meta 标签 `<meta http-equiv="Content-Security-Policy" content="form-action 'self';">`
 
 - 只允许加载本站资源：`Content-Security-Policy: default-src ‘self’`
 - 只允许加载 HTTPS 协议图片：`Content-Security-Policy: img-src https://*`
@@ -95,7 +99,7 @@ CSP 可实现：
 - 禁止未授权的脚本执行（新特性，Google Map 移动版在使用）
 - 合理使用上报可及时发现 XSS，利于问题的快速修复；
 
-然后，**<u>重写 XSS 常用方法</u>**；锁死 apply/call(函数劫持，若非本站脚本无法执行…Soon)、document.write(重写方法阻止广告代码注入)，XSSAuditor(Chrome内建防御模块—后端可绕开仅适用于字符编码) 等方法；
+然后，**<u>重写 XSS 常用方法</u>**；锁死 apply/call(函数劫持，若非本站脚本无法执行…)、document.write(重写方法阻止广告代码注入)，XSSAuditor(Chrome内建防御模块—后端可绕开仅适用于字符编码) 等方法；
 
 最后，**<u>漏洞检测</u>**；使用 XSS 攻击字符串检测 XSS 漏洞(输入框输入)、并使用扫描工具进行 XSS 漏洞检测；[Arachni](https://github.com/Arachni/arachni)、[Mozilla HTTP Observatory](https://github.com/mozilla/http-observatory/)、[w3af](https://github.com/andresriancho/w3af)
 
@@ -217,13 +221,13 @@ POST 类型的 CSRF：自动发送 POST 请求，提交表单，比如：
 
 **<u>阻止不明外域访问：</u>**
 
-- **<u>验证 Referer</u>**：服务端通过验证请求头的 Referer(记录请求来源地址)、Origin(记录请求域名) 字段来验证来源站点，但两者请求头很容易伪造(通过 Ajax 中自定义请求头)、本域发起的 CSRF 攻击无法防御、HTTPS 页面跳转到 HTTP 页面所有浏览器 Referer 都丢失；总结：同源验证是相对简单的防范方法，能够防范绝大多数的CSRF  攻击，但不适用于对于安全性要求较高，或有较多用户输入内容情况(问题多多)；
+**<u>同源检测</u>**：服务端通过验证请求头的 **<u>Referer(记录请求来源地址)、Origin(记录请求域名) 字段来验证来源站点</u>**，但两者请求头很容易伪造(通过 Ajax 中自定义请求头)、本域发起的 CSRF 攻击无法防御、HTTPS 页面跳转到 HTTP 页面所有浏览器 Referer 都丢失；总结：同源验证是相对简单的防范方法，能够防范绝大多数的CSRF  攻击，但不适用于对于安全性要求较高，或有较多用户输入内容情况(问题多多)；
 
-- **<u>设置 Cookie SameSite</u>**：让 Cookie 不随跨站请求发出(Strict—完全禁止三方携带、Lax—GET方式表单或a标签GET请求、None—默认模式)；缺点明显：严格模式下，跳转子域名或新标签重新打开、刚登陆的网站，之前的 Cookie 都将不复存在，影响用户体验；无论何种模式，均不支持子域：比如：种在子域 topic.a.com下的 Cookie，并不能使用其主域下种植的 SamesiteCookie，当网站有多个子域名时，不能使用 SamesiteCookie 在主域名存储用户登录信息；总结：可替代同源验证的方案，但目前尚未成熟，其应用场景有待观望；
+**<u>设置 Cookie SameSite</u>**：Google起草了一份草案来改进HTTP协议；让 Cookie 不随跨站请求发出 (**<u>Strict</u>**—完全禁止三方携带，**<u>Lax</u>**—GET方式表单或a标签GET请求、**<u>None</u>**—默认模式)；缺点明显：严格模式下，跳转子域名或新标签重新打开、刚登陆的网站，之前的 Cookie 都将不复存在，影响用户体验；**无论何种模式，均不支持子域**：比如：种在子域 topic.a.com下的 Cookie，并不能使用其主域下种植的 SamesiteCookie，当网站有多个子域名时，不能使用 SamesiteCookie 在主域名存储用户登录信息；**总结：可替代同源验证的方案，但目前尚未成熟，其应用场景有待观望；**
 
-**<u>请求附加本域信息</u>**：
+**<u>请求须附加本域信息</u>**：
 
-- **<u>验证 Token</u>**：
+**<u>验证 Token</u>**：
 
 既然 CSRF 攻击多利用浏览器的自携带 Cookie 发起请求的这一特性，则让其不能自携带的内容即可；遂使用 Token；用户请求服务器时，服务器返回一个 token，后续每个请求均需同时携带 token 和 cookie 才会被认为是合法请求；使用(详细)：
 
@@ -251,7 +255,9 @@ POST 类型的 CSRF：自动发送 POST 请求，提交表单，比如：
 
 总结：只要页面没有 XSS 漏洞，泄露 Token，则接口的 CSRF 攻击就无法成功；缺点是实现较复杂，后端需给每个页面写入 Token，或前端每个Form/Ajax 请求都携带 Token，而后端则需对每一个接口都进行校验，并保证页面 Token 及请求 Token 一致；工作量较大(鸡蛋里挑骨头)；
 
-- **Anti CSRF Token**：防御 CSRF 公认最合适方案、token 存放用户页面表单和 Session/Cookie 中，提交请求时，服务端验证两者是否一致；感觉类似 CSRF token；只是存放位置不同；前者分开存放，这里合并存放；
+**<u>双重Cookie</u>**：原理和 Token 相似，在请求接口时，在请求参数中附带上对应的 cookie，服务端在接收到请求时对参数中的 cookie 和 cookie 中的值进行对比判断是否为攻击请求；
+
+<u>**Anti CSRF Token**</u>：防御 CSRF 公认最合适方案、token 存放用户页面表单和 Session/Cookie 中，提交请求时，服务端验证两者是否一致；感觉类似 CSRF token；只是存放位置不同；前者分开存放，这里合并存放；
 
 - **<u>其他方式：短信认证</u>**
 
@@ -264,9 +270,7 @@ POST 类型的 CSRF：自动发送 POST 请求，提交表单，比如：
 
 
 
-
-
-## 三、挟持
+## 三、劫持
 
 劫持一般会发生在报文传输时的内容改造，常见为 **<u>界面劫持</u>**，即透明的 iframe 或 图片，点击目的地与最终目的地不符；预防策略：
 
@@ -282,3 +286,34 @@ POST 类型的 CSRF：自动发送 POST 请求，提交表单，比如：
 
 其他形式的还有：DNS劫持(错误导向)、CDN 劫持(劫持 CDN 并污染其中资源)
 
+*   DNS劫持(涉嫌违法)：输入京东被强制跳转到淘宝就属于 DNS劫持。
+    *   DNS强制解析：通过修改运营商本地 DNS 记录，来引导用户流量到缓存服务器；
+    *   302 跳转：通过监控网络出口的流量，分析判断哪些内容是可以进行劫持处理，在对劫持的内存发起 302 跳转的回复，引导用户获取内容。
+*   HTTP劫持(HTTPS杜绝)：例如访问百度，但是一直有贪玩蓝月的广告。由于 HTTP 是明文传输，运营商会修改你的 HTTP 响应内容（即加广告）。
+
+
+
+
+
+## 四、错误监控与上报
+
+### 4-1、错误分类与捕获
+
+*   即时运行错误：代码错误
+    *   try...catch
+    *   window.onerror 或者 window.addEventListener(捕获阶段非冒泡阶段)
+*   资源加载错误
+    *   object.onerror：img.onerror
+    *   performance.getEntries(getEntries api 返回一个资源加载完成数组)
+    *   Error 事件捕获
+*   跨域问题
+    *   后端配置，开发时即可避免
+
+
+
+### 4-2、错误上报
+
+- ajax
+- image 的 src 上报，`(new Image()).src = '错误上报请求地址'`
+  - 目前主流方式，通过采用 image 对象+错误信息的方式上报错误；
+  - 因图片发送 get 请求，浏览器对图片有缓存，同样的请求，图片只会发送一次，避免重复上报；

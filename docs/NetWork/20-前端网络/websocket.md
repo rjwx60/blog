@@ -38,7 +38,7 @@
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200924231830.png" alt="截屏2020-09-24 下午11.18.20" style="zoom:67%;" />
 
-<u>基于 UDP 的 WebRTC</u>：
+<u>基于 UDP 的 WebRTC</u>：暂无；
 
 <u>MQTT</u>：为了物联网场景设计的基于TCP的 Pub/Sub 协议，有许多为物联网优化的特性，比如适应不同网络的QoS、层级主题、遗言等等；而WebSocket是为了HTML5应用方便与服务器双向通讯而设计的协议，HTTP握手然后转TCP协议，用于取代之前的Server Push、Comet、长轮询等老旧实现；
 
@@ -60,7 +60,7 @@
   - WebSocket 是一个全双工通信协议，具备服务端主动推送的能力；本质上是对 TCP 做的一层包装，让它可运行在浏览器环境中；
   - Websocket 基于 HTTP 协议，但更准确地说是借用 HTTP 协议来完成一部分握手；
 
-Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行协议升级-后文提到)，后续进行数据交换时便不用再发 HTTP header、双方可同时收发信息(双通道)，由被动发送变为主动发送，减轻了服务端的负担，且拥有 multiplexing 功能(不用 URI 复用同一 Websocket 连接)、且能维持连接状态(通讯双方能发送 Ping/Pong Frame 监控中间节点的异常情况的发生)；
+<u>Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行协议升级-后文提到)，后续进行数据交换时便不用再发 HTTP header、双方可同时收发信息(双通道)，由被动发送变为主动发送，减轻了服务端的负担，且拥有 multiplexing 功能(不用 URI 复用同一 Websocket 连接)、且能维持连接状态(通讯双方能发送 Ping/Pong Frame 监控中间节点的异常情况的发生)；</u>
 
 
 
@@ -81,21 +81,17 @@ Websocket 通过首个 HTTP Request 建立 TCP 连接后(通讯双方须进行�
 
 
 
-
-
-那么websocket的缺点也很明显，它对开发者要求高了许多。对前端开发者，往往要具备数据驱动使用javascript的能力，且需要维持住ws连接（否则消息无法推送）；对后端开发者而言，难度增大了很多，一是长连接需要后端处理业务的代码更稳定（不要随便把进程和框架都crash掉），二是推送消息相对复杂一些，三是成熟的http生态下有大量的组件可以复用，websocket则太新了一点。
-
-
-
-
-
 ## 		2-2、缺点
 
 兼容问题(对旧式等不支持 websocket 的浏览器须作系列兼容处理)、宽带与耗电问题(ping/pong机制-已有相应优化)、可伸缩性较差、操作复杂：
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001127.png" style="zoom: 33%;" align=""  />
 
-​	如上图所示：普通连接实现较websocket简单，websocket则较复杂，上述图中的消息分发系统可能是 Kafaka、Redis、RMQ；
+如上图所示：普通连接实现较websocket简单，websocket则较复杂，上述图中的消息分发系统可能是 Kafaka、Redis、RMQ；
+
+缺点：对开发者要求高。对前端开发者，往往要具备数据驱动使用 JS 能力，且需要维持住 ws 连接(否则消息无法推送)；对后端开发者而言，难度增大了很多，一是长连接需要后端处理业务的代码更稳定(不要随便把进程和框架都 crash 掉)，二是推送消息相对复杂一些，三是成熟的 http 生态下有大量的组件可以复用，websocket 则太新了一点;
+
+
 
 
 
@@ -174,9 +170,9 @@ http 基于流，websocket 基于帧，其中帧格式如下图1所示、其中�
     // ...
     ```
     
-  - <u>Connection 设置 Upgrade，告知服务端，该 request 类型需要进行升级为 websocket；</u>
+  - <u>**Connection 设置 Upgrade，告知服务端，该 request 类型需要进行升级为 websocket；**</u>
 
-  - Sec-WebSocket-Key：通过规范中定义算法计算得出，用以验证对方 websocket 服务真伪(不安全，但可阻止websocket 请求误操作)；
+  - **<u>Sec-WebSocket-Key：通过规范中定义算法计算得出，用以验证对方 websocket 服务真伪(不安全，但可阻止websocket 请求误操作)；</u>**
 
   - Sec-WebSocket-Protocol：指定有限使用的 Websocket协议，可以是一个协议列表(list)；服务端在 response 中返回列表中支持的第一个值；
 
@@ -308,7 +304,9 @@ const body = JSON.parse(myBuf.slice(headend-headstart,bodylength).tostring())
 
 ## 		4-2、保持心跳
 
-心跳帧间隔**<u>可通过应用端 websocket 库的 heartbeat 设置</u>**，但除非涉及业务一般不做处理(监听、劫持)，心跳帧含有服务健康检查的功能，心跳帧可双向进行；
+心跳帧间隔**<u>可通过应用端 websocket 库的 heartbeat 设置</u>**
+
+但除非涉及业务一般不做处理(监听、劫持)，心跳帧含有服务健康检查的功能，心跳帧可双向进行；
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200908001138.png" style="zoom:50%;" align=""/>
 

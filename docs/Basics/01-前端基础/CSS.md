@@ -31,6 +31,22 @@
 - 盒子背景，由颜色、图像组成，可通过 background 引入，还可通过 background-clip 设置画布；
 - 盒子轮廓，outline 不属于盒模型一部分，在盒子的上面一层，ouline 是画在边界框之外，外边距区域之内；
 
+```js
+// 只能获取内联样式设置的宽高
+dom.style.width/height
+
+// 获取渲染后即使运行的宽高，只支持IE
+dom.currentStyle.width/height
+
+// 获取渲染后即时运行的宽高，兼容性很好
+dom.getComputedStyle.width/height
+
+// 获取渲染后即时运行的宽高，兼容性很好，一般用来获取元素的绝对位置
+dom.getBoundingClientRect().width/height
+```
+
+
+
 ### 2-1-X、display 补充
 
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200912151258.png" style="zoom:50%;" align=""/>
@@ -122,7 +138,8 @@ subbottom 设置 relative，z-index层级为>100
 **<u>*relative*</u>**：生成相对定位的元素，相对于其自身位置进行位移、占位、不改变原有 display 属性；
 
 - 注意：应用 relative / absolute 元素，margin属性仍有效、应避免如此使用，减少干扰因素；
-- <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200912173420.png" alt="截屏2020-09-12 下午5.34.13" style="zoom:50%;" align=""/>
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200912173420.png" alt="截屏2020-09-12 下午5.34.13" style="zoom:50%;" align=""/>
 
 - 应用 absolute 会忽略根元素 padding (很废我也知道)
 
@@ -135,7 +152,8 @@ subbottom 设置 relative，z-index层级为>100
 - 应用 absolute / relative 后，会覆盖其他非定位元素
 
 - - 可将 z-index 设置成-1解决；
-  - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200912173504.png" alt="截屏2020-09-12 下午5.34.58" style="zoom:50%;" align=""/>
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200912173504.png" alt="截屏2020-09-12 下午5.34.58" style="zoom:50%;" align=""/>
 
 **<u>*static*</u>**：默认值、正常流；
 
@@ -167,13 +185,29 @@ fixed 与 absolute 区别：前者固定为浏览器窗口，后者可设置相�
 
 ### 2-3-2、浮动特性
 
-破坏性：**<u>*浮动元素脱离普通流(引起高度塌陷)*</u>**，且 display 值变为 block ；
+破坏性：<u>**浮动元素脱离普通流(引起高度塌陷—一个块级元素如果没有设置高度，其高度是由子元素撑开的。如果对子元素设置了浮动，那么子元素就会脱离文档流，也就是说父元素没有内容可以撑开其高度，这样父级元素的高度就会被忽略)**</u>，且 display 值变为 block ；
 
 包裹性：**<u>体现在原本默认撑满行的 div 缩小至内容宽度</u>**；
 
 - 补充：只有横向浮动；浮动元素的前一元素不会受到任何影响，但后一元素会围绕着浮动元素
 - 补充：若 position: relative  同处 float，先浮动，再根据 position 的 left 等值移动，可清浮动，因为创建了BFC；
 - 补充：若 position: absolute 同处 float，float失效，也无法清浮动；
+
+重叠问题：
+
+*   行内元素与浮动元素发生重叠，其边框、背景和内容都会显示在浮动元素之上
+*   块级元素与浮动元素发生重叠时，边框和背景会显示在浮动元素之下，内容会显示在浮动元素之下
+
+浮动元素的展示在不同情况下会有不同的规则
+
+*   浮动元素在浮动的时候，其 margin 不会超过包含块的 padding
+*   如果两个元素一个向左浮动，一个向右浮动，左浮动元素的 margin-right 不会和右元素的 margin-left 相邻
+*   如果有多个浮动元素，浮动元素会按顺序排下来而不会发生重叠
+*   如果有多个浮动元素，后面的元素高度不会超过前面的元素，并且不会超过包含块
+*   如果有非浮动元素和浮动元素同时存在，并且非浮动元素在前，则浮动元素不会高于非浮动元素
+*   浮动元素会尽可能地向顶端对齐、向左或向右对齐
+
+
 
 
 
@@ -261,9 +295,9 @@ fixed 与 absolute 区别：前者固定为浏览器窗口，后者可设置相�
 
   - 注意：**<u>*clear：是对当前元素产生约束，约束的边界为其他的浮动元素，以避免其某一边有浮动元素*</u>**；已浮动的元素，设置 *clear* 是无效;
 
-    - <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200912151300.png" style="zoom:50%;" align=""/>
-
   - 注意：display:table 和 display:block区别：前者会创建一个匿名框，其创建 BFC 以闭合浮动；
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200912151300.png" style="zoom:50%;" align=""/>
 
 
 
@@ -273,9 +307,21 @@ fixed 与 absolute 区别：前者固定为浏览器窗口，后者可设置相�
 
 含义：Block Formatting Context—**<u>BFC 块级格式上下文、页面盒模型布局中的一种 CSS 渲染模式、隔离的渲染区域；</u>**
 
-特点：**<u>*相当于一个独立的容器，里面的元素和外部的元素相互不影响*</u>；**
+**<u>Box：CSS 布局的基本单位</u>**
 
-创建方式：
+Box 是 CSS 布局的对象和基本单位，直观来说，一个页面有很多个 Box 组成。元素的类型和 display 属性，决定了这个 box 类型；不同的 box，会参与不同的 Formatting Context(一个决定如何渲染文档的容器)，因此 box 内的元素会以不同的方式渲染；常见盒子：
+
+*   block-level box：display 属性为 block，list-item，table 元素，会生成 block-level box
+*   inline-level box：display 属性为 inline，inline-block，inline-table 的元素，会生成 inline-level box
+*   run-in box：css3 特有
+
+**<u>Formatting Context</u>**
+
+Formatting Context 是 W3C CSS2.1 规范中的一个概念；它是页面的一块渲染区域，且有一套渲染规则，决定了其子元素如何定位，以及和其他元素的关系和相互作用；常见的 Formatting Context 有 Block formatting context 和 Inline formatting context
+
+特点：**<u>相当于一个独立的容器，里面的元素和外部的元素相互不影响</u>；**
+
+创建：
 
 - 根元素
 - `float` !== `none`
@@ -300,13 +346,18 @@ fixed 与 absolute 区别：前者固定为浏览器窗口，后者可设置相�
 - 避免外边距重叠问题：防止同一 BFC 容器中的，相邻元素间的，外边距重叠问题 (上述特性1)
 - 防止父级，与第一个子级元素的 margin-top 重叠
 - 去除 float 文字环绕 (上述特性3)
+- 自适应两栏布局
 - 注意 - 创建 BFC 带来衍生问题：
   - position： 脱离文档流
   - float：包裹性，失去流体自适应性；
   - overflow:hidden：无法整站地，大规模地使用；
   - display:inline-block：元素尺寸包裹收缩 失去block水平的流动特性；
 
+
+
 <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200912151301.png" style="zoom:45%;" align=""/>
+
+
 
 
 
@@ -1048,7 +1099,8 @@ flex 值的其他表示意思：
 - 注意：Flex 容器每行宽度 = 所有子容器宽度 + 子容器左右 margin 值；
 - 故而：所有子容纳器宽度 = Flex 容器每行宽度 - 子容器左右 margin 值：400 - 2 * 50；
 - 一般：子容器宽度 = 所有子容器宽度 与 自身 flex-grow 值占总比重的乘积：
-- <img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200912151303.png" style="zoom:50%;" align=""/>
+
+<img src="https://leibnize-picbed.oss-cn-shenzhen.aliyuncs.com/img/20200912151303.png" style="zoom:50%;" align=""/>
 
 
 
@@ -1548,12 +1600,14 @@ iOS & Android 2个平台分别提出了pt（point）与 dp (device-independent p
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-sacle=1.0, maximum-scale=1.0, user-scalable=no" />
 ```
 
-
-
 移动端布局总结：
 
 1. 移动端布局的方式主要使用rem和flex，可以结合各自的优点，比如flex布局很灵活，但是字体的大小不好控制，我们可以使用rem和媒体查询控制字体的大小，媒体查询视口的大小，然后不同的上视口大小下设置设置html的font-size。
 2. 可单独制作移动端页面也可响应式pc端移动端共用一个页面。没有好坏，视情况而定，因势利导
+
+
+
+
 
 
 
@@ -1882,13 +1936,19 @@ steps(number, position)
 
 ### 2-X-2、link 与 @import
 
-`link` 功能较多，可以定义 RSS，定义 Rel 等作用，而`@import`只能用于加载 css
+- `link` 功能较多，可以定义 RSS，定义 Rel 等作用，而`@import`只能用于加载 css
 
-***当解析到 `link`时，页面会同步加载所引的 css，而 `@import` 所引用的 css 会等到页面加载完才被加载***
+- **当解析到 `link`时，页面会同步加载所引的 css，而 `@import` 所引用的 css 会等到页面加载完才被加载**
+- `@import` 需要 IE5 以上才能使用
 
-`@import` 需要 IE5 以上才能使用
+- `link` 可使用 js 动态引入，`@import`不行
 
-`link` 可使用 js 动态引入，`@import`不行
+*   link 是从 html 引入的，@import 是从 css 引入的
+*   link 会在浏览器加载页面是同步加载 css；页面加载完成后再加载 @import 的 css
+*   优先级 link > @import
+*   @import 是 css2.1 加入的语法，只有 IE5+ 才可识别，link 无兼容问题
+
+
 
 ### 2-X-3、CSS 单位
 
@@ -1907,6 +1967,89 @@ steps(number, position)
 - `ex 和 ch`：`ex` 以字符  `"x" ` 的高度为基准；`ch` 以数字 `"0"` 的宽度为基准；
   - 比如：`1ex` 表示和字符 `"x"` 一样长；
   - 比如：`2ch` 表示和2个数字`"0"`一样长；
+
+
+
+
+
+### 2-X-4、伪元素与伪类
+
+**<u>伪类：</u>**用于当已有元素处于某种状态时，为其添加对应的样式，这个状态是根据用户行为而动态变化；
+
+- 比如：hover、visited、link等；
+
+
+**<u>伪元素</u>**：用于创建一些不在文档树中的元素，并为其添加样式；
+
+- 比如：`:before ` 来为一个元素前增加一些文本，并为这些文本增加样式。用户虽然可以看到这些文本，但是这些文本实际并不在文档树中。
+
+
+**<u>两者区别</u>**
+
+- 有没有创建一个文档树之外的元素；伪类的操作对象时文档树中已有的元素，而伪元素则创建一个文档树以外的元素；
+
+- CSS3 规范中要求使用双冒号(::) 表示伪元素，单冒号(:) 表示伪类；
+
+
+
+
+
+
+### 2-X-5、1px 问题
+
+**<u>原因</u>**：由于不同手机有不同的像素密度，所以 CSS 中的 `1px` 并不等于移动设备的 `1px`；
+
+在 `window` 对象中有一个 `devicePixelRatio` 属性，它可以反映 CSS 中的像素和设备的像素比；
+
+devicePixelRatio 的官方定义：设备物理像素和设备独立像素的比例
+
+**<u>解决：</u>**
+
+<u>1、直接使用 0.5px 边框</u>
+
+WWWDC 对 IOS 的建议：直接使用 `0.5px` 边框；缺点：仅支持 IOS 8+，不支持安卓；
+
+<u>2、使用边框图片 border-image</u>：优点：可以设置单条、多条边框；缺点：修改颜色麻烦，圆角需要特殊处理
+
+```css
+.border-image-1px {
+  border: 1px solid transparent;
+  border-image: url('../img/border') 2 repeat;
+}
+```
+
+<u>3、使用 box-shadow 模拟</u>：优点：使用简单，圆角也能实现；缺点：边框有阴影，百分百过不了视觉走查
+
+```css
+.box-shadow-1px {
+  box-shadow: inset 0 -1px 1px -1px #e5e5e5;
+}
+```
+
+<u>4、伪类 + transform + 绝对定位实现</u>：优点：所有场景都能满足，支持圆角；缺点：伪类冲突
+
+```css
+.scale-1px {
+  position: relative;
+}
+
+.scale-1px::after {
+  content: ' ';
+  width: 100%;
+  height: `px; /* no */
+  background: #e5e5e5;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  transform: scaleY(0.5);
+}
+```
+
+
+
+
+
+
 
 
 
